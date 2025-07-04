@@ -1,5 +1,5 @@
 ---
-// Logo component with Android-style design
+// Logo component with Android-style design that matches the provided image
 export interface Props {
   size?: 'sm' | 'md' | 'lg';
   showText?: boolean;
@@ -20,36 +20,36 @@ const textSizeClasses = {
 };
 ---
 
-<div class="flex flex-col items-center space-y-1">
-  <!-- Android Head -->
+<div class="flex flex-col items-center space-y-2">
+  <!-- Android Robot Head -->
   <div class={`${sizeClasses[size]} relative flex items-center justify-center`}>
-    <!-- Android Robot Head -->
+    <!-- Android Robot Head SVG -->
     <svg 
       viewBox="0 0 100 100" 
       class="w-full h-full text-gray-900 dark:text-white"
       fill="currentColor"
       aria-hidden="true"
     >
-      <!-- Main head shape (half circle) -->
-      <path d="M20 50 Q20 20 50 20 Q80 20 80 50 L80 70 L20 70 Z" />
+      <!-- Main head shape (rounded rectangle/half circle) -->
+      <path d="M15 45 Q15 25 50 25 Q85 25 85 45 L85 75 Q85 85 75 85 L25 85 Q15 85 15 75 Z" />
       
       <!-- Left antenna -->
-      <line x1="35" y1="20" x2="30" y2="10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <line x1="30" y1="25" x2="25" y2="15" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
       
       <!-- Right antenna -->
-      <line x1="65" y1="20" x2="70" y2="10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <line x1="70" y1="25" x2="75" y2="15" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
       
       <!-- Left eye -->
-      <circle cx="40" cy="35" r="3" fill="white"/>
+      <circle cx="35" cy="45" r="4" fill="white"/>
       
       <!-- Right eye -->
-      <circle cx="60" cy="35" r="3" fill="white"/>
+      <circle cx="65" cy="45" r="4" fill="white"/>
     </svg>
   </div>
   
   <!-- DexAPK Text -->
   {showText && (
-    <span class={`${textSizeClasses[size]} font-bold text-gray-900 dark:text-white tracking-tight`}>
+    <span class={`${textSizeClasses[size]} font-bold text-gray-900 dark:text-white tracking-tight leading-none`}>
       DexAPK
     </span>
   )}
