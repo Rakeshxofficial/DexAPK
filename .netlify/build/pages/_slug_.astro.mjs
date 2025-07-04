@@ -1,0 +1,309 @@
+/* empty css                                  */
+import { e as createComponent, f as createAstro, u as unescapeHTML, l as renderScript, m as maybeRenderHead, h as addAttribute, r as renderTemplate, k as renderComponent } from '../chunks/astro/server_DeKgRGar.mjs';
+import 'kleur/colors';
+import { $ as $$Layout } from '../chunks/Layout_BXJnm_YX.mjs';
+import { $ as $$Header, a as $$Footer } from '../chunks/Footer_Bbf7CUr9.mjs';
+import 'clsx';
+/* empty css                                  */
+import { b as getRelatedApps, g as getAllApps } from '../chunks/supabase_F9LZmeZc.mjs';
+export { renderers } from '../renderers.mjs';
+
+const $$Astro$2 = createAstro();
+const $$MarkdownRenderer = createComponent(($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro$2, $$props, $$slots);
+  Astro2.self = $$MarkdownRenderer;
+  const { content, generateToc = true } = Astro2.props;
+  function parseMarkdown(markdown) {
+    if (!markdown) return { html: "", toc: [] };
+    const lines = markdown.split("\n");
+    const toc2 = [];
+    let html2 = "";
+    let inCodeBlock = false;
+    let inList = false;
+    let listType = "";
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i];
+      if (line.startsWith("```")) {
+        inCodeBlock = !inCodeBlock;
+        if (inCodeBlock) {
+          const language = line.slice(3).trim();
+          html2 += `<pre class="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 overflow-x-auto my-4"><code class="language-${language}">`;
+        } else {
+          html2 += "</code></pre>";
+        }
+        continue;
+      }
+      if (inCodeBlock) {
+        html2 += escapeHtml(line) + "\n";
+        continue;
+      }
+      const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const text = headingMatch[2];
+        const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        if (generateToc) {
+          toc2.push({ level, text, id });
+        }
+        html2 += `<h${level} id="${id}" class="text-${level === 1 ? "3xl" : level === 2 ? "2xl" : level === 3 ? "xl" : "lg"} font-bold text-gray-900 dark:text-white mb-4 mt-8">${text}</h${level}>`;
+        continue;
+      }
+      if (line.match(/^---+$/)) {
+        html2 += '<hr class="border-gray-200 dark:border-gray-700 my-8">';
+        continue;
+      }
+      const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.+)$/);
+      if (listMatch) {
+        const indent = listMatch[1].length;
+        const marker = listMatch[2];
+        const text = listMatch[3];
+        const isOrdered = /^\d+\./.test(marker);
+        if (!inList) {
+          inList = true;
+          listType = isOrdered ? "ol" : "ul";
+          html2 += `<${listType} class="${listType === "ol" ? "list-decimal" : "list-disc"} list-inside space-y-2 my-4 text-gray-700 dark:text-gray-300">`;
+        }
+        html2 += `<li class="ml-${Math.floor(indent / 2) * 4}">${formatInlineMarkdown(text)}</li>`;
+        continue;
+      } else if (inList) {
+        inList = false;
+        html2 += `</${listType}>`;
+      }
+      if (line.startsWith("> ")) {
+        html2 += `<blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-600 dark:text-gray-400 my-4">${formatInlineMarkdown(line.slice(2))}</blockquote>`;
+        continue;
+      }
+      if (line.includes("|")) {
+        const cells = line.split("|").map((cell) => cell.trim()).filter((cell) => cell);
+        if (cells.length > 1) {
+          const nextLine = lines[i + 1];
+          if (nextLine && nextLine.includes("---")) {
+            html2 += '<div class="overflow-x-auto my-6"><table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"><thead class="bg-gray-50 dark:bg-gray-800"><tr>';
+            cells.forEach((cell) => {
+              html2 += `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">${formatInlineMarkdown(cell)}</th>`;
+            });
+            html2 += '</tr></thead><tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">';
+            i++;
+          } else {
+            html2 += "<tr>";
+            cells.forEach((cell) => {
+              html2 += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatInlineMarkdown(cell)}</td>`;
+            });
+            html2 += "</tr>";
+          }
+          continue;
+        }
+      }
+      if (line.trim()) {
+        html2 += `<p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">${formatInlineMarkdown(line)}</p>`;
+      } else {
+        html2 += "<br>";
+      }
+    }
+    if (inList) {
+      html2 += `</${listType}>`;
+    }
+    if (html2.includes("<tbody") && !html2.includes("</tbody>")) {
+      html2 += "</tbody></table></div>";
+    }
+    return { html: html2, toc: toc2 };
+  }
+  function formatInlineMarkdown(text) {
+    return text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>').replace(/\*(.*?)\*/g, '<em class="italic">$1</em>').replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono">$1</code>').replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>').replace(/~~(.*?)~~/g, '<del class="line-through">$1</del>');
+  }
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  const { html, toc } = parseMarkdown(content);
+  return renderTemplate`${generateToc && toc.length > 0 && renderTemplate`${maybeRenderHead()}<div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8" data-astro-cid-ioosybgm><div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700" data-astro-cid-ioosybgm><h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center" data-astro-cid-ioosybgm><svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-ioosybgm><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" data-astro-cid-ioosybgm></path></svg>
+Table of Contents
+</h3></div><div class="px-6 py-4" data-astro-cid-ioosybgm><nav class="space-y-2" data-astro-cid-ioosybgm>${toc.map((item) => renderTemplate`<a${addAttribute(`#${item.id}`, "href")}${addAttribute(`block text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200 ${item.level === 1 ? "font-semibold" : item.level === 2 ? "ml-4" : item.level === 3 ? "ml-8" : "ml-12"}`, "class")} data-astro-cid-ioosybgm>${item.text}</a>`)}</nav></div></div>`}<div class="prose prose-gray dark:prose-invert max-w-none" data-astro-cid-ioosybgm> <div data-astro-cid-ioosybgm>${unescapeHTML(html)}</div> </div>  ${renderScript($$result, "/home/project/src/components/MarkdownRenderer.astro?astro&type=script&index=0&lang.ts")}`;
+}, "/home/project/src/components/MarkdownRenderer.astro", void 0);
+
+const $$Astro$1 = createAstro();
+const $$DynamicFAQ = createComponent(($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro$1, $$props, $$slots);
+  Astro2.self = $$DynamicFAQ;
+  const { app } = Astro2.props;
+  function generateDynamicFAQ(app2) {
+    const faqs = [];
+    faqs.push({
+      question: `Is this ${app2.name} MOD APK safe to use?`,
+      answer: `Yes, our ${app2.name} MOD APK is thoroughly tested and scanned for malware. It's completely safe to install and use on your Android device.`
+    });
+    faqs.push({
+      question: "Do I need to root my device?",
+      answer: `No, this ${app2.name} MOD APK works on both rooted and non-rooted devices. No root access is required for installation or usage.`
+    });
+    if (app2.category === "Games") {
+      faqs.push({
+        question: "Will I get unlimited resources?",
+        answer: `Yes, this MOD version of ${app2.name} provides unlimited coins, gems, and other in-game resources to enhance your gaming experience.`
+      });
+      faqs.push({
+        question: "Are all levels unlocked?",
+        answer: `Absolutely! All levels, characters, and premium content are unlocked from the start in this ${app2.name} MOD APK.`
+      });
+    }
+    if (app2.category === "Music" || app2.category === "Video" || app2.category === "Entertainment") {
+      faqs.push({
+        question: "Is the premium subscription included?",
+        answer: `Yes, this ${app2.name} MOD APK includes all premium subscription features unlocked, giving you access to ad-free content and exclusive features.`
+      });
+      faqs.push({
+        question: "Can I download content for offline viewing?",
+        answer: `Yes, the MOD version allows you to download and save content for offline access, even without a premium subscription.`
+      });
+    }
+    if (app2.category === "Productivity" || app2.category === "Photography") {
+      faqs.push({
+        question: "Are all premium features unlocked?",
+        answer: `Yes, all premium tools, filters, and advanced features are unlocked in this ${app2.name} MOD APK without any subscription required.`
+      });
+      faqs.push({
+        question: "Will there be watermarks on my work?",
+        answer: `No, this MOD version removes all watermarks, allowing you to create and export professional content without any branding.`
+      });
+    }
+    if (app2.category === "Social") {
+      faqs.push({
+        question: "Can I access premium features for free?",
+        answer: `Yes, this ${app2.name} MOD APK unlocks all premium social features, enhanced privacy options, and advanced customization tools.`
+      });
+    }
+    faqs.push({
+      question: "Will I receive automatic updates?",
+      answer: `You'll need to manually download and install updates from our website when new versions of ${app2.name} MOD APK are available.`
+    });
+    faqs.push({
+      question: `What's new in version ${app2.version}?`,
+      answer: `Version ${app2.version} includes enhanced performance, improved stability, bug fixes, and new premium features. Check the changelog above for detailed information.`
+    });
+    if (parseInt(app2.size) > 100) {
+      faqs.push({
+        question: "Why is the file size large?",
+        answer: `The ${app2.size} size includes all premium features, high-quality assets, and additional content that's normally downloaded separately in the original app.`
+      });
+    }
+    faqs.push({
+      question: `Is my device compatible with ${app2.name}?`,
+      answer: `This MOD APK requires ${app2.requirements}. Most modern Android devices should be compatible with this version.`
+    });
+    return faqs;
+  }
+  const dynamicFAQs = generateDynamicFAQ(app);
+  return renderTemplate`${maybeRenderHead()}<div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700" data-astro-cid-sap5l3js> <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center" data-astro-cid-sap5l3js> <svg class="w-6 h-6 mr-3 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-sap5l3js> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" data-astro-cid-sap5l3js></path> </svg>
+Frequently Asked Questions
+</h2> <div class="space-y-6" data-astro-cid-sap5l3js> ${dynamicFAQs.map((faq, index) => renderTemplate`<details class="group border-l-4 border-blue-500 pl-4 transition-all duration-200 hover:border-blue-600" data-astro-cid-sap5l3js> <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors duration-200" data-astro-cid-sap5l3js> <span data-astro-cid-sap5l3js>${faq.question}</span> <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-sap5l3js> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-sap5l3js></path> </svg> </summary> <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed" data-astro-cid-sap5l3js> ${faq.answer} </div> </details>`)} </div> </div> `;
+}, "/home/project/src/components/DynamicFAQ.astro", void 0);
+
+const $$Astro = createAstro();
+const prerender = true;
+async function getStaticPaths() {
+  try {
+    const apps = await getAllApps();
+    return apps.map((app) => ({
+      params: { slug: app.slug },
+      props: { app }
+    }));
+  } catch (error) {
+    console.error("Error generating static paths:", error);
+    return [];
+  }
+}
+const $$slug = createComponent(async ($$result, $$props, $$slots) => {
+  const Astro2 = $$result.createAstro($$Astro, $$props, $$slots);
+  Astro2.self = $$slug;
+  const { slug } = Astro2.params;
+  const { app } = Astro2.props;
+  if (!app) {
+    return new Response(null, {
+      status: 404,
+      statusText: "Not found"
+    });
+  }
+  let relatedApps = [];
+  try {
+    relatedApps = await getRelatedApps(app.slug, app.category, 4);
+  } catch (error) {
+    console.error("Error loading related apps:", error);
+  }
+  const seoTitle = app.seo_title || `${app.name} v${app.version} MOD APK - Premium Features Unlocked | DexAPK`;
+  const seoDescription = app.seo_description || `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 100)}...`;
+  const seoKeywords = app.seo_keywords || `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
+  const seoFeaturedImage = app.seo_featured_image || app.icon || "/favicon.svg";
+  const canonicalUrl = app.seo_canonical_url || `https://dexapk.com/${app.slug}`;
+  const seoData = {
+    title: seoTitle,
+    description: seoDescription,
+    keywords: seoKeywords,
+    canonicalUrl,
+    featuredImage: seoFeaturedImage,
+    appName: app.name,
+    appVersion: app.version,
+    appCategory: app.category,
+    appRating: app.rating,
+    appVotes: app.votes,
+    appPublisher: app.publisher,
+    appSize: app.size,
+    lastUpdated: app.last_updated,
+    type: "product"
+  };
+  const defaultArticleContent = `# Introduction
+
+${app.description}
+
+The main objective of this exceptional application package (APK) is to enhance the quality of your experience with ${app.name}. One possible solution could be to enable individuals to establish unique and captivating interactions with their favorite apps, thereby unlocking unexplored opportunities.
+
+You can be reassured that it incorporates supplementary characteristics that will enhance your overall user experience. The ${app.name} MOD APK provides users with premium features that are typically locked behind a paywall in the official version.
+
+## Key Features
+
+${app.features && app.features.length > 0 ? app.features.map((feature) => `- ${feature}`).join("\n") : "- Premium features unlocked\n- Enhanced user experience\n- No limitations"}
+
+## What's New in v${app.version}
+
+- Enhanced performance and stability
+- Improved user interface
+- Bug fixes and optimizations
+- New premium features added
+- Better compatibility with latest Android versions
+
+## Installation Guide
+
+1. **Download the APK** - Click the download button above to get the ${app.name} MOD APK file.
+2. **Enable Unknown Sources** - Go to Settings > Security > Unknown Sources and enable it.
+3. **Install the APK** - Locate the downloaded file and tap to install.
+4. **Enjoy Premium Features** - Open the app and enjoy all premium features unlocked!
+
+## Conclusion
+
+${app.name} MOD APK offers an exceptional experience with all premium features unlocked for free. Whether you're looking for enhanced functionality, ad-free experience, or premium content access, this app provides everything you need without any limitations. Download now and experience the full potential of ${app.name} on your Android device.`;
+  const articleContent = app.article_content || defaultArticleContent;
+  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "seoData": seoData, "data-astro-cid-yvbahnfj": true }, { "default": async ($$result2) => renderTemplate` ${renderComponent($$result2, "Header", $$Header, { "data-astro-cid-yvbahnfj": true })} ${maybeRenderHead()}<main class="min-h-screen bg-gray-50 dark:bg-gray-900" data-astro-cid-yvbahnfj> <!-- Breadcrumbs --> <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb" data-astro-cid-yvbahnfj> <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-astro-cid-yvbahnfj> <ol class="flex items-center space-x-2 py-4 text-sm" role="list" data-astro-cid-yvbahnfj> <li data-astro-cid-yvbahnfj> <a href="/" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" aria-label="Go to homepage" data-astro-cid-yvbahnfj> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true" data-astro-cid-yvbahnfj> <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" data-astro-cid-yvbahnfj></path> </svg> <span class="sr-only" data-astro-cid-yvbahnfj>Home</span> </a> </li> <li class="flex items-center" data-astro-cid-yvbahnfj> <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true" data-astro-cid-yvbahnfj> <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" data-astro-cid-yvbahnfj></path> </svg> <a href="/apps" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] ml-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-astro-cid-yvbahnfj>
+Apps
+</a> </li> <li class="flex items-center" data-astro-cid-yvbahnfj> <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true" data-astro-cid-yvbahnfj> <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" data-astro-cid-yvbahnfj></path> </svg> <a${addAttribute(`/categories/${app.category.toLowerCase()}`, "href")} class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] ml-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" data-astro-cid-yvbahnfj> ${app.category} </a> </li> <li class="flex items-center" data-astro-cid-yvbahnfj> <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true" data-astro-cid-yvbahnfj> <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" data-astro-cid-yvbahnfj></path> </svg> <span class="ml-2 font-medium text-gray-900 dark:text-white" aria-current="page" data-astro-cid-yvbahnfj>${app.name}</span> </li> </ol> </div> </nav> <!-- App Header --> <section class="bg-white dark:bg-gray-800 py-8 sm:py-12" data-astro-cid-yvbahnfj> <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" data-astro-cid-yvbahnfj> <div class="text-center" data-astro-cid-yvbahnfj> <!-- App Icon --> <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-white dark:bg-gray-700 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden" data-astro-cid-yvbahnfj> ${app.icon ? renderTemplate`<img${addAttribute(app.icon, "src")}${addAttribute(`${app.name} icon`, "alt")} class="w-full h-full object-cover rounded-3xl" loading="eager" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" data-astro-cid-yvbahnfj>
+              <div class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-500 hidden items-center justify-center" data-astro-cid-yvbahnfj> <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" data-astro-cid-yvbahnfj></path> </svg> </div>` : renderTemplate`<svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" data-astro-cid-yvbahnfj></path> </svg>`} </div> <!-- App Title --> <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4" data-astro-cid-yvbahnfj> ${app.name} v${app.version} MOD APK
+</h1> <p class="text-xl text-gray-600 dark:text-gray-400 mb-6" data-astro-cid-yvbahnfj>
+[Premium Unlocked] for Android
+</p> <!-- App Meta --> <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-600 dark:text-gray-400 mb-8" data-astro-cid-yvbahnfj> <div class="flex items-center gap-1" data-astro-cid-yvbahnfj> <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" data-astro-cid-yvbahnfj></path> </svg> <span data-astro-cid-yvbahnfj>v${app.version}</span> </div> <div class="flex items-center gap-1" data-astro-cid-yvbahnfj> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" data-astro-cid-yvbahnfj> <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" data-astro-cid-yvbahnfj></path> <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" data-astro-cid-yvbahnfj></path> </svg> <span data-astro-cid-yvbahnfj>${app.last_updated}</span> </div> </div> <!-- Rating --> <div class="flex items-center justify-center mb-8" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> ${[1, 2, 3, 4, 5].map((star) => renderTemplate`<svg${addAttribute(`w-5 h-5 ${star <= Math.floor(app.rating) ? "text-yellow-400" : "text-gray-300"}`, "class")} fill="currentColor" viewBox="0 0 20 20" data-astro-cid-yvbahnfj> <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" data-astro-cid-yvbahnfj></path> </svg>`)} </div> <span class="ml-3 text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj> ${app.rating} (${app.votes.toLocaleString()} votes)
+</span> </div> <!-- Download Button --> <a${addAttribute(app.download_url || "#", "href")} class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"${addAttribute(`Download ${app.name} v${app.version} MOD APK`, "aria-label")} data-astro-cid-yvbahnfj> <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" data-astro-cid-yvbahnfj></path> </svg>
+Download
+</a> </div> </div> </section> <!-- App Details --> <section class="py-8 sm:py-12" data-astro-cid-yvbahnfj> <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" data-astro-cid-yvbahnfj> <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" data-astro-cid-yvbahnfj> <!-- Main Content --> <div class="lg:col-span-2 space-y-8" data-astro-cid-yvbahnfj> <!-- App Info Cards --> <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" data-astro-cid-yvbahnfj> <!-- Version --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center mr-4" data-astro-cid-yvbahnfj> <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" data-astro-cid-yvbahnfj></path> </svg> </div> <div data-astro-cid-yvbahnfj> <p class="text-sm text-gray-600 dark:text-gray-400" data-astro-cid-yvbahnfj>Version</p> <p class="text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj>v${app.version}</p> </div> </div> </div> <!-- Last Updated --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center mr-4" data-astro-cid-yvbahnfj> <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" data-astro-cid-yvbahnfj></path> </svg> </div> <div data-astro-cid-yvbahnfj> <p class="text-sm text-gray-600 dark:text-gray-400" data-astro-cid-yvbahnfj>Last Updated</p> <p class="text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj>${app.last_updated}</p> </div> </div> </div> <!-- Publisher --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-xl flex items-center justify-center mr-4" data-astro-cid-yvbahnfj> <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" data-astro-cid-yvbahnfj></path> </svg> </div> <div data-astro-cid-yvbahnfj> <p class="text-sm text-gray-600 dark:text-gray-400" data-astro-cid-yvbahnfj>Publisher</p> <p class="text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj>${app.publisher}</p> </div> </div> </div> <!-- Requirements --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-xl flex items-center justify-center mr-4" data-astro-cid-yvbahnfj> <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" data-astro-cid-yvbahnfj></path> </svg> </div> <div data-astro-cid-yvbahnfj> <p class="text-sm text-gray-600 dark:text-gray-400" data-astro-cid-yvbahnfj>Requirements</p> <p class="text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj>${app.requirements}</p> </div> </div> </div> <!-- Category --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center mr-4" data-astro-cid-yvbahnfj> <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" data-astro-cid-yvbahnfj></path> </svg> </div> <div data-astro-cid-yvbahnfj> <p class="text-sm text-gray-600 dark:text-gray-400" data-astro-cid-yvbahnfj>Category</p> <p class="text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj>${app.category}</p> </div> </div> </div> <!-- Size --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mr-4" data-astro-cid-yvbahnfj> <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" data-astro-cid-yvbahnfj></path> </svg> </div> <div data-astro-cid-yvbahnfj> <p class="text-sm text-gray-600 dark:text-gray-400" data-astro-cid-yvbahnfj>Size</p> <p class="text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj>${app.size}</p> </div> </div> </div> </div> <!-- Screenshots --> ${app.screenshots && app.screenshots.length > 0 && renderTemplate`<div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6" data-astro-cid-yvbahnfj>Screenshots</h2> <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" data-astro-cid-yvbahnfj> ${app.screenshots.map((screenshot, index) => renderTemplate`<div class="aspect-[9/16] bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden" data-astro-cid-yvbahnfj> <img${addAttribute(screenshot, "src")}${addAttribute(`${app.name} screenshot ${index + 1}`, "alt")} class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" data-astro-cid-yvbahnfj> </div>`)} </div> </div>`} <!-- MOD Info --> ${app.mod_info && app.mod_info.length > 0 && renderTemplate`<details class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden" data-astro-cid-yvbahnfj> <summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200" data-astro-cid-yvbahnfj> <div class="flex items-center" data-astro-cid-yvbahnfj> <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mr-3" data-astro-cid-yvbahnfj> <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20" data-astro-cid-yvbahnfj> <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" data-astro-cid-yvbahnfj></path> </svg> </div> <h3 class="text-lg font-semibold text-gray-900 dark:text-white" data-astro-cid-yvbahnfj>MOD Info?</h3> </div> <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-yvbahnfj></path> </svg> </summary> <div class="px-6 pb-6" data-astro-cid-yvbahnfj> <ul class="space-y-2" data-astro-cid-yvbahnfj> ${app.mod_info.map((info) => renderTemplate`<li class="flex items-center text-gray-700 dark:text-gray-300" data-astro-cid-yvbahnfj> <svg class="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" data-astro-cid-yvbahnfj> <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" data-astro-cid-yvbahnfj></path> </svg> ${info} </li>`)} </ul> </div> </details>`} <!-- Article Content --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> ${renderComponent($$result2, "MarkdownRenderer", $$MarkdownRenderer, { "content": articleContent, "generateToc": true, "data-astro-cid-yvbahnfj": true })} </div> <!-- Dynamic FAQ --> ${renderComponent($$result2, "DynamicFAQ", $$DynamicFAQ, { "app": app, "data-astro-cid-yvbahnfj": true })} </div> <!-- Sidebar --> <div class="lg:col-span-1" data-astro-cid-yvbahnfj> <div class="sticky top-8 space-y-6" data-astro-cid-yvbahnfj> <!-- Related Apps --> <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700" data-astro-cid-yvbahnfj> <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4" data-astro-cid-yvbahnfj>Related Posts</h3> ${relatedApps.length > 0 ? renderTemplate`<div class="space-y-4" data-astro-cid-yvbahnfj> ${relatedApps.map((relatedApp) => renderTemplate`<a${addAttribute(`/${relatedApp.slug}`, "href")} class="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200" data-astro-cid-yvbahnfj> <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3 flex-shrink-0" data-astro-cid-yvbahnfj> ${relatedApp.icon ? renderTemplate`<img${addAttribute(relatedApp.icon, "src")}${addAttribute(relatedApp.name, "alt")} class="w-full h-full object-cover rounded-xl" data-astro-cid-yvbahnfj>` : renderTemplate`<svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" data-astro-cid-yvbahnfj> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" data-astro-cid-yvbahnfj></path> </svg>`} </div> <div class="flex-1 min-w-0" data-astro-cid-yvbahnfj> <p class="text-sm font-medium text-gray-900 dark:text-white truncate" data-astro-cid-yvbahnfj>${relatedApp.name}</p> <p class="text-xs text-gray-500 dark:text-gray-400" data-astro-cid-yvbahnfj>${relatedApp.category}</p> </div> </a>`)} </div>` : renderTemplate`<p class="text-gray-500 dark:text-gray-400 text-center py-4" data-astro-cid-yvbahnfj>No related apps found</p>`} </div> </div> </div> </div> </div> </section> </main> ${renderComponent($$result2, "Footer", $$Footer, { "data-astro-cid-yvbahnfj": true })} ` })} `;
+}, "/home/project/src/pages/[slug].astro", void 0);
+
+const $$file = "/home/project/src/pages/[slug].astro";
+const $$url = "/[slug]";
+
+const _page = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: $$slug,
+  file: $$file,
+  getStaticPaths,
+  prerender,
+  url: $$url
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const page = () => _page;
+
+export { page };
