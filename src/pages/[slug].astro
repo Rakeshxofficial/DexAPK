@@ -4,6 +4,8 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MarkdownRenderer from '../components/MarkdownRenderer.astro';
+import DynamicFAQ from '../components/DynamicFAQ.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -62,6 +64,40 @@ const seoData = {
   lastUpdated: app.last_updated,
   type: 'product'
 };
+
+// Default article content if none provided
+const defaultArticleContent = `# Introduction
+
+${app.description}
+
+The main objective of this exceptional application package (APK) is to enhance the quality of your experience with ${app.name}. One possible solution could be to enable individuals to establish unique and captivating interactions with their favorite apps, thereby unlocking unexplored opportunities.
+
+You can be reassured that it incorporates supplementary characteristics that will enhance your overall user experience. The ${app.name} MOD APK provides users with premium features that are typically locked behind a paywall in the official version.
+
+## Key Features
+
+${app.features && app.features.length > 0 ? app.features.map(feature => `- ${feature}`).join('\n') : '- Premium features unlocked\n- Enhanced user experience\n- No limitations'}
+
+## What's New in v${app.version}
+
+- Enhanced performance and stability
+- Improved user interface
+- Bug fixes and optimizations
+- New premium features added
+- Better compatibility with latest Android versions
+
+## Installation Guide
+
+1. **Download the APK** - Click the download button above to get the ${app.name} MOD APK file.
+2. **Enable Unknown Sources** - Go to Settings > Security > Unknown Sources and enable it.
+3. **Install the APK** - Locate the downloaded file and tap to install.
+4. **Enjoy Premium Features** - Open the app and enjoy all premium features unlocked!
+
+## Conclusion
+
+${app.name} MOD APK offers an exceptional experience with all premium features unlocked for free. Whether you're looking for enhanced functionality, ad-free experience, or premium content access, this app provides everything you need without any limitations. Download now and experience the full potential of ${app.name} on your Android device.`;
+
+const articleContent = app.article_content || defaultArticleContent;
 ---
 
 <Layout seoData={seoData}>
@@ -342,151 +378,13 @@ const seoData = {
               </details>
             )}
 
-            <!-- Table of Contents -->
-            <details class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Table of Contents</h3>
-                <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-              </summary>
-              <div class="px-6 pb-6">
-                <ul class="space-y-2 text-blue-600 dark:text-blue-400">
-                  <li><a href="#introduction" class="hover:underline">Introduction</a></li>
-                  <li><a href="#key-features" class="hover:underline">Key Features</a></li>
-                  <li><a href="#whats-new" class="hover:underline">What's New in v{app.version}</a></li>
-                  <li><a href="#installation" class="hover:underline">Installation Guide</a></li>
-                  <li><a href="#faq" class="hover:underline">Frequently Asked Questions</a></li>
-                  <li><a href="#conclusion" class="hover:underline">Conclusion</a></li>
-                </ul>
-              </div>
-            </details>
-
-            <!-- Introduction -->
-            <div id="introduction" class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Introduction</h2>
-              <div class="prose prose-gray dark:prose-invert max-w-none">
-                <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                  {app.description}
-                </p>
-                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  The main objective of this exceptional application package (APK) is to enhance the quality of your experience with {app.name}. One possible solution could be to enable individuals to establish unique and captivating interactions with their favorite apps, thereby unlocking unexplored opportunities.
-                </p>
-                <p class="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-                  You can be reassured that it incorporates supplementary characteristics that will enhance your overall user experience. The {app.name} MOD APK provides users with premium features that are typically locked behind a paywall in the official version.
-                </p>
-              </div>
+            <!-- Article Content -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <MarkdownRenderer content={articleContent} generateToc={true} />
             </div>
 
-            <!-- Key Features -->
-            {app.features && app.features.length > 0 && (
-              <div id="key-features" class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Key Features</h2>
-                <ul class="space-y-3">
-                  {app.features.map(feature => (
-                    <li class="flex items-center text-gray-700 dark:text-gray-300">
-                      <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                      </svg>
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <!-- What's New -->
-            <div id="whats-new" class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">What's New in v{app.version}</h2>
-              <ul class="space-y-3 text-gray-700 dark:text-gray-300">
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Enhanced performance and stability
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Improved user interface
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Bug fixes and optimizations
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  New premium features added
-                </li>
-                <li class="flex items-start">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  Better compatibility with latest Android versions
-                </li>
-              </ul>
-            </div>
-
-            <!-- Installation Guide -->
-            <div id="installation" class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Installation Guide</h2>
-              <div class="space-y-4">
-                <div class="flex items-start">
-                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">1</div>
-                  <div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Download the APK</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Click the download button above to get the {app.name} MOD APK file.</p>
-                  </div>
-                </div>
-                <div class="flex items-start">
-                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">2</div>
-                  <div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Enable Unknown Sources</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Go to Settings > Security > Unknown Sources and enable it.</p>
-                  </div>
-                </div>
-                <div class="flex items-start">
-                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">3</div>
-                  <div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Install the APK</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Locate the downloaded file and tap to install.</p>
-                  </div>
-                </div>
-                <div class="flex items-start">
-                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">4</div>
-                  <div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Enjoy Premium Features</h3>
-                    <p class="text-gray-600 dark:text-gray-400">Open the app and enjoy all premium features unlocked!</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- FAQ -->
-            <div id="faq" class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h2>
-              <div class="space-y-6">
-                
-                <div class="border-l-4 border-blue-500 pl-4">
-                  <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Is this MOD APK safe to use?</h3>
-                  <p class="text-gray-600 dark:text-gray-400">Yes, our MOD APK is thoroughly tested and scanned for malware. It's completely safe to install and use.</p>
-                </div>
-
-                <div class="border-l-4 border-blue-500 pl-4">
-                  <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Do I need to root my device?</h3>
-                  <p class="text-gray-600 dark:text-gray-400">No, this MOD APK works on both rooted and non-rooted devices. No root access is required.</p>
-                </div>
-
-                <div class="border-l-4 border-blue-500 pl-4">
-                  <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Will I receive automatic updates?</h3>
-                  <p class="text-gray-600 dark:text-gray-400">You'll need to manually download and install updates from our website when new versions are available.</p>
-                </div>
-
-              </div>
-            </div>
-
-            <!-- Conclusion -->
-            <div id="conclusion" class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-              <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Conclusion</h2>
-              <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
-                {app.name} MOD APK offers an exceptional experience with all premium features unlocked for free. Whether you're looking for enhanced functionality, ad-free experience, or premium content access, this app provides everything you need without any limitations. Download now and experience the full potential of {app.name} on your Android device.
-              </p>
-            </div>
+            <!-- Dynamic FAQ -->
+            <DynamicFAQ app={app} />
 
           </div>
 

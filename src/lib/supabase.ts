@@ -193,7 +193,7 @@ export async function createApp(appData: any) {
   try {
     console.log('Creating app with data:', appData);
     
-    // Ensure all SEO fields are included
+    // Ensure all fields including article_content are included
     const completeAppData = {
       ...appData,
       // Ensure SEO fields are properly set (null if empty string)
@@ -201,7 +201,9 @@ export async function createApp(appData: any) {
       seo_description: appData.seo_description || null,
       seo_featured_image: appData.seo_featured_image || null,
       seo_keywords: appData.seo_keywords || null,
-      seo_canonical_url: appData.seo_canonical_url || null
+      seo_canonical_url: appData.seo_canonical_url || null,
+      // Ensure article content is included
+      article_content: appData.article_content || null
     };
     
     const { data, error } = await supabase
@@ -242,7 +244,7 @@ export async function updateApp(slug: string, updates: any) {
 
     console.log('Existing app found:', existingApp);
 
-    // Ensure all SEO fields are included in the update
+    // Ensure all fields including article_content are included in the update
     const completeUpdates = {
       ...updates,
       // Ensure SEO fields are properly set (null if empty string)
@@ -251,11 +253,13 @@ export async function updateApp(slug: string, updates: any) {
       seo_featured_image: updates.seo_featured_image || null,
       seo_keywords: updates.seo_keywords || null,
       seo_canonical_url: updates.seo_canonical_url || null,
+      // Ensure article content is included
+      article_content: updates.article_content || null,
       // Update the updated_at timestamp
       updated_at: new Date().toISOString()
     };
 
-    console.log('Complete update data with SEO fields:', completeUpdates);
+    console.log('Complete update data with all fields:', completeUpdates);
 
     // Perform the update
     const { data, error } = await supabase

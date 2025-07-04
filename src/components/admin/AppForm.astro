@@ -319,6 +319,81 @@ const isEdit = mode === 'edit';
       </div>
     </div>
 
+    <!-- Article Content -->
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Article Content
+      </h3>
+      
+      <div>
+        <label for="article_content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Article Content (Markdown)
+        </label>
+        <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">Markdown Support:</h4>
+          <div class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+            <p><strong>Headings:</strong> # H1, ## H2, ### H3</p>
+            <p><strong>Text:</strong> **bold**, *italic*, `code`, ~~strikethrough~~</p>
+            <p><strong>Lists:</strong> - item or 1. item</p>
+            <p><strong>Links:</strong> [text](url)</p>
+            <p><strong>Tables:</strong> | Column 1 | Column 2 |</p>
+            <p><strong>Code blocks:</strong> ```language</p>
+            <p><strong>Quotes:</strong> > quote text</p>
+          </div>
+        </div>
+        <textarea
+          id="article_content"
+          name="article_content"
+          rows="20"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200 font-mono text-sm"
+          placeholder="# Introduction
+
+Write your article content here using Markdown syntax...
+
+## Key Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Installation Guide
+
+1. Download the APK
+2. Enable unknown sources
+3. Install the app
+
+## Conclusion
+
+Your conclusion here..."
+        >{app?.article_content || ''}</textarea>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Write your article content using Markdown syntax. This will replace the hard-coded content on the app details page.
+        </p>
+      </div>
+
+      <!-- Article Preview -->
+      <div>
+        <button
+          type="button"
+          id="preview-article"
+          class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Preview Article
+        </button>
+        <div id="article-preview" class="hidden mt-4 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Article Preview:</h4>
+          <div id="preview-content" class="prose prose-gray dark:prose-invert max-w-none"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- SEO Settings -->
     <div class="space-y-6">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
@@ -527,6 +602,7 @@ const isEdit = mode === 'edit';
     const form = document.getElementById('app-form');
     const submitBtn = document.getElementById('submit-btn');
     const previewBtn = document.getElementById('preview-btn');
+    const previewArticleBtn = document.getElementById('preview-article');
     const loadingOverlay = document.getElementById('loading-overlay');
     const toast = document.getElementById('toast');
     const toastMessage = document.getElementById('toast-message');
@@ -549,6 +625,44 @@ const isEdit = mode === 'edit';
         slugInput.value = slug;
       }
     });
+
+    // Article preview functionality
+    previewArticleBtn.addEventListener('click', function() {
+      const content = document.getElementById('article_content').value;
+      const preview = document.getElementById('article-preview');
+      const previewContent = document.getElementById('preview-content');
+      
+      if (content.trim()) {
+        // Simple markdown to HTML conversion for preview
+        const html = parseMarkdownPreview(content);
+        previewContent.innerHTML = html;
+        preview.classList.remove('hidden');
+      } else {
+        alert('Please enter some article content to preview.');
+      }
+    });
+
+    // Simple markdown parser for preview
+    function parseMarkdownPreview(markdown) {
+      return markdown
+        // Headers
+        .replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold mb-4">$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mb-4">$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
+        // Bold
+        .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+        // Italic
+        .replace(/\*(.*)\*/gim, '<em>$1</em>')
+        // Code
+        .replace(/`(.*?)`/gim, '<code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">$1</code>')
+        // Links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" class="text-blue-600 hover:underline">$1</a>')
+        // Lists
+        .replace(/^\* (.*$)/gim, '<li class="ml-4">• $1</li>')
+        .replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>')
+        // Line breaks
+        .replace(/\n/gim, '<br>');
+    }
 
     // Form submission
     form.addEventListener('submit', async function(e) {
@@ -585,6 +699,8 @@ const isEdit = mode === 'edit';
           screenshots: screenshotsText ? screenshotsText.split('\n').filter(f => f.trim()) : [],
           is_featured: formData.has('is_featured'),
           is_active: formData.has('is_active'),
+          // Article content
+          article_content: formData.get('article_content') || '',
           // SEO fields
           seo_title: formData.get('seo_title') || null,
           seo_description: formData.get('seo_description') || null,
