@@ -1,0 +1,272 @@
+import { createClient } from '@supabase/supabase-js';
+
+// Get environment variables - prioritize runtime environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Validate environment variables and create client
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase environment variables:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    url: supabaseUrl ? 'Set' : 'Missing',
+    key: supabaseAnonKey ? 'Set' : 'Missing'
+  });
+}
+
+// Always create the real Supabase client, even if env vars are empty
+// This allows the client to work when env vars are available at runtime
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseAnonKey || 'placeholder-key'
+);
+
+// App-related database functions
+export async function getAllApps() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching apps:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAllApps:', error);
+    return [];
+  }
+}
+
+export async function getFeaturedApps(limit = 10) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true)
+      .eq('is_featured', true)
+      .order('rating', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching featured apps:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getFeaturedApps:', error);
+    return [];
+  }
+}
+
+export async function getAppBySlug(slug: string) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_active', true)
+      .single();
+
+    if (error) {
+      console.error('Supabase error fetching app by slug:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getAppBySlug:', error);
+    return null;
+  }
+}
+
+export async function getAppsByCategory(category: string, limit = 20) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true)
+      .eq('category', category)
+      .order('rating', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching apps by category:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAppsByCategory:', error);
+    return [];
+  }
+}
+
+export async function getRelatedApps(currentSlug: string, category: string, limit = 4) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true)
+      .eq('category', category)
+      .neq('slug', currentSlug)
+      .order('rating', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching related apps:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getRelatedApps:', error);
+    return [];
+  }
+}
+
+export async function searchApps(query: string, limit = 20) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true)
+      .or(`name.ilike.%${query}%, description.ilike.%${query}%, category.ilike.%${query}%`)
+      .order('rating', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error searching apps:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in searchApps:', error);
+    return [];
+  }
+}
+
+// Admin functions (require authentication)
+export async function createApp(appData: any) {
+  try {
+    console.log('Creating app with data:', appData);
+    
+    const { data, error } = await supabase
+      .from('apps')
+      .insert([appData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error creating app:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('App created successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in createApp:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function updateApp(slug: string, updates: any) {
+  try {
+    console.log('Updating app with slug:', slug);
+    console.log('Update data:', updates);
+    
+    // First, check if the app exists
+    const { data: existingApp, error: fetchError } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching existing app:', fetchError);
+      return { success: false, error: `App not found: ${fetchError.message}` };
+    }
+
+    console.log('Existing app found:', existingApp);
+
+    // Perform the update
+    const { data, error } = await supabase
+      .from('apps')
+      .update(updates)
+      .eq('slug', slug)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error updating app:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('App updated successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in updateApp:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function deleteApp(slug: string) {
+  try {
+    const { error } = await supabase
+      .from('apps')
+      .delete()
+      .eq('slug', slug);
+
+    if (error) {
+      console.error('Supabase error deleting app:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error in deleteApp:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}

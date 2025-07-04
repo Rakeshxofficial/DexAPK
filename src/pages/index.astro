@@ -1,0 +1,18 @@
+---
+export const prerender = true; // Prerender the homepage for better performance
+
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import FeaturedApps from '../components/FeaturedApps.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="DexAPK - Fast & Secure APK Downloads">
+  <Header />
+  <main>
+    <Hero />
+    <FeaturedApps />
+  </main>
+  <Footer />
+</Layout>
