@@ -5,31 +5,18 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Redirect all admin routes to handle client-side routing
-[[redirects]]
-  from = "/admin/*"
-  to = "/admin/index.html"
-  status = 200
-
-# Explicitly handle trailing slashes - redirect them to non-trailing slash versions
-[[redirects]]
-  from = "/*/"
-  to = "/:splat"
-  status = 301
-  force = true
-
-# Handle app detail pages
-[[redirects]]
-  from = "/:slug"
-  to = "/:slug/index.html"
-  status = 200
-  force = false
-
-# Handle 404s
+# Disable trailing slash handling completely
 [[redirects]]
   from = "/*"
   to = "/404.html"
   status = 404
+  force = false
+
+# Handle admin routes to handle client-side routing
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
 
 # Security headers
 [[headers]]

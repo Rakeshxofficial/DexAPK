@@ -8,7 +8,7 @@ export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
   adapter: netlify({
-    // Disable trailing slashes
+    // Disable trailing slashes completely
     trailingSlash: 'never'
   }),
   compressHTML: true,
