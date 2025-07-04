@@ -5,19 +5,18 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# Prevent trailing slash redirects
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
-  conditions = {Role = ["admin"]}
-
 # Redirect all admin routes to handle client-side routing
 [[redirects]]
   from = "/admin/*"
   to = "/admin/index.html"
   status = 200
+
+# Handle app detail pages to prevent trailing slash redirects
+[[redirects]]
+  from = "/:slug"
+  to = "/:slug/index.html"
+  status = 200
+  force = false
 
 # Handle 404s
 [[redirects]]
@@ -50,14 +49,6 @@
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-# Disable trailing slash handling
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[plugins.inputs]
-  # Disable trailing slash redirects
-  trailingSlash = false
 
 # Environment variables (these will be set in Netlify dashboard)
 # VITE_SUPABASE_URL = "your_supabase_url"
