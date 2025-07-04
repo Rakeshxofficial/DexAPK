@@ -1,0 +1,59 @@
+{
+  "name": "DexAPK - MOD APK Downloads",
+  "short_name": "DexAPK",
+  "description": "Download the latest Android APK files safely and quickly. DexAPK provides secure APK downloads with fast loading times.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search APKs",
+      "short_name": "Search",
+      "description": "Search for MOD APKs",
+      "url": "/search",
+      "icons": [
+        {
+          "src": "/web-app-manifest-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Trending APKs",
+      "short_name": "Trending",
+      "description": "View trending MOD APKs",
+      "url": "/trending",
+      "icons": [
+        {
+          "src": "/web-app-manifest-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "categories": ["utilities", "productivity"]
+}
