@@ -34,14 +34,15 @@ const finalDescription = seoData?.description || description;
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- Google tag (gtag.js) - Defer loading -->
-    <script type="text/javascript">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SBX87GMGRB"></script>
+    <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
+
       gtag('config', 'G-SBX87GMGRB');
     </script>
-    <script async defer src="https://www.googletagmanager.com/gtag/js?id=G-SBX87GMGRB"></script>
     
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -119,15 +120,7 @@ const finalDescription = seoData?.description || description;
     <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
-    <!-- Preload critical fonts -->
-    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/inter/v12/UcC73FwrK3iLTeHuS_fvQtMwCp50KnMa1ZL7.woff2" crossorigin />
-    
-    <!-- Load fonts asynchronously -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    </noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     
     <!-- DNS Prefetch for better performance -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
