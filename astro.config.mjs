@@ -7,10 +7,7 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
-  adapter: netlify({
-    // Explicitly disable trailing slashes
-    trailingSlash: 'never'
-  }),
+  adapter: netlify(),
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',
@@ -22,6 +19,4 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
   },
-  // Explicitly set trailingSlash to 'never' at the root level as well
-  trailingSlash: 'never',
 });
