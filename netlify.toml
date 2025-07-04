@@ -11,19 +11,12 @@
   to = "/admin/index.html"
   status = 200
 
-# Handle app detail pages to prevent trailing slash redirects
+# Handle app detail pages
 [[redirects]]
   from = "/:slug"
   to = "/:slug/index.html"
   status = 200
   force = false
-
-# Redirect to remove trailing slashes
-[[redirects]]
-  from = "/*/"
-  to = "/:splat"
-  status = 301
-  force = true
 
 # Handle 404s
 [[redirects]]
@@ -60,8 +53,3 @@
 # Environment variables (these will be set in Netlify dashboard)
 # VITE_SUPABASE_URL = "your_supabase_url"
 # VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key"
-
-# Explicitly disable trailing slashes
-[trailing_slash]
-  policy = "never"
-  force = true
