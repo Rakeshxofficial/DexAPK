@@ -289,13 +289,32 @@ export async function updateApp(slug: string, updates: any) {
 export async function deleteApp(slug: string) {
   try {
     console.log('Attempting to delete app with slug:', slug);
-    
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
       return { success: false, error: 'Supabase credentials not available' };
     }
-    
+
+    // First, verify the app exists
+    const { data: existingApp, error: fetchError } = await supabase
+      .from('apps')
+      .select('id')
+      .eq('slug', slug)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching app before deletion:', fetchError);
+      return { success: false, error: `App not found: ${fetchError.message}` };
+    }
+
+    if (!existingApp) {
+      console.error('App not found for deletion:', slug);
+      return { success: false, error: 'App not found' };
+    }
+
+    console.log('Found app to delete:', existingApp.id);
+
     // Perform the deletion
     const { error } = await supabase
       .from('apps')
@@ -306,7 +325,7 @@ export async function deleteApp(slug: string) {
       console.error('Supabase error deleting app with slug', slug, ':', error);
       return { success: false, error: error.message };
     }
-    
+
     console.log('App deleted successfully:', slug);
     return { success: true };
   } catch (error) {
