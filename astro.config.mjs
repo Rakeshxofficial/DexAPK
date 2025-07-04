@@ -7,7 +7,10 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
-  adapter: netlify(),
+  adapter: netlify({
+    // Disable trailing slashes
+    trailingSlash: 'never'
+  }),
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',

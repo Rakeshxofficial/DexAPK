@@ -5,18 +5,19 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# Prevent trailing slash redirects
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+  conditions = {Role = ["admin"]}
+
 # Redirect all admin routes to handle client-side routing
 [[redirects]]
   from = "/admin/*"
   to = "/admin/index.html"
   status = 200
-
-# Redirect all app detail pages to handle dynamic routing
-[[redirects]]
-  from = "/:slug"
-  to = "/:slug/index.html"
-  status = 200
-  conditions = {Role = ["admin"], Country = ["!US"]}
 
 # Handle 404s
 [[redirects]]
@@ -32,7 +33,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com;"
 
 # Cache static assets
 [[headers]]
@@ -49,6 +50,14 @@
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Disable trailing slash handling
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[plugins.inputs]
+  # Disable trailing slash redirects
+  trailingSlash = false
 
 # Environment variables (these will be set in Netlify dashboard)
 # VITE_SUPABASE_URL = "your_supabase_url"
