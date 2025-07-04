@@ -1,5 +1,6 @@
 ---
-// Footer component
+// Footer component with Android logo
+import Logo from './Logo.astro';
 ---
 
 <footer class="bg-gray-900 dark:bg-gray-950 text-white">
@@ -8,13 +9,8 @@
       
       <!-- Brand -->
       <div class="col-span-1 md:col-span-2">
-        <div class="flex items-center space-x-2 mb-4">
-          <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <span class="text-xl font-bold">DexAPK</span>
+        <div class="flex items-center space-x-4 mb-4">
+          <Logo size="lg" showText={true} />
         </div>
         <p class="text-gray-400 mb-4 max-w-md">
           Your trusted source for safe and secure APK downloads. We provide verified Android applications with fast download speeds and regular updates.
