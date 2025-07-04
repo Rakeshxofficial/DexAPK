@@ -1,1029 +1,397 @@
 ---
-export const prerender = true; // Prerender app detail pages
+export const prerender = true;
 
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import SEOHead from '../components/SEOHead.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 export async function getStaticPaths() {
   try {
     const apps = await getAllApps();
     return apps.map(app => ({
-      params: { slug: app.slug }
+      params: { slug: app.slug },
+      props: { app }
     }));
   } catch (error) {
     console.error('Error generating static paths:', error);
-    // Return empty array if database is not available
     return [];
   }
 }
 
-// Get the app data for the current slug
 const { slug } = Astro.params;
-let app = null;
-let relatedApps = [];
-
-try {
-  app = await getAppBySlug(slug);
-  if (app) {
-    relatedApps = await getRelatedApps(slug, app.category, 4);
-  }
-} catch (error) {
-  console.error('Error fetching app data:', error);
-}
+const { app } = Astro.props;
 
 // If app not found, return 404
 if (!app) {
-  return Astro.redirect('/404');
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
 }
 
-const title = `${app.name} v${app.version} MOD APK [Premium Unlocked] for Android`;
-const description = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description}`;
+// Get related apps
+let relatedApps = [];
+try {
+  relatedApps = await getRelatedApps(app.slug, app.category, 4);
+} catch (error) {
+  console.error('Error loading related apps:', error);
+}
+
+// SEO data with fallbacks
+const seoTitle = app.seo_title || `${app.name} MOD APK v${app.version} - Premium Features Unlocked`;
+const seoDescription = app.seo_description || `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 100)}...`;
+const seoImage = app.seo_featured_image || app.icon || '/favicon.svg';
+const seoKeywords = app.seo_keywords || `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
+const canonicalUrl = app.seo_canonical_url || `${Astro.site}${app.slug}`;
+
+// Format dates for structured data
+const publishedTime = new Date(app.created_at).toISOString();
+const modifiedTime = new Date(app.updated_at).toISOString();
 ---
 
-<Layout title={title} description={description}>
+<Layout>
+  <SEOHead 
+    slot="head"
+    title={seoTitle}
+    description={seoDescription}
+    canonical={canonicalUrl}
+    image={seoImage}
+    imageAlt={`${app.name} MOD APK icon`}
+    keywords={seoKeywords}
+    type="article"
+    publishedTime={publishedTime}
+    modifiedTime={modifiedTime}
+    author="DexAPK Team"
+    siteName="DexAPK"
+    twitterHandle="@dexapk"
+  />
+  
   <Header />
   
-  <main class="bg-gray-50 dark:bg-gray-900 min-h-screen">
-    <!-- Breadcrumb -->
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
+    <!-- Breadcrumbs with Schema.org markup -->
     <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ol class="flex items-center space-x-2 py-4 text-sm text-gray-500 dark:text-gray-400">
-          <li>
-            <a href="/" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-              Home
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ol class="flex items-center space-x-2 py-4 text-sm" role="list" itemscope itemtype="https://schema.org/BreadcrumbList">
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="/" itemprop="item" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+              <span itemprop="name">Home</span>
+              <meta itemprop="position" content="1" />
             </a>
           </li>
-          <li>
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <li class="flex items-center">
+            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
             </svg>
           </li>
-          <li>
-            <a href="/apps" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-              Apps
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href={`/categories/${app.category.toLowerCase()}`} itemprop="item" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+              <span itemprop="name">{app.category}</span>
+              <meta itemprop="position" content="2" />
             </a>
           </li>
-          <li>
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <li class="flex items-center">
+            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
             </svg>
           </li>
-          <li>
-            <span class="text-gray-900 dark:text-white font-medium">{app.category}</span>
-          </li>
-          <li>
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-          </li>
-          <li class="text-gray-900 dark:text-white font-medium truncate">
-            {app.name}
+          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span itemprop="name" class="font-medium text-gray-900 dark:text-white">{app.name}</span>
+            <meta itemprop="position" content="3" />
           </li>
         </ol>
       </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      
-      <!-- App Header Section -->
-      <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 mb-8">
-        <div class="flex flex-col items-center text-center">
-          <!-- App Icon -->
-          <div class="w-32 h-32 bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500 rounded-3xl flex items-center justify-center mb-6 shadow-lg overflow-hidden">
-            {app.icon ? (
-              <img 
-                src={app.icon} 
-                alt={`${app.name} icon`}
-                class="w-full h-full object-cover rounded-3xl"
-                loading="lazy"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-              />
-              <svg class="w-20 h-20 text-gray-800 dark:text-gray-200 hidden" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.078 6.078 0 0 0 6.525 2.9 5.991 5.991 0 0 0 4.306 1.83c.969 0 1.904-.233 2.78-.681a6.001 6.001 0 0 0 3.913-2.9 6.065 6.065 0 0 0-.743-7.097zM12 15.31c-1.827 0-3.31-1.483-3.31-3.31s1.483-3.31 3.31-3.31 3.31 1.483 3.31 3.31-1.483 3.31-3.31 3.31z"/>
-              </svg>
-            ) : (
-              <svg class="w-20 h-20 text-gray-800 dark:text-gray-200" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.078 6.078 0 0 0 6.525 2.9 5.991 5.991 0 0 0 4.306 1.83c.969 0 1.904-.233 2.78-.681a6.001 6.001 0 0 0 3.913-2.9 6.065 6.065 0 0 0-.743-7.097zM12 15.31c-1.827 0-3.31-1.483-3.31-3.31s1.483-3.31 3.31-3.31 3.31 1.483 3.31 3.31-1.483 3.31-3.31 3.31z"/>
-              </svg>
-            )}
-          </div>
+    <!-- App Details Section with Schema.org markup -->
+    <section class="py-8 sm:py-12" itemscope itemtype="https://schema.org/SoftwareApplication">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl overflow-hidden">
           
-          <!-- App Title -->
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-3 leading-tight">
-            {app.name} v{app.version} MOD APK
-          </h1>
-          <p class="text-xl text-gray-600 dark:text-gray-300 mb-6 font-medium">
-            [Premium Unlocked] for Android
-          </p>
-          
-          <!-- App Meta Info -->
-          <div class="flex flex-wrap items-center justify-center gap-6 text-gray-600 dark:text-gray-400 mb-8">
-            <div class="flex items-center gap-2">
-              <span class="text-lg font-medium">v{app.version}</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-              <span>{app.last_updated}</span>
-            </div>
-          </div>
-          
-          <!-- Rating -->
-          <div class="flex items-center gap-3 mb-8">
-            <div class="flex items-center">
-              {[1,2,3,4,5].map((star) => (
-                <svg class={`w-6 h-6 ${star <= Math.floor(app.rating) ? 'text-yellow-400' : star === Math.ceil(app.rating) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                </svg>
-              ))}
-            </div>
-            <span class="text-lg font-semibold text-gray-900 dark:text-white">
-              {app.rating} ({app.votes.toLocaleString()} votes)
-            </span>
-          </div>
-          
-          <!-- Download Button -->
-          <a 
-            href={app.download_url}
-            class="inline-flex items-center justify-center px-12 py-4 bg-black dark:bg-white text-white dark:text-black font-bold text-lg rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-            aria-label={`Download ${app.name} MOD APK`}
-          >
-            <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-            </svg>
-            Download
-          </a>
-        </div>
-      </div>
-
-      <!-- Two Column Layout -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Main Content -->
-        <div class="lg:col-span-2 space-y-8">
-          
-          <!-- App Information Grid -->
-          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <!-- App Header -->
+          <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 sm:px-8 py-8 sm:py-12">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-2xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m0 0V3a1 1 0 011 1v1M7 4V3a1 1 0 011-1h8a1 1 0 011 1v1m-9 4h10M8 21h8a2 2 0 002-2V7a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              <!-- App Icon -->
+              <div class="w-24 h-24 sm:w-32 sm:h-32 bg-white/10 backdrop-blur-sm rounded-3xl flex items-center justify-center overflow-hidden">
+                {app.icon ? (
+                  <img 
+                    src={app.icon} 
+                    alt={`${app.name} icon`}
+                    itemprop="image"
+                    class="w-full h-full object-cover rounded-3xl"
+                    loading="eager"
+                  />
+                ) : (
+                  <svg class="w-16 h-16 sm:w-20 sm:h-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                   </svg>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">App Name</p>
-                  <p class="font-bold text-gray-900 dark:text-white text-lg">{app.name}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-2xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Version</p>
-                  <p class="font-bold text-gray-900 dark:text-white text-lg">v{app.version}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-2xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Last Updated</p>
-                  <p class="font-bold text-gray-900 dark:text-white text-lg">{app.last_updated}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-2xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Publisher</p>
-                  <p class="font-bold text-gray-900 dark:text-white text-lg">{app.publisher}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-2xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Requirements</p>
-                  <p class="font-bold text-gray-900 dark:text-white text-lg">{app.requirements}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-2xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Category</p>
-                  <p class="font-bold text-gray-900 dark:text-white text-lg">{app.category}</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center">
-                  <svg class="w-6 h-6 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Size</p>
-                  <p class="font-bold text-gray-900 dark:text-white text-lg">{app.size}</p>
-                </div>
+                )}
               </div>
 
+              <!-- App Info -->
+              <div class="flex-1 text-center sm:text-left">
+                <h1 itemprop="name" class="text-3xl sm:text-4xl font-bold text-white mb-2">
+                  {app.name}
+                </h1>
+                <p class="text-xl text-blue-100 mb-4">
+                  v{app.version} MOD APK
+                </p>
+                <p itemprop="description" class="text-blue-100 mb-6 max-w-2xl">
+                  [Premium Unlocked] for Android
+                </p>
+                
+                <!-- App Stats -->
+                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6 text-blue-100">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    <span itemprop="aggregateRating" itemscope itemtype="https://schema.org/AggregateRating">
+                      <span itemprop="ratingValue">{app.rating}</span>
+                      <meta itemprop="bestRating" content="5" />
+                      <meta itemprop="worstRating" content="1" />
+                      <meta itemprop="ratingCount" content={app.votes} />
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                    </svg>
+                    <span>{app.votes.toLocaleString()} downloads</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>{app.last_updated}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Enhanced Screenshots Section -->
-          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Screenshots</h2>
-            
-            {app.screenshots && app.screenshots.length > 0 ? (
-              <div class="relative">
-                <!-- Screenshot Slider Container -->
-                <div class="relative overflow-hidden rounded-2xl">
-                  <div id="screenshot-slider" class="flex transition-transform duration-300 ease-in-out">
-                    {app.screenshots.map((screenshot, index) => (
-                      <div class="flex-shrink-0 w-full sm:w-1/2 lg:w-1/3 px-2">
-                        <div 
-                          class="bg-gray-100 dark:bg-gray-700 rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group"
-                          onclick={`openScreenshotModal(${index})`}
-                        >
-                          <img 
-                            src={screenshot} 
-                            alt={`${app.name} screenshot ${index + 1}`}
-                            class="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                            onerror="handleImageError(this)"
-                          />
-                          <!-- Overlay on hover -->
-                          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <div class="bg-white/90 dark:bg-gray-800/90 rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                              <svg class="w-6 h-6 text-gray-800 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                              </svg>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+          <!-- App Details Grid -->
+          <div class="p-6 sm:p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              
+              <!-- Main Content -->
+              <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Quick Info -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white" itemprop="softwareVersion">v{app.version}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Version</div>
+                  </div>
+                  <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{app.size}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Size</div>
+                  </div>
+                  <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white" itemprop="applicationCategory">{app.category}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Category</div>
+                  </div>
+                  <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-gray-900 dark:text-white">{app.price}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Price</div>
                   </div>
                 </div>
 
-                <!-- Navigation Buttons -->
-                {app.screenshots.length > 3 && (
-                  <div class="flex items-center justify-between mt-6">
-                    <button 
-                      id="prev-btn"
-                      class="flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onclick="previousSlide()"
-                    >
-                      <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                      </svg>
-                    </button>
+                <!-- Description -->
+                <div>
+                  <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">About {app.name}</h2>
+                  <div class="prose prose-gray dark:prose-invert max-w-none">
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                      {app.description}
+                    </p>
+                  </div>
+                </div>
 
-                    <!-- Slide Indicators -->
-                    <div class="flex space-x-2" id="slide-indicators">
-                      <!-- Indicators will be generated by JavaScript -->
+                <!-- MOD Features -->
+                {app.mod_info && app.mod_info.length > 0 && (
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">🔥 MOD Features</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {app.mod_info.map((feature, index) => (
+                        <div key={index} class="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                          <svg class="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                          </svg>
+                          <span class="text-gray-900 dark:text-white font-medium">{feature}</span>
+                        </div>
+                      ))}
                     </div>
-
-                    <button 
-                      id="next-btn"
-                      class="flex items-center justify-center w-12 h-12 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-full shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onclick="nextSlide()"
-                    >
-                      <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                      </svg>
-                    </button>
                   </div>
                 )}
 
-                <!-- Thumbnail Navigation -->
-                <div class="flex space-x-2 mt-4 overflow-x-auto pb-2">
-                  {app.screenshots.map((screenshot, index) => (
-                    <button 
-                      class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 transition-colors duration-200 screenshot-thumb"
-                      onclick={`goToSlide(${index})`}
-                      data-index={index}
-                    >
-                      <img 
-                        src={screenshot} 
-                        alt={`Thumbnail ${index + 1}`}
-                        class="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <!-- Fallback screenshots -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 rounded-2xl p-6 text-center">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-4 text-lg">Find creative inspiration.</h4>
-                  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-                    <div class="text-xs text-gray-600 dark:text-gray-400 text-left space-y-2">
-                      <p>I need help with getting started on writing a short story. Can you give me some ideas?</p>
-                      <p class="font-medium">Sure thing, RJ! Here are a few short story ideas to spark your creativity:</p>
-                      <p>1. <strong>The Forgotten City:</strong> A group of friends stumbles upon an ancient, hidden city while hiking...</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-2xl p-6 text-center">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-4 text-lg">Chat in voice mode.</h4>
-                  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-                    <div class="text-center">
-                      <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Choose a voice</p>
-                      <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full mx-auto mb-2"></div>
-                      <p class="text-sm font-medium text-gray-900 dark:text-white">Vale</p>
-                      <p class="text-xs text-gray-500 dark:text-gray-400">Bright and inquisitive</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-2xl p-6 text-center sm:col-span-2 lg:col-span-1">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-4 text-lg">Get answers fast.</h4>
-                  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm">
-                    <div class="text-xs text-gray-600 dark:text-gray-400 text-left space-y-2">
-                      <p>Just say what you want to learn about and I'll help you understand it better.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <!-- Foldable Sections -->
-          
-          <!-- MOD Info -->
-          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <button 
-              class="w-full px-8 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-              onclick="toggleSection('mod-info')"
-              aria-expanded="false"
-              aria-controls="mod-info-content"
-            >
-              <div class="flex items-center gap-4">
-                <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-xl flex items-center justify-center">
-                  <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">MOD Info?</h2>
-              </div>
-              <svg class="w-6 h-6 text-gray-400 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="mod-info-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-            <div id="mod-info-content" class="hidden px-8 pb-8">
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <ul class="space-y-4">
-                  {app.mod_info.map((info) => (
-                    <li class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                      <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                      </svg>
-                      <span class="text-base">{info}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Table of Contents -->
-          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <button 
-              class="w-full px-8 py-6 flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-              onclick="toggleSection('toc')"
-              aria-expanded="false"
-              aria-controls="toc-content"
-            >
-              <h2 class="text-xl font-bold text-gray-900 dark:text-white">Table of Contents</h2>
-              <svg class="w-6 h-6 text-gray-400 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="toc-icon">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-            <div id="toc-content" class="hidden px-8 pb-8">
-              <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-                <nav aria-label="Table of contents">
-                  <ol class="space-y-3 text-base">
-                    <li><a href="#introduction" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">1. Introduction</a></li>
-                    <li><a href="#features" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">2. Key Features</a></li>
-                    <li><a href="#installation" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">3. Installation Guide</a></li>
-                    <li><a href="#system-requirements" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">4. System Requirements</a></li>
-                    <li><a href="#changelog" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">5. What's New</a></li>
-                    <li><a href="#faq" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">6. Frequently Asked Questions</a></li>
-                    <li><a href="#conclusion" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">7. Conclusion</a></li>
-                  </ol>
-                </nav>
-              </div>
-            </div>
-          </div>
-
-          <!-- Article Content -->
-          <article class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            
-            <section id="introduction" class="mb-12">
-              <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Introduction</h2>
-              <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 text-lg">
-                {app.description}
-              </p>
-              <p class="text-gray-700 dark:text-gray-300 leading-relaxed mb-6 text-lg">
-                The main objective of this exceptional application package (APK) is to enhance the quality of your experience with {app.name}. One possible solution could be to enable individuals to establish unique and captivating interactions with their favorite apps, thereby unlocking unexplored opportunities.
-              </p>
-              <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-                You can be reassured that it incorporates supplementary characteristics that will enhance your overall user experience. The {app.name} MOD APK provides users with premium features that are typically locked behind a paywall in the official version.
-              </p>
-            </section>
-
-            <section id="features" class="mb-12">
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Key Features</h3>
-              <ul class="space-y-4">
-                {app.features.map((feature) => (
-                  <li class="flex items-start gap-4">
-                    <svg class="w-6 h-6 text-green-500 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="text-gray-700 dark:text-gray-300 text-lg">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            <section id="installation" class="mb-12">
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Installation Guide</h3>
-              <div class="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 mb-6">
-                <div class="flex items-start gap-4">
-                  <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                  </svg>
+                <!-- App Features -->
+                {app.features && app.features.length > 0 && (
                   <div>
-                    <h4 class="font-bold text-blue-900 dark:text-blue-100 mb-2 text-lg">Important Note</h4>
-                    <p class="text-blue-800 dark:text-blue-200">Make sure to enable "Unknown Sources" in your device settings before installing the APK file.</p>
-                  </div>
-                </div>
-              </div>
-              <ol class="space-y-4 list-decimal list-inside text-gray-700 dark:text-gray-300 text-lg">
-                <li>Download the {app.name} MOD APK file from the link above</li>
-                <li>Go to Settings > Security > Unknown Sources and enable it</li>
-                <li>Locate the downloaded APK file in your file manager</li>
-                <li>Tap on the APK file to start the installation process</li>
-                <li>Follow the on-screen instructions to complete the installation</li>
-                <li>Launch the app and enjoy premium features for free</li>
-              </ol>
-            </section>
-
-            <section id="system-requirements" class="mb-12">
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">System Requirements</h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-4 text-lg">Minimum Requirements</h4>
-                  <ul class="space-y-2 text-gray-700 dark:text-gray-300">
-                    <li>• {app.requirements}</li>
-                    <li>• 2GB RAM</li>
-                    <li>• 100MB free storage</li>
-                    <li>• Internet connection</li>
-                  </ul>
-                </div>
-                <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-4 text-lg">Recommended</h4>
-                  <ul class="space-y-2 text-gray-700 dark:text-gray-300">
-                    <li>• Android 8.0 or higher</li>
-                    <li>• 4GB RAM</li>
-                    <li>• 200MB free storage</li>
-                    <li>• Stable Wi-Fi connection</li>
-                  </ul>
-                </div>
-              </div>
-            </section>
-
-            <section id="changelog" class="mb-12">
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">What's New in v{app.version}</h3>
-              <ul class="space-y-3 text-gray-700 dark:text-gray-300 text-lg">
-                <li>• Enhanced performance and stability</li>
-                <li>• Improved user interface</li>
-                <li>• Bug fixes and optimizations</li>
-                <li>• New premium features added</li>
-                <li>• Better compatibility with latest Android versions</li>
-              </ul>
-            </section>
-
-            <section id="faq" class="mb-12">
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Frequently Asked Questions</h3>
-              <div class="space-y-6">
-                <div class="border-l-4 border-blue-500 pl-6">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-lg">Is this MOD APK safe to use?</h4>
-                  <p class="text-gray-700 dark:text-gray-300">Yes, our MOD APK is thoroughly tested and scanned for malware. It's completely safe to install and use.</p>
-                </div>
-                <div class="border-l-4 border-blue-500 pl-6">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-lg">Do I need to root my device?</h4>
-                  <p class="text-gray-700 dark:text-gray-300">No, this MOD APK works on both rooted and non-rooted devices without any issues.</p>
-                </div>
-                <div class="border-l-4 border-blue-500 pl-6">
-                  <h4 class="font-bold text-gray-900 dark:text-white mb-2 text-lg">Will I get updates automatically?</h4>
-                  <p class="text-gray-700 dark:text-gray-300">You'll need to manually download and install updates from our website when new versions are available.</p>
-                </div>
-              </div>
-            </section>
-
-            <section id="conclusion">
-              <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Conclusion</h3>
-              <p class="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-                {app.name} MOD APK offers an exceptional experience with all premium features unlocked for free. Whether you're looking for enhanced functionality, ad-free experience, or premium content access, this app provides everything you need without any limitations. Download now and experience the full potential of {app.name} on your Android device.
-              </p>
-            </section>
-
-          </article>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="lg:col-span-1 space-y-8">
-          
-          <!-- Related Posts -->
-          <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Related Posts</h2>
-            <div class="space-y-6">
-              
-              {relatedApps.length > 0 ? relatedApps.map((relatedApp) => (
-                <a href={`/${relatedApp.slug}`} class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
-                  <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden">
-                    {relatedApp.icon ? (
-                      <img 
-                        src={relatedApp.icon} 
-                        alt={`${relatedApp.name} icon`}
-                        class="w-full h-full object-cover rounded-2xl"
-                        loading="lazy"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                      />
-                      <svg class="w-8 h-8 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
-                      </svg>
-                    ) : (
-                      <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
-                      </svg>
-                    )}
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-bold text-gray-900 dark:text-white text-sm mb-1">{relatedApp.name}</h3>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{relatedApp.category}</p>
-                    <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                      <span>v{relatedApp.version}</span>
-                      <span class="text-green-600 dark:text-green-400 font-medium">Premium Unlocked</span>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">✨ Features</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {app.features.map((feature, index) => (
+                        <div key={index} class="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                          <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                          </svg>
+                          <span class="text-gray-900 dark:text-white font-medium">{feature}</span>
+                        </div>
+                      ))}
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Size: {relatedApp.size}</p>
                   </div>
-                  <div class="flex flex-col items-center gap-1">
-                    <span class="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs font-medium px-2 py-1 rounded-full">UPDATED</span>
-                    <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">MOD</span>
+                )}
+
+                <!-- Screenshots -->
+                {app.screenshots && app.screenshots.length > 0 && (
+                  <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">📱 Screenshots</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {app.screenshots.map((screenshot, index) => (
+                        <div key={index} class="aspect-[9/16] bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden">
+                          <img 
+                            src={screenshot} 
+                            alt={`${app.name} screenshot ${index + 1}`}
+                            class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            loading="lazy"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <!-- Sidebar -->
+              <div class="space-y-6">
+                
+                <!-- Download Card -->
+                <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl p-6 text-white text-center">
+                  <h3 class="text-xl font-bold mb-4">Download Now</h3>
+                  <a 
+                    href={app.download_url || '#'}
+                    class="block w-full bg-white text-gray-900 font-bold py-4 px-6 rounded-xl hover:bg-gray-100 transition-colors duration-200 mb-4"
+                    itemprop="downloadUrl"
+                  >
+                    <svg class="w-6 h-6 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                    </svg>
+                    Download APK
+                  </a>
+                  <p class="text-sm text-blue-100">
+                    Safe & Secure • No Malware • Fast Download
+                  </p>
+                </div>
+
+                <!-- App Info -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6">
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">App Information</h3>
+                  <div class="space-y-3">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-400">Publisher</span>
+                      <span class="font-medium text-gray-900 dark:text-white" itemprop="author">{app.publisher}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-400">Requirements</span>
+                      <span class="font-medium text-gray-900 dark:text-white" itemprop="operatingSystem">{app.requirements}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-400">Platform</span>
+                      <span class="font-medium text-gray-900 dark:text-white">{app.platform}</span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600 dark:text-gray-400">Last Updated</span>
+                      <span class="font-medium text-gray-900 dark:text-white">
+                        <time itemprop="dateModified" datetime={modifiedTime}>
+                          {app.last_updated}
+                        </time>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Rating Card -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6 text-center">
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">User Rating</h3>
+                  <div class="text-4xl font-bold text-gray-900 dark:text-white mb-2">{app.rating}</div>
+                  <div class="flex justify-center mb-2">
+                    {[1,2,3,4,5].map(star => (
+                      <svg key={star} class={`w-5 h-5 ${star <= Math.floor(app.rating) ? 'text-yellow-400' : 'text-gray-300'}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                    ))}
+                  </div>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Based on {app.votes.toLocaleString()} reviews
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Related Apps -->
+    {relatedApps.length > 0 && (
+      <section class="py-8 sm:py-12 bg-white dark:bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
+            More {app.category} Apps
+          </h2>
+          <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {relatedApps.map(relatedApp => (
+              <article class="group bg-white dark:bg-gray-700 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-600">
+                <a href={`/${relatedApp.slug}`} class="block">
+                  <div class="relative h-32 sm:h-40 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/90 rounded-2xl flex items-center justify-center overflow-hidden">
+                      {relatedApp.icon ? (
+                        <img 
+                          src={relatedApp.icon} 
+                          alt={`${relatedApp.name} icon`}
+                          class="w-full h-full object-cover rounded-2xl"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <div class="p-3">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                      {relatedApp.name}
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{relatedApp.category}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <div class="flex items-center gap-1">
+                        <svg class="w-3 h-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                        <span>{relatedApp.rating}</span>
+                      </div>
+                      <span>{relatedApp.size}</span>
+                    </div>
                   </div>
                 </a>
-              )) : (
-                <div class="text-center py-8">
-                  <p class="text-gray-500 dark:text-gray-400">No related apps found</p>
-                </div>
-              )}
-
-            </div>
+              </article>
+            ))}
           </div>
-
         </div>
-      </div>
-    </div>
+      </section>
+    )}
+
   </main>
-
-  <!-- Screenshot Modal -->
-  <div id="screenshot-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="relative max-w-4xl max-h-full w-full h-full flex items-center justify-center">
-      <!-- Close Button -->
-      <button 
-        onclick="closeScreenshotModal()"
-        class="absolute top-4 right-4 z-10 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors duration-200"
-      >
-        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-
-      <!-- Previous Button -->
-      <button 
-        id="modal-prev-btn"
-        onclick="previousModalImage()"
-        class="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors duration-200"
-      >
-        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-        </svg>
-      </button>
-
-      <!-- Next Button -->
-      <button 
-        id="modal-next-btn"
-        onclick="nextModalImage()"
-        class="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors duration-200"
-      >
-        <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </button>
-
-      <!-- Main Image -->
-      <div class="relative max-w-full max-h-full">
-        <img 
-          id="modal-image"
-          src=""
-          alt="Screenshot preview"
-          class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-        />
-        
-        <!-- Image Counter -->
-        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-4 py-2 rounded-full text-sm">
-          <span id="modal-counter">1 / 1</span>
-        </div>
-      </div>
-
-      <!-- Thumbnail Navigation -->
-      <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 max-w-full overflow-x-auto" id="modal-thumbnails">
-        <!-- Thumbnails will be generated by JavaScript -->
-      </div>
-    </div>
-  </div>
-
+  
   <Footer />
+
+  <!-- Hidden structured data -->
+  <meta itemprop="datePublished" content={publishedTime} />
+  <meta itemprop="dateModified" content={modifiedTime} />
+  <meta itemprop="url" content={canonicalUrl} />
 </Layout>
-
-<script>
-  // Screenshot slider functionality
-  let currentSlide = 0;
-  let currentModalImage = 0;
-  let screenshots = [];
-
-  // Handle image error for screenshots
-  function handleImageError(img) {
-    img.parentElement.innerHTML = '<div class="w-full h-80 bg-gray-200 dark:bg-gray-600 flex items-center justify-center"><svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>';
-  }
-
-  // Initialize slider
-  document.addEventListener('DOMContentLoaded', function() {
-    const screenshotElements = document.querySelectorAll('#screenshot-slider img');
-    screenshots = Array.from(screenshotElements).map(img => img.src);
-    
-    if (screenshots.length > 0) {
-      initializeSlider();
-      initializeModal();
-    }
-  });
-
-  function initializeSlider() {
-    const slider = document.getElementById('screenshot-slider');
-    const indicators = document.getElementById('slide-indicators');
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    
-    if (!slider || screenshots.length <= 3) return;
-
-    // Create indicators
-    if (indicators) {
-      const totalSlides = Math.ceil(screenshots.length / 3);
-      indicators.innerHTML = '';
-      for (let i = 0; i < totalSlides; i++) {
-        const indicator = document.createElement('button');
-        indicator.className = `w-2 h-2 rounded-full transition-colors duration-200 ${i === 0 ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`;
-        indicator.onclick = () => goToSlide(i * 3);
-        indicators.appendChild(indicator);
-      }
-    }
-
-    updateSliderButtons();
-  }
-
-  function initializeModal() {
-    const modalThumbnails = document.getElementById('modal-thumbnails');
-    if (!modalThumbnails) return;
-
-    modalThumbnails.innerHTML = '';
-    screenshots.forEach((screenshot, index) => {
-      const thumb = document.createElement('button');
-      thumb.className = 'flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden border-2 border-transparent hover:border-white/50 transition-colors duration-200';
-      thumb.onclick = () => goToModalImage(index);
-      
-      const img = document.createElement('img');
-      img.src = screenshot;
-      img.alt = `Thumbnail ${index + 1}`;
-      img.className = 'w-full h-full object-cover';
-      
-      thumb.appendChild(img);
-      modalThumbnails.appendChild(thumb);
-    });
-  }
-
-  function updateSlider() {
-    const slider = document.getElementById('screenshot-slider');
-    if (!slider) return;
-
-    const slideWidth = slider.children[0].offsetWidth;
-    const translateX = -currentSlide * slideWidth;
-    slider.style.transform = `translateX(${translateX}px)`;
-
-    // Update indicators
-    const indicators = document.querySelectorAll('#slide-indicators button');
-    indicators.forEach((indicator, index) => {
-      const slideIndex = Math.floor(currentSlide / 3);
-      indicator.className = `w-2 h-2 rounded-full transition-colors duration-200 ${index === slideIndex ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`;
-    });
-
-    // Update thumbnail borders
-    const thumbs = document.querySelectorAll('.screenshot-thumb');
-    thumbs.forEach((thumb, index) => {
-      thumb.className = thumb.className.replace(/border-blue-500|border-transparent/g, '');
-      thumb.className += index === currentSlide ? ' border-blue-500' : ' border-transparent';
-    });
-
-    updateSliderButtons();
-  }
-
-  function updateSliderButtons() {
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    
-    if (prevBtn) {
-      prevBtn.disabled = currentSlide === 0;
-    }
-    
-    if (nextBtn) {
-      nextBtn.disabled = currentSlide >= screenshots.length - 3;
-    }
-  }
-
-  function previousSlide() {
-    if (currentSlide > 0) {
-      currentSlide--;
-      updateSlider();
-    }
-  }
-
-  function nextSlide() {
-    if (currentSlide < screenshots.length - 3) {
-      currentSlide++;
-      updateSlider();
-    }
-  }
-
-  function goToSlide(index) {
-    currentSlide = Math.max(0, Math.min(index, screenshots.length - 3));
-    updateSlider();
-  }
-
-  // Modal functionality
-  function openScreenshotModal(index) {
-    currentModalImage = index;
-    const modal = document.getElementById('screenshot-modal');
-    const modalImage = document.getElementById('modal-image');
-    
-    if (modal && modalImage) {
-      modalImage.src = screenshots[index];
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      updateModalCounter();
-      updateModalThumbnails();
-      
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
-    }
-  }
-
-  function closeScreenshotModal() {
-    const modal = document.getElementById('screenshot-modal');
-    if (modal) {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      
-      // Restore body scroll
-      document.body.style.overflow = '';
-    }
-  }
-
-  function previousModalImage() {
-    if (currentModalImage > 0) {
-      currentModalImage--;
-      updateModalImage();
-    }
-  }
-
-  function nextModalImage() {
-    if (currentModalImage < screenshots.length - 1) {
-      currentModalImage++;
-      updateModalImage();
-    }
-  }
-
-  function goToModalImage(index) {
-    currentModalImage = index;
-    updateModalImage();
-  }
-
-  function updateModalImage() {
-    const modalImage = document.getElementById('modal-image');
-    if (modalImage) {
-      modalImage.src = screenshots[currentModalImage];
-      updateModalCounter();
-      updateModalThumbnails();
-    }
-  }
-
-  function updateModalCounter() {
-    const counter = document.getElementById('modal-counter');
-    if (counter) {
-      counter.textContent = `${currentModalImage + 1} / ${screenshots.length}`;
-    }
-  }
-
-  function updateModalThumbnails() {
-    const thumbnails = document.querySelectorAll('#modal-thumbnails button');
-    thumbnails.forEach((thumb, index) => {
-      thumb.className = thumb.className.replace(/border-white\/50|border-transparent/g, '');
-      thumb.className += index === currentModalImage ? ' border-white/50' : ' border-transparent';
-    });
-  }
-
-  // Keyboard navigation for modal
-  document.addEventListener('keydown', function(e) {
-    const modal = document.getElementById('screenshot-modal');
-    if (!modal || modal.classList.contains('hidden')) return;
-
-    switch(e.key) {
-      case 'Escape':
-        closeScreenshotModal();
-        break;
-      case 'ArrowLeft':
-        previousModalImage();
-        break;
-      case 'ArrowRight':
-        nextModalImage();
-        break;
-    }
-  });
-
-  // Close modal when clicking outside the image
-  document.getElementById('screenshot-modal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-      closeScreenshotModal();
-    }
-  });
-
-  // Smooth scrolling for table of contents links
-  document.addEventListener('DOMContentLoaded', function() {
-    const tocLinks = document.querySelectorAll('a[href^="#"]');
-    
-    tocLinks.forEach(link => {
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href').substring(1);
-        const targetElement = document.getElementById(targetId);
-        
-        if (targetElement) {
-          const headerOffset = 100; // Account for sticky header
-          const elementPosition = targetElement.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-        }
-      });
-    });
-  });
-
-  // Toggle foldable sections
-  function toggleSection(sectionId) {
-    const content = document.getElementById(sectionId + '-content');
-    const icon = document.getElementById(sectionId + '-icon');
-    const button = content.previousElementSibling;
-    
-    if (content.classList.contains('hidden')) {
-      content.classList.remove('hidden');
-      icon.style.transform = 'rotate(180deg)';
-      button.setAttribute('aria-expanded', 'true');
-    } else {
-      content.classList.add('hidden');
-      icon.style.transform = 'rotate(0deg)';
-      button.setAttribute('aria-expanded', 'false');
-    }
-  }
-
-  // Make functions available globally
-  window.toggleSection = toggleSection;
-  window.handleImageError = handleImageError;
-  window.openScreenshotModal = openScreenshotModal;
-  window.closeScreenshotModal = closeScreenshotModal;
-  window.previousSlide = previousSlide;
-  window.nextSlide = nextSlide;
-  window.goToSlide = goToSlide;
-  window.previousModalImage = previousModalImage;
-  window.nextModalImage = nextModalImage;
-  window.goToModalImage = goToModalImage;
-</script>
-
-<style>
-  /* Smooth scroll behavior */
-  html {
-    scroll-behavior: smooth;
-  }
-  
-  /* Enhanced focus styles for accessibility */
-  button:focus,
-  a:focus {
-    @apply outline-none ring-2 ring-blue-500 ring-offset-2 dark:ring-offset-gray-800;
-  }
-  
-  /* Smooth transitions for interactive elements */
-  .transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
-  }
-  
-  /* Enhanced hover effects */
-  .hover\:shadow-xl:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  }
-  
-  /* Custom scrollbar for better UX */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    @apply bg-gray-100 dark:bg-gray-800;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400 dark:bg-gray-500;
-  }
-
-  /* Screenshot slider specific styles */
-  #screenshot-slider {
-    transition: transform 0.3s ease-in-out;
-  }
-
-  /* Modal styles */
-  #screenshot-modal {
-    backdrop-filter: blur(8px);
-  }
-
-  /* Thumbnail hover effects */
-  .screenshot-thumb:hover {
-    transform: scale(1.05);
-  }
-
-  /* Modal image animation */
-  #modal-image {
-    transition: opacity 0.3s ease-in-out;
-  }
-
-  /* Responsive adjustments */
-  @media (max-width: 640px) {
-    #screenshot-slider .flex-shrink-0 {
-      width: 100%;
-    }
-    
-    #modal-thumbnails {
-      display: none;
-    }
-  }
-
-  @media (max-width: 768px) {
-    #screenshot-slider .flex-shrink-0 {
-      width: 50%;
-    }
-  }
-</style>
