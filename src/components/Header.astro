@@ -1,14 +1,14 @@
 ---
-// Header component with perfectly centered logo
+// Header component with properly constrained logo clickable area
 import Logo from './Logo.astro';
 ---
 
-<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
+<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300 overflow-hidden">
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-    <div class="relative flex items-center h-20 sm:h-24">
+    <div class="relative flex items-center h-20 sm:h-24 overflow-hidden">
       
       <!-- Mobile Menu Button - Positioned absolutely to left -->
-      <div class="absolute left-0 md:hidden">
+      <div class="absolute left-0 md:hidden z-10">
         <button 
           id="mobile-menu-button"
           class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors duration-200 min-w-[44px] min-h-[44px]"
@@ -24,15 +24,31 @@ import Logo from './Logo.astro';
         </button>
       </div>
 
-      <!-- Logo - Perfectly Centered -->
-      <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <a href="/" class="flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-lg p-2 min-w-[44px] min-h-[44px]">
-          <Logo size="2xl" showText={false} />
+      <!-- Logo Container - Properly Constrained -->
+      <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+        <a 
+          href="/" 
+          class="flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-lg p-2 min-w-[44px] min-h-[44px] max-w-[200px] max-h-[60px] overflow-hidden"
+          style="
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
+            max-width: 200px;
+            max-height: 60px;
+            clip-path: inset(0);
+          "
+        >
+          <div class="relative w-auto h-auto max-w-full max-h-full">
+            <Logo size="2xl" showText={false} />
+          </div>
         </a>
       </div>
 
       <!-- Desktop Navigation - Hidden on mobile, positioned to not interfere with logo -->
-      <nav class="hidden md:flex space-x-6 lg:space-x-8 absolute left-4" aria-label="Main navigation">
+      <nav class="hidden md:flex space-x-6 lg:space-x-8 absolute left-4 z-10" aria-label="Main navigation">
         <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center">
           Home
         </a>
@@ -48,7 +64,7 @@ import Logo from './Logo.astro';
       </nav>
 
       <!-- Right Side Controls - Positioned absolutely to right -->
-      <div class="absolute right-0 flex items-center space-x-2 sm:space-x-4">
+      <div class="absolute right-0 flex items-center space-x-2 sm:space-x-4 z-10">
         
         <!-- Search Button -->
         <button 
@@ -181,3 +197,41 @@ import Logo from './Logo.astro';
     }
   });
 </script>
+
+<style>
+  /* Ensure header container constrains all child elements */
+  header {
+    position: relative;
+    contain: layout style;
+  }
+  
+  /* Prevent any overflow from extending clickable areas */
+  header > div {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Constrain logo link to proper boundaries */
+  header a[href="/"] {
+    position: relative;
+    display: inline-flex;
+    max-width: 200px;
+    max-height: 60px;
+    overflow: hidden;
+    contain: layout style;
+  }
+  
+  /* Ensure no pseudo-elements extend beyond boundaries */
+  header a[href="/"]::before,
+  header a[href="/"]::after {
+    display: none;
+  }
+  
+  /* Additional containment for mobile */
+  @media (max-width: 768px) {
+    header a[href="/"] {
+      max-width: 150px;
+      max-height: 50px;
+    }
+  }
+</style>
