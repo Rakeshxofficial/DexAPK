@@ -5,12 +5,12 @@ import Logo from './Logo.astro';
 
 <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-    <div class="relative flex items-center h-16 sm:h-20">
+    <div class="flex items-center justify-between h-20 sm:h-24">
       
-      <!-- Mobile Menu Button - Positioned absolutely on left -->
+      <!-- Mobile Menu Button -->
       <button 
         id="mobile-menu-button"
-        class="md:hidden absolute left-0 inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors duration-200"
+        class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors duration-200"
         aria-controls="mobile-menu"
         aria-expanded="false"
         aria-label="Toggle navigation menu"
@@ -22,15 +22,15 @@ import Logo from './Logo.astro';
         </svg>
       </button>
 
-      <!-- Logo - Perfectly Centered -->
-      <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <a href="/" class="flex items-center group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-lg p-1">
-          <Logo size="xl" showText={false} />
+      <!-- Logo - Centered and Much Larger -->
+      <div class="flex-1 flex justify-center">
+        <a href="/" class="flex items-center group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-lg p-2">
+          <Logo size="2xl" showText={false} />
         </a>
       </div>
 
-      <!-- Desktop Navigation - Hidden on mobile, positioned on left -->
-      <nav class="hidden md:flex space-x-6 lg:space-x-8" aria-label="Main navigation">
+      <!-- Desktop Navigation - Hidden on mobile -->
+      <nav class="hidden md:flex space-x-6 lg:space-x-8 absolute left-1/2 transform -translate-x-1/2" aria-label="Main navigation">
         <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
           Home
         </a>
@@ -45,8 +45,8 @@ import Logo from './Logo.astro';
         </a>
       </nav>
 
-      <!-- Right Side Controls - Positioned absolutely on right -->
-      <div class="absolute right-0 flex items-center space-x-2 sm:space-x-4">
+      <!-- Right Side Controls -->
+      <div class="flex items-center space-x-2 sm:space-x-4">
         
         <!-- Search Button -->
         <button 
