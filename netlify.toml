@@ -4,6 +4,8 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  # Disable Netlify's automatic trailing slash handling
+  NETLIFY_TRAILING_SLASH = "never"
 
 # Explicitly handle trailing slashes - this is the key fix
 [[redirects]]
@@ -11,6 +13,19 @@
   to = "/:splat"
   status = 301
   force = true
+
+# Redirect all admin routes to handle client-side routing
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+
+# Handle app detail pages
+[[redirects]]
+  from = "/:slug"
+  to = "/:slug/index.html"
+  status = 200
+  force = false
 
 # Handle 404s
 [[redirects]]

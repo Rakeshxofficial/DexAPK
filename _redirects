@@ -1,0 +1,5 @@
+# Explicitly handle trailing slashes
+/*/ /:splat 301!
+
+# Handle 404s
+/* /404.html 404
