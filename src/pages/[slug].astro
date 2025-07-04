@@ -99,6 +99,7 @@ ${app.name} MOD APK offers an exceptional experience with all premium features u
 
 const articleContent = app.article_content || defaultArticleContent;
 
+
 ---
 
 <Layout seoData={seoData}>
@@ -435,6 +436,163 @@ const articleContent = app.article_content || defaultArticleContent;
   </main>
   
   <Footer />
+  
+  {app && (
+    <script is:inline define:vars={{ 
+      appName: app.name,
+      appSlug: app.slug,
+      appCategory: app.category,
+      appRating: app.rating,
+      appVotes: app.votes,
+      appVersion: app.version,
+      appSize: app.size,
+      appDescription: app.description,
+      appRequirements: app.requirements,
+      appCreatedAt: app.created_at,
+      appUpdatedAt: app.updated_at
+    }}>
+      // Add structured data for better SEO
+      document.addEventListener('DOMContentLoaded', function() {
+        // FAQ Schema
+        const faqSchema = {
+          "@context": "https://schema.org",
+          "@type": "FAQPage", 
+          "@id": `https://dexapk.com/${appSlug}#faq`,
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": `Is this ${appName} MOD APK safe to use?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `Yes, our ${appName} MOD APK is thoroughly tested and scanned for malware. It's completely safe to install and use on your Android device.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Do I need to root my device?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `No, this ${appName} MOD APK works on both rooted and non-rooted devices. No root access is required for installation or usage.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `What's new in version ${appVersion}?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `Version ${appVersion} includes enhanced performance, improved stability, bug fixes, and new premium features. Check the changelog for detailed information.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `Is my device compatible with ${appName}?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `This MOD APK requires ${appRequirements}. Most modern Android devices should be compatible with this version.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How do I install this MOD APK?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "First, enable 'Unknown Sources' in your Android settings. Then download the APK file, tap on it to start installation, and follow the on-screen instructions."
+              }
+            }
+          ]
+        };
+
+        // Breadcrumb Schema
+        const breadcrumbSchema = {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList", 
+          "@id": `https://dexapk.com/${appSlug}#breadcrumb`,
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://dexapk.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Apps",
+              "item": "https://dexapk.com/apps"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": appCategory,
+              "item": `https://dexapk.com/categories/${appCategory.toLowerCase()}`
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": appName,
+              "item": `https://dexapk.com/${appSlug}`
+            }
+          ]
+        };
+
+        // SoftwareApplication Schema
+        const softwareSchema = {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication", 
+          "@id": `https://dexapk.com/${appSlug}#software`,
+          "name": appName,
+          "applicationCategory": "MobileApplication",
+          "applicationSubCategory": appCategory,
+          "operatingSystem": "Android",
+          "offers": {
+            "@type": "Offer",
+            "price": "0", 
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": appRating,
+            "ratingCount": appVotes,
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "softwareVersion": appVersion,
+          "fileSize": appSize,
+          "datePublished": appCreatedAt || new Date().toISOString(),
+          "dateModified": appUpdatedAt || new Date().toISOString(),
+          "description": appDescription
+        };
+
+        // Website Schema
+        const websiteSchema = {
+          "@context": "https://schema.org",
+          "@type": "WebSite", 
+          "@id": "https://dexapk.com/#website",
+          "name": "DexAPK",
+          "url": "https://dexapk.com",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://dexapk.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        };
+
+        // Add schemas to the page
+        function addSchema(schema) {
+          const script = document.createElement('script');
+          script.type = 'application/ld+json'; 
+          script.textContent = JSON.stringify(schema);
+          document.head.appendChild(script);
+        }
+
+        addSchema(faqSchema);
+        addSchema(breadcrumbSchema);
+        addSchema(softwareSchema);
+        addSchema(websiteSchema);
+      });
+    </script>
+  )}
   
   {app && (
     <script is:inline define:vars={{ 

@@ -133,6 +133,7 @@ const finalDescription = seoData?.description || description;
         "@context": "https://schema.org",
         "@type": "Organization",
         "@id": "https://dexapk.com/#organization",
+        "@id": "https://dexapk.com/#organization",
         "name": "DexAPK",
         "url": "https://dexapk.com",
         "logo": "https://dexapk.com/web-app-manifest-512x512.png",
@@ -144,13 +145,18 @@ const finalDescription = seoData?.description || description;
     </script>
 
     <!-- Website Schema -->
+    <!-- Website Schema -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "@id": "https://dexapk.com/#website",
+        "@id": "https://dexapk.com/#website",
         "name": "DexAPK",
         "url": "https://dexapk.com",
+        "publisher": {
+          "@id": "https://dexapk.com/#organization"
+        },
         "publisher": {
           "@id": "https://dexapk.com/#organization"
         },
@@ -166,38 +172,36 @@ const finalDescription = seoData?.description || description;
     {seoData?.appName && (
       <script type="application/ld+json">
         {
-          JSON.stringify(
-            {
-              "@context": "https://schema.org",
-              "@type": "SoftwareApplication",
-              "@id": `https://dexapk.com/${seoData.appName?.toLowerCase().replace(/\s+/g, '-')}#software`,
-              "name": seoData.appName,
-              "applicationCategory": "MobileApplication",
-              "operatingSystem": "Android",
-              "offers": {
-                "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "USD",
-                "availability": "https://schema.org/InStock"
-              },
-              ...(seoData.appVersion && { "softwareVersion": seoData.appVersion }),
-              ...(seoData.appCategory && { "applicationSubCategory": seoData.appCategory }),
-              ...(seoData.appRating && seoData.appVotes && {
-                "aggregateRating": {
-                  "@type": "AggregateRating",
-                  "ratingValue": seoData.appRating,
-                  "ratingCount": seoData.appVotes,
-                  "bestRating": "5",
-                  "worstRating": "1"
-                }
-              }),
-              ...(seoData.appPublisher && {
-                "author": {
-                  "@type": "Organization",
-                  "name": seoData.appPublisher
-                }
-              }),
-              ...(seoData.appSize && { "fileSize": seoData.appSize }),
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "@id": `https://dexapk.com/${seoData.appName?.toLowerCase().replace(/\s+/g, '-')}#software`,
+          "name": seoData.appName,
+          "applicationCategory": "MobileApplication",
+          "operatingSystem": "Android",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
+          },
+          "softwareVersion": seoData.appVersion || "1.0.0",
+          "applicationSubCategory": seoData.appCategory || "Apps",
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": seoData.appRating || 4.0,
+            "ratingCount": seoData.appVotes || 100,
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "author": {
+            "@type": "Organization",
+            "name": seoData.appPublisher || "Unknown"
+          },
+          "fileSize": seoData.appSize || "0 MB",
+          "dateModified": seoData.lastUpdated || new Date().toISOString(),
+          "description": finalDescription,
+          "image": seoData.featuredImage || "/web-app-manifest-512x512.png"
+        }
               ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
               ...(finalDescription && { "description": finalDescription }),
               ...(seoData.featuredImage && { "image": seoData.featuredImage })
