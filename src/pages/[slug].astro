@@ -99,8 +99,8 @@ ${app.name} MOD APK offers an exceptional experience with all premium features u
 
 const articleContent = app.article_content || defaultArticleContent;
 
-// Generate dynamic FAQs for schema
-const dynamicFAQs = [
+// Generate dynamic FAQs
+const dynamicFAQs = app ? [
   {
     question: `What is ${app.name} MOD APK?`,
     answer: `${app.name} MOD APK is a modified version of the original ${app.name} app that provides premium features unlocked for free. It offers enhanced functionality and removes limitations present in the standard version.`
@@ -121,60 +121,87 @@ const dynamicFAQs = [
     question: `Can I update ${app.name} MOD APK?`,
     answer: `You can update ${app.name} MOD APK by downloading the latest version from our website. Make sure to uninstall the previous version before installing the new one.`
   }
-];
+] : [];
 ---
 
 <Layout seoData={seoData}>
-  <Fragment slot="head">
-    <!-- FAQ Schema -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": dynamicFAQs.map(faq => ({
-        "@type": "Question",
-        "name": faq.question,
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": faq.answer
-        }
-      }))
-    })} />
+  {app && (
+    <Fragment slot="head">
+      <!-- FAQ Schema -->
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": dynamicFAQs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      })} />
 
-    <!-- Breadcrumb Schema -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://dexapk.com"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Apps",
-          "item": "https://dexapk.com/apps"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": app.category,
-          "item": `https://dexapk.com/categories/${app.category.toLowerCase()}`
-        },
-        {
-          "@type": "ListItem",
-          "position": 4,
-          "name": app.name,
-          "item": `https://dexapk.com/${app.slug}`
-        }
-      ]
-    })} />
+      <!-- Breadcrumb Schema -->
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://dexapk.com"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Apps",
+            "item": "https://dexapk.com/apps"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": app.category,
+            "item": `https://dexapk.com/categories/${app.category.toLowerCase()}`
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": app.name,
+            "item": `https://dexapk.com/${app.slug}`
+          }
+        ]
+      })} />
 
-    <!-- Review Schema -->
-    <script type="application/ld+json">
-      {JSON.stringify({
+      <!-- SoftwareApplication Schema -->
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": app.name,
+        "applicationCategory": "MobileApplication",
+        "applicationSubCategory": app.category,
+        "operatingSystem": "Android",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": app.rating,
+          "ratingCount": app.votes,
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "softwareVersion": app.version,
+        "fileSize": app.size,
+        "datePublished": app.created_at || new Date().toISOString(),
+        "dateModified": app.updated_at || new Date().toISOString(),
+        "description": app.description
+      })} />
+
+      <!-- Review Schema -->
+      <script type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Review",
         "itemReviewed": {
@@ -197,40 +224,10 @@ const dynamicFAQs = [
           "@type": "Organization",
           "name": "DexAPK"
         }
-      })}
-    </script>
-    
-    <!-- SoftwareApplication Schema -->
-    <script type="application/ld+json">
-      {JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": app.name,
-        "applicationCategory": "MobileApplication",
-        "operatingSystem": "Android",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": app.rating,
-          "ratingCount": app.votes,
-          "bestRating": "5",
-          "worstRating": "1"
-        },
-        "softwareVersion": app.version,
-        "fileSize": app.size,
-        "datePublished": app.created_at || new Date().toISOString(),
-        "dateModified": app.updated_at || new Date().toISOString(),
-        "description": app.description
-      })}
-    </script>
-    
-    <!-- Website Schema -->
-    <script type="application/ld+json">
-      {JSON.stringify({
+      })} />
+      
+      <!-- Website Schema -->
+      <script type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "DexAPK",
@@ -240,9 +237,9 @@ const dynamicFAQs = [
           "target": "https://dexapk.com/search?q={search_term_string}",
           "query-input": "required name=search_term_string"
         }
-      })}
-    </script>
-  </Fragment>
+      })} />
+    </Fragment>
+  )}
 
   <Header />
   
