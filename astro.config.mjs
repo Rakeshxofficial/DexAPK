@@ -22,4 +22,6 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
   },
+  // Explicitly set trailingSlash to 'never' at the root level as well
+  trailingSlash: 'never',
 });
