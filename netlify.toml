@@ -11,6 +11,13 @@
   to = "/admin/index.html"
   status = 200
 
+# Explicitly handle trailing slashes - redirect them to non-trailing slash versions
+[[redirects]]
+  from = "/*/"
+  to = "/:splat"
+  status = 301
+  force = true
+
 # Handle app detail pages
 [[redirects]]
   from = "/:slug"
