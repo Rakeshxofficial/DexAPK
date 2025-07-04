@@ -479,15 +479,32 @@ const description = "Manage all APK applications in the admin dashboard";
   async function performDelete() {
     if (!appToDelete) return;
 
+    console.log('Deleting app with slug:', appToDelete);
     try {
       showLoading();
       hideDeleteModal();
 
       const result = await deleteApp(appToDelete);
+      console.log('Delete result:', result);
 
       if (result.success) {
         showToast('App deleted successfully', 'success');
-        loadApps(); // Reload the apps list
+        // Remove the deleted app from the arrays
+        allApps = allApps.filter(app => {
+          const appElement = app.querySelector('a[href^="/admin/apps/edit/"]');
+          const appSlug = appElement ? appElement.href.split('/').pop() : '';
+          return appSlug !== appToDelete;
+        });
+        filteredApps = filteredApps.filter(app => {
+          const appElement = app.querySelector('a[href^="/admin/apps/edit/"]');
+          const appSlug = appElement ? appElement.href.split('/').pop() : '';
+          return appSlug !== appToDelete;
+        });
+        
+        // Reload the apps list to ensure UI is updated
+        setTimeout(() => {
+          loadApps();
+        }, 500);
       } else {
         showToast(result.error || 'Failed to delete app', 'error');
       }
@@ -537,6 +554,14 @@ const description = "Manage all APK applications in the admin dashboard";
 </script>
 
 <style>
+  /* Fix for delete button to ensure it's clickable */
+  td button {
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 30px;
+    display: inline-block;
+  }
+  
   /* Enhanced hover effects */
   .hover\:shadow-xl:hover {
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
