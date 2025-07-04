@@ -24,6 +24,16 @@
   to = "/404.html"
   status = 404
 
+# Redirect to remove trailing slashes
+[[redirects]]
+  from = "/*"
+  to = "/:splat"
+  status = 200
+  force = true
+
+[trailing_slash]
+  policy = "never"
+
 # Security headers
 [[headers]]
   for = "/*"
