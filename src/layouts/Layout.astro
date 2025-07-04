@@ -132,6 +132,7 @@ const finalDescription = seoData?.description || description;
       {
         "@context": "https://schema.org",
         "@type": "Organization",
+        "@id": "https://dexapk.com/#organization",
         "name": "DexAPK",
         "url": "https://dexapk.com",
         "logo": "https://dexapk.com/web-app-manifest-512x512.png",
@@ -147,8 +148,12 @@ const finalDescription = seoData?.description || description;
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
+        "@id": "https://dexapk.com/#website",
         "name": "DexAPK",
         "url": "https://dexapk.com",
+        "publisher": {
+          "@id": "https://dexapk.com/#organization"
+        },
         "potentialAction": {
           "@type": "SearchAction",
           "target": "https://dexapk.com/search?q={search_term_string}",
@@ -161,39 +166,45 @@ const finalDescription = seoData?.description || description;
     {seoData?.appName && (
       <script type="application/ld+json">
         {
-          JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": seoData.appName,
-            "applicationCategory": "MobileApplication",
-            "operatingSystem": "Android",
-            "offers": {
-              "@type": "Offer",
-              "price": "0",
-              "priceCurrency": "USD"
+          JSON.stringify(
+            {
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "@id": `https://dexapk.com/${seoData.appName?.toLowerCase().replace(/\s+/g, '-')}#software`,
+              "name": seoData.appName,
+              "applicationCategory": "MobileApplication",
+              "operatingSystem": "Android",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD",
+                "availability": "https://schema.org/InStock"
+              },
+              ...(seoData.appVersion && { "softwareVersion": seoData.appVersion }),
+              ...(seoData.appCategory && { "applicationSubCategory": seoData.appCategory }),
+              ...(seoData.appRating && seoData.appVotes && {
+                "aggregateRating": {
+                  "@type": "AggregateRating",
+                  "ratingValue": seoData.appRating,
+                  "ratingCount": seoData.appVotes,
+                  "bestRating": "5",
+                  "worstRating": "1"
+                }
+              }),
+              ...(seoData.appPublisher && {
+                "author": {
+                  "@type": "Organization",
+                  "name": seoData.appPublisher
+                }
+              }),
+              ...(seoData.appSize && { "fileSize": seoData.appSize }),
+              ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
+              ...(finalDescription && { "description": finalDescription }),
+              ...(seoData.featuredImage && { "image": seoData.featuredImage })
             },
-            ...(seoData.appVersion && { "softwareVersion": seoData.appVersion }),
-            ...(seoData.appCategory && { "applicationSubCategory": seoData.appCategory }),
-            ...(seoData.appRating && seoData.appVotes && {
-              "aggregateRating": {
-                "@type": "AggregateRating",
-                "ratingValue": seoData.appRating,
-                "ratingCount": seoData.appVotes,
-                "bestRating": "5",
-                "worstRating": "1"
-              }
-            }),
-            ...(seoData.appPublisher && {
-              "author": {
-                "@type": "Organization",
-                "name": seoData.appPublisher
-              }
-            }),
-            ...(seoData.appSize && { "fileSize": seoData.appSize }),
-            ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
-            ...(finalDescription && { "description": finalDescription }),
-            ...(seoData.featuredImage && { "image": seoData.featuredImage })
-          })
+            null,
+            2
+          )
         }
       </script>
     )}

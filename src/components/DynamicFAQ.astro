@@ -142,7 +142,7 @@ const dynamicFAQs = generateDynamicFAQ(app);
 <script>
   // Generate FAQ schema markup
   document.addEventListener('DOMContentLoaded', function() {
-    const faqItems = document.querySelectorAll('details');
+    const faqItems = document.querySelectorAll('details.group');
     if (faqItems.length === 0) return;
     
     const faqSchema = {
@@ -153,7 +153,7 @@ const dynamicFAQs = generateDynamicFAQ(app);
     
     faqItems.forEach(item => {
       const question = item.querySelector('summary')?.textContent?.trim();
-      const answer = item.querySelector('summary + div')?.textContent?.trim();
+      const answer = item.querySelector('div.mt-2')?.textContent?.trim();
       
       if (question && answer) {
         faqSchema.mainEntity.push({
@@ -170,7 +170,7 @@ const dynamicFAQs = generateDynamicFAQ(app);
     // Add schema to page
     const schemaScript = document.createElement('script');
     schemaScript.type = 'application/ld+json';
-    schemaScript.textContent = JSON.stringify(faqSchema);
+    schemaScript.textContent = JSON.stringify(faqSchema, null, 2);
     schemaScript.className = 'faq-schema';
     document.head.appendChild(schemaScript);
   });

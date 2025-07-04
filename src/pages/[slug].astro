@@ -455,7 +455,8 @@ const articleContent = app.article_content || defaultArticleContent;
         // FAQ Schema
         const faqSchema = {
           "@context": "https://schema.org",
-          "@type": "FAQPage",
+          "@type": "FAQPage", 
+          "@id": `https://dexapk.com/${appSlug}#faq`,
           "mainEntity": [
             {
               "@type": "Question",
@@ -503,7 +504,8 @@ const articleContent = app.article_content || defaultArticleContent;
         // Breadcrumb Schema
         const breadcrumbSchema = {
           "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
+          "@type": "BreadcrumbList", 
+          "@id": `https://dexapk.com/${appSlug}#breadcrumb`,
           "itemListElement": [
             {
               "@type": "ListItem",
@@ -535,15 +537,17 @@ const articleContent = app.article_content || defaultArticleContent;
         // SoftwareApplication Schema
         const softwareSchema = {
           "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
+          "@type": "SoftwareApplication", 
+          "@id": `https://dexapk.com/${appSlug}#software`,
           "name": appName,
           "applicationCategory": "MobileApplication",
           "applicationSubCategory": appCategory,
           "operatingSystem": "Android",
           "offers": {
             "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
+            "price": "0", 
+            "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock"
           },
           "aggregateRating": {
             "@type": "AggregateRating",
@@ -562,7 +566,8 @@ const articleContent = app.article_content || defaultArticleContent;
         // Review Schema
         const reviewSchema = {
           "@context": "https://schema.org",
-          "@type": "Review",
+          "@type": "Review", 
+          "@id": `https://dexapk.com/${appSlug}#review`,
           "itemReviewed": {
             "@type": "SoftwareApplication",
             "name": appName,
@@ -588,7 +593,8 @@ const articleContent = app.article_content || defaultArticleContent;
         // Website Schema
         const websiteSchema = {
           "@context": "https://schema.org",
-          "@type": "WebSite",
+          "@type": "WebSite", 
+          "@id": "https://dexapk.com/#website",
           "name": "DexAPK",
           "url": "https://dexapk.com",
           "potentialAction": {
@@ -601,8 +607,8 @@ const articleContent = app.article_content || defaultArticleContent;
         // Add schemas to the page
         function addSchema(schema) {
           const script = document.createElement('script');
-          script.type = 'application/ld+json';
-          script.textContent = JSON.stringify(schema);
+          script.type = 'application/ld+json'; 
+          script.textContent = JSON.stringify(schema, null, 2);
           document.head.appendChild(script);
         }
 
