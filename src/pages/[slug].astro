@@ -98,9 +98,109 @@ ${app.features && app.features.length > 0 ? app.features.map(feature => `- ${fea
 ${app.name} MOD APK offers an exceptional experience with all premium features unlocked for free. Whether you're looking for enhanced functionality, ad-free experience, or premium content access, this app provides everything you need without any limitations. Download now and experience the full potential of ${app.name} on your Android device.`;
 
 const articleContent = app.article_content || defaultArticleContent;
+
+// Generate dynamic FAQs for schema
+const dynamicFAQs = [
+  {
+    question: `What is ${app.name} MOD APK?`,
+    answer: `${app.name} MOD APK is a modified version of the original ${app.name} app that provides premium features unlocked for free. It offers enhanced functionality and removes limitations present in the standard version.`
+  },
+  {
+    question: `Is ${app.name} MOD APK safe to download?`,
+    answer: `Yes, our ${app.name} MOD APK is thoroughly tested and scanned for malware. We ensure all our APK files are safe and secure for download and installation.`
+  },
+  {
+    question: `How do I install ${app.name} MOD APK?`,
+    answer: `To install ${app.name} MOD APK, first enable "Unknown Sources" in your Android settings, then download the APK file and tap to install it on your device.`
+  },
+  {
+    question: `What are the system requirements for ${app.name}?`,
+    answer: `${app.name} requires ${app.requirements} to run properly on your Android device.`
+  },
+  {
+    question: `Can I update ${app.name} MOD APK?`,
+    answer: `You can update ${app.name} MOD APK by downloading the latest version from our website. Make sure to uninstall the previous version before installing the new one.`
+  }
+];
 ---
 
 <Layout seoData={seoData}>
+  <Fragment slot="head">
+    <!-- FAQ Schema -->
+    {app.article_content && (
+      <script type="application/ld+json" set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": dynamicFAQs.map(faq => ({
+          "@type": "Question",
+          "name": faq.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": faq.answer
+          }
+        }))
+      })} />
+    )}
+
+    <!-- Breadcrumb Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://dexapk.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Apps",
+          "item": "https://dexapk.com/apps"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": app.category,
+          "item": `https://dexapk.com/categories/${app.category.toLowerCase()}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": app.name,
+          "item": `https://dexapk.com/${app.slug}`
+        }
+      ]
+    })} />
+
+    <!-- Review Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Review",
+      "itemReviewed": {
+        "@type": "SoftwareApplication",
+        "name": app.name,
+        "applicationCategory": "MobileApplication",
+        "operatingSystem": "Android"
+      },
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": app.rating,
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "DexAPK"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "DexAPK"
+      }
+    })} />
+  </Fragment>
+
   <Header />
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">

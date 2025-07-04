@@ -103,17 +103,19 @@ const dynamicFAQs = generateDynamicFAQ(app);
     Frequently Asked Questions
   </h2>
   
-  <div class="space-y-6">
+  <div class="space-y-6" itemscope itemtype="https://schema.org/FAQPage">
     {dynamicFAQs.map((faq, index) => (
-      <details class="group border-l-4 border-blue-500 pl-4 transition-all duration-200 hover:border-blue-600">
+      <details class="group border-l-4 border-blue-500 pl-4 transition-all duration-200 hover:border-blue-600" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
         <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors duration-200">
-          <span>{faq.question}</span>
+          <span itemprop="name">{faq.question}</span>
           <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </summary>
-        <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+        <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+          <div itemprop="text">
           {faq.answer}
+          </div>
         </div>
       </details>
     ))}
