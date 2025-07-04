@@ -198,14 +198,15 @@ const description = "Manage all APK applications in the admin dashboard";
         <div class="flex items-center justify-center space-x-4">
           <button
             id="cancel-delete"
+            type="button"
             class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
           >
             Cancel
           </button>
           <button
             id="confirm-delete"
-            class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-200"
             type="button"
+            class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-200"
           >
             Delete App
           </button>
@@ -369,10 +370,10 @@ const description = "Manage all APK applications in the admin dashboard";
             <a href="/${app.slug}" target="_blank" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 transition-colors duration-200">
               View
             </a>
-            <button 
+            <button
               type="button"
-              onclick="confirmDelete('${app.slug}', '${app.name.replace(/'/g, "\\'")}')" 
-              class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200 px-2 py-1"
+              onclick="confirmDelete('${app.slug}', '${app.name.replace(/'/g, "\\'")}')"
+              class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200"
             >
               Delete
             </button>
@@ -467,6 +468,7 @@ const description = "Manage all APK applications in the admin dashboard";
   function confirmDelete(slug, name) {
     appToDelete = slug;
     document.getElementById('delete-app-name').textContent = name;
+    console.log('Confirming delete for app:', slug, name);
     showDeleteModal();
   }
 
@@ -484,7 +486,7 @@ const description = "Manage all APK applications in the admin dashboard";
   async function performDelete() {
     if (!appToDelete) return;
 
-    console.log('Deleting app with slug:', appToDelete);
+    console.log('Performing delete for app slug:', appToDelete);
     try {
       showLoading();
       hideDeleteModal();
@@ -492,24 +494,13 @@ const description = "Manage all APK applications in the admin dashboard";
       const result = await deleteApp(appToDelete);
       console.log('Delete result:', result);
 
+      const deletedSlug = appToDelete;
+      appToDelete = null;
+
       if (result.success) {
         showToast('App deleted successfully', 'success');
-        // Remove the deleted app from the arrays
-        allApps = allApps.filter(app => {
-          const appElement = app.querySelector('a[href^="/admin/apps/edit/"]');
-          const appSlug = appElement ? appElement.href.split('/').pop() : '';
-          return appSlug !== appToDelete;
-        });
-        filteredApps = filteredApps.filter(app => {
-          const appElement = app.querySelector('a[href^="/admin/apps/edit/"]');
-          const appSlug = appElement ? appElement.href.split('/').pop() : '';
-          return appSlug !== appToDelete;
-        });
-        
-        // Reload the apps list to ensure UI is updated
-        setTimeout(() => {
-          loadApps();
-        }, 500);
+        // Reload the apps list
+        loadApps();
       } else {
         showToast(result.error || 'Failed to delete app', 'error');
       }
@@ -561,10 +552,11 @@ const description = "Manage all APK applications in the admin dashboard";
 <style>
   /* Fix for delete button to ensure it's clickable */
   td button {
-    cursor: pointer;
-    min-width: 44px;
-    min-height: 30px;
-    display: inline-block;
+    cursor: pointer !important;
+    min-width: 44px !important;
+    min-height: 30px !important;
+    display: inline-block !important;
+    padding: 5px 10px !important;
   }
   
   /* Enhanced hover effects */
