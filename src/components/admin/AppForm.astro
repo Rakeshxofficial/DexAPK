@@ -435,6 +435,23 @@ Your conclusion here..."
         </div>
 
         <div>
+          <label for="custom_h1_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Custom H1 Title
+          </label>
+          <input
+            type="text"
+            id="custom_h1_title"
+            name="custom_h1_title"
+            value={app?.custom_h1_title || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Custom H1 heading for app details page"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Custom H1 title for the app details page. If empty, will use default format: "{app?.name || 'App Name'} v{app?.version || '1.0.0'} MOD APK"
+          </p>
+        </div>
+
+        <div>
           <label for="seo_featured_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             SEO Featured Image URL
           </label>

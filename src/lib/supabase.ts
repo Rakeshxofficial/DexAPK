@@ -202,6 +202,8 @@ export async function createApp(appData: any) {
       seo_featured_image: appData.seo_featured_image || null,
       seo_keywords: appData.seo_keywords || null,
       seo_canonical_url: appData.seo_canonical_url || null,
+      // Custom H1 title
+      custom_h1_title: appData.custom_h1_title || null
       // Ensure article content is included
       article_content: appData.article_content || null
     };
@@ -253,6 +255,8 @@ export async function updateApp(slug: string, updates: any) {
       seo_featured_image: updates.seo_featured_image || null,
       seo_keywords: updates.seo_keywords || null,
       seo_canonical_url: updates.seo_canonical_url || null,
+      // Custom H1 title
+      custom_h1_title: updates.custom_h1_title || null
       // Ensure article content is included
       article_content: updates.article_content || null,
       // Update the updated_at timestamp
