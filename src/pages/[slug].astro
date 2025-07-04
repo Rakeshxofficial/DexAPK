@@ -4,7 +4,6 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import SEOHead from '../components/SEOHead.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -45,26 +44,27 @@ const seoDescription = app.seo_description || `Download ${app.name} MOD APK v${a
 const seoKeywords = app.seo_keywords || `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
 const seoFeaturedImage = app.seo_featured_image || app.icon || '/favicon.svg';
 const canonicalUrl = app.seo_canonical_url || `https://dexapk.com/${app.slug}`;
+
+// Prepare SEO data for Layout
+const seoData = {
+  title: seoTitle,
+  description: seoDescription,
+  keywords: seoKeywords,
+  canonicalUrl: canonicalUrl,
+  featuredImage: seoFeaturedImage,
+  appName: app.name,
+  appVersion: app.version,
+  appCategory: app.category,
+  appRating: app.rating,
+  appVotes: app.votes,
+  appPublisher: app.publisher,
+  appSize: app.size,
+  lastUpdated: app.last_updated,
+  type: 'product'
+};
 ---
 
-<Layout>
-  <SEOHead 
-    title={seoTitle}
-    description={seoDescription}
-    keywords={seoKeywords}
-    canonicalUrl={canonicalUrl}
-    featuredImage={seoFeaturedImage}
-    appName={app.name}
-    appVersion={app.version}
-    appCategory={app.category}
-    appRating={app.rating}
-    appVotes={app.votes}
-    appPublisher={app.publisher}
-    appSize={app.size}
-    lastUpdated={app.last_updated}
-    type="product"
-  />
-  
+<Layout seoData={seoData}>
   <Header />
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">

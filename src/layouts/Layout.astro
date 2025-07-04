@@ -2,9 +2,33 @@
 export interface Props {
   title?: string;
   description?: string;
+  seoData?: {
+    title?: string;
+    description?: string;
+    keywords?: string;
+    canonicalUrl?: string;
+    featuredImage?: string;
+    appName?: string;
+    appVersion?: string;
+    appCategory?: string;
+    appRating?: number;
+    appVotes?: number;
+    appPublisher?: string;
+    appSize?: string;
+    lastUpdated?: string;
+    type?: 'website' | 'article' | 'product';
+  };
 }
 
-const { title = "DexAPK - Fast & Secure APK Downloads", description = "Download the latest Android APK files safely and quickly. DexAPK provides secure APK downloads with fast loading times." } = Astro.props;
+const { 
+  title = "DexAPK - Fast & Secure APK Downloads", 
+  description = "Download the latest Android APK files safely and quickly. DexAPK provides secure APK downloads with fast loading times.",
+  seoData
+} = Astro.props;
+
+// Use SEO data if provided, otherwise use default props
+const finalTitle = seoData?.title || title;
+const finalDescription = seoData?.description || description;
 ---
 
 <!doctype html>
@@ -14,21 +38,165 @@ const { title = "DexAPK - Fast & Secure APK Downloads", description = "Download 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
-    <meta name="description" content={description} />
+    
+    <!-- Primary Meta Tags -->
+    <title>{finalTitle}</title>
+    <meta name="title" content={finalTitle} />
+    <meta name="description" content={finalDescription} />
     
     <!-- SEO Meta Tags -->
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    
-    <!-- Preload Critical Resources -->
+    {seoData?.keywords && <meta name="keywords" content={seoData.keywords} />}
+    <meta name="author" content="DexAPK" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+
+    <!-- Canonical URL -->
+    {seoData?.canonicalUrl && <link rel="canonical" href={seoData.canonicalUrl} />}
+
+    <!-- Language and Locale -->
+    <meta name="language" content="English" />
+    <meta http-equiv="content-language" content="en" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={seoData?.type || "website"} />
+    <meta property="og:url" content={seoData?.canonicalUrl || Astro.url.href} />
+    <meta property="og:title" content={finalTitle} />
+    <meta property="og:description" content={finalDescription} />
+    <meta property="og:image" content={seoData?.featuredImage || "/favicon.svg"} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={finalTitle} />
+    <meta property="og:site_name" content="DexAPK" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={seoData?.canonicalUrl || Astro.url.href} />
+    <meta property="twitter:title" content={finalTitle} />
+    <meta property="twitter:description" content={finalDescription} />
+    <meta property="twitter:image" content={seoData?.featuredImage || "/favicon.svg"} />
+    <meta property="twitter:image:alt" content={finalTitle} />
+    <meta property="twitter:site" content="@dexapk" />
+    <meta property="twitter:creator" content="@dexapk" />
+
+    <!-- Additional Meta Tags -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="DexAPK" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- App-specific Meta Tags -->
+    {seoData?.appName && (
+      <>
+        <meta name="application-name" content={seoData.appName} />
+        <meta property="al:android:app_name" content={seoData.appName} />
+        <meta property="al:android:package" content={`com.${seoData.appName.toLowerCase().replace(/\s+/g, '')}`} />
+      </>
+    )}
+
+    <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- DNS Prefetch for better performance -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "DexAPK",
+        "url": "https://dexapk.com",
+        "logo": "https://dexapk.com/favicon.svg",
+        "sameAs": [
+          "https://twitter.com/dexapk",
+          "https://github.com/dexapk"
+        ]
+      })}
+    </script>
+
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "DexAPK",
+        "url": "https://dexapk.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://dexapk.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      })}
+    </script>
+
+    <!-- App Structured Data -->
+    {seoData?.appName && (
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": seoData.appName,
+          "applicationCategory": "MobileApplication",
+          "operatingSystem": "Android",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          ...(seoData.appVersion && { "softwareVersion": seoData.appVersion }),
+          ...(seoData.appCategory && { "applicationSubCategory": seoData.appCategory }),
+          ...(seoData.appRating && seoData.appVotes && {
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": seoData.appRating,
+              "ratingCount": seoData.appVotes,
+              "bestRating": "5",
+              "worstRating": "1"
+            }
+          }),
+          ...(seoData.appPublisher && {
+            "author": {
+              "@type": "Organization",
+              "name": seoData.appPublisher
+            }
+          }),
+          ...(seoData.appSize && { "fileSize": seoData.appSize }),
+          ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
+          ...(finalDescription && { "description": finalDescription }),
+          ...(seoData.featuredImage && { "image": seoData.featuredImage })
+        })}
+      </script>
+    )}
+
+    <!-- Additional SEO Meta Tags -->
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
+    <meta name="revisit-after" content="1 days" />
+    <meta name="expires" content="never" />
+    <meta name="coverage" content="worldwide" />
+    <meta name="target" content="all" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="320" />
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+
+    <!-- Favicon and Icons -->
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="mask-icon" href="/favicon.svg" color="#3b82f6" />
+
+    <!-- RSS Feed and Sitemap -->
+    <link rel="alternate" type="application/rss+xml" title="DexAPK RSS Feed" href="/rss.xml" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     
     <!-- Theme Detection Script -->
     <script is:inline>
