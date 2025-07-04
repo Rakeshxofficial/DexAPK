@@ -1,0 +1,210 @@
+---
+// SEO Head component for comprehensive meta tags and SEO optimization
+export interface Props {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  canonicalUrl?: string;
+  featuredImage?: string;
+  appName?: string;
+  appVersion?: string;
+  appCategory?: string;
+  appRating?: number;
+  appVotes?: number;
+  appPublisher?: string;
+  appSize?: string;
+  lastUpdated?: string;
+  siteName?: string;
+  siteUrl?: string;
+  twitterHandle?: string;
+  locale?: string;
+  type?: 'website' | 'article' | 'product';
+}
+
+const {
+  title = "DexAPK - Fast & Secure APK Downloads",
+  description = "Download the latest Android APK files safely and quickly. DexAPK provides secure APK downloads with fast loading times.",
+  keywords = "apk download, android apps, mod apk, premium unlocked, free download",
+  canonicalUrl,
+  featuredImage,
+  appName,
+  appVersion,
+  appCategory,
+  appRating,
+  appVotes,
+  appPublisher,
+  appSize,
+  lastUpdated,
+  siteName = "DexAPK",
+  siteUrl = "https://dexapk.com",
+  twitterHandle = "@dexapk",
+  locale = "en_US",
+  type = "website"
+} = Astro.props;
+
+// Generate structured data for apps
+const generateAppStructuredData = () => {
+  if (!appName) return null;
+  
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": appName,
+    "applicationCategory": "MobileApplication",
+    "operatingSystem": "Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    ...(appVersion && { "softwareVersion": appVersion }),
+    ...(appCategory && { "applicationSubCategory": appCategory }),
+    ...(appRating && appVotes && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": appRating,
+        "ratingCount": appVotes,
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }),
+    ...(appPublisher && {
+      "author": {
+        "@type": "Organization",
+        "name": appPublisher
+      }
+    }),
+    ...(appSize && { "fileSize": appSize }),
+    ...(lastUpdated && { "dateModified": lastUpdated }),
+    ...(description && { "description": description }),
+    ...(featuredImage && { "image": featuredImage })
+  };
+};
+
+// Generate organization structured data
+const organizationStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": siteName,
+  "url": siteUrl,
+  "logo": `${siteUrl}/favicon.svg`,
+  "sameAs": [
+    "https://twitter.com/dexapk",
+    "https://github.com/dexapk"
+  ]
+};
+
+// Generate website structured data
+const websiteStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": siteName,
+  "url": siteUrl,
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": `${siteUrl}/search?q={search_term_string}`,
+    "query-input": "required name=search_term_string"
+  }
+};
+
+const currentUrl = canonicalUrl || Astro.url.href;
+const fullFeaturedImage = featuredImage ? (featuredImage.startsWith('http') ? featuredImage : `${siteUrl}${featuredImage}`) : `${siteUrl}/favicon.svg`;
+---
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+<meta name="keywords" content={keywords} />
+<meta name="author" content={siteName} />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="googlebot" content="index, follow" />
+<meta name="bingbot" content="index, follow" />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={currentUrl} />
+
+<!-- Language and Locale -->
+<meta name="language" content="English" />
+<meta http-equiv="content-language" content="en" />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={currentUrl} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={fullFeaturedImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={title} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content={locale} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={currentUrl} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={fullFeaturedImage} />
+<meta property="twitter:image:alt" content={title} />
+{twitterHandle && <meta property="twitter:site" content={twitterHandle} />}
+{twitterHandle && <meta property="twitter:creator" content={twitterHandle} />}
+
+<!-- Additional Meta Tags -->
+<meta name="theme-color" content="#3b82f6" />
+<meta name="msapplication-TileColor" content="#3b82f6" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content={siteName} />
+<meta name="format-detection" content="telephone=no" />
+
+<!-- App-specific Meta Tags (if app data is provided) -->
+{appName && (
+  <>
+    <meta name="application-name" content={appName} />
+    <meta property="al:android:app_name" content={appName} />
+    <meta property="al:android:package" content={`com.${appName.toLowerCase().replace(/\s+/g, '')}`} />
+  </>
+)}
+
+<!-- Preconnect to external domains for performance -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+<!-- DNS Prefetch for better performance -->
+<link rel="dns-prefetch" href="//fonts.googleapis.com" />
+<link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+<!-- Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify(organizationStructuredData)} />
+<script type="application/ld+json" set:html={JSON.stringify(websiteStructuredData)} />
+{appName && (
+  <script type="application/ld+json" set:html={JSON.stringify(generateAppStructuredData())} />
+)}
+
+<!-- Additional SEO Meta Tags -->
+<meta name="rating" content="general" />
+<meta name="distribution" content="global" />
+<meta name="revisit-after" content="1 days" />
+<meta name="expires" content="never" />
+<meta name="coverage" content="worldwide" />
+<meta name="target" content="all" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="MobileOptimized" content="320" />
+
+<!-- Security Headers -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta http-equiv="X-Frame-Options" content="DENY" />
+<meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+
+<!-- Favicon and Icons -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" href="/favicon.svg" />
+<link rel="mask-icon" href="/favicon.svg" color="#3b82f6" />
+
+<!-- RSS Feed (if available) -->
+<link rel="alternate" type="application/rss+xml" title={`${siteName} RSS Feed`} href="/rss.xml" />
+
+<!-- Sitemap -->
+<link rel="sitemap" type="application/xml" href="/sitemap.xml" />

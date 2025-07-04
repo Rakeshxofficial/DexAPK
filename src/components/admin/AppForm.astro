@@ -22,339 +22,444 @@ const isEdit = mode === 'edit';
     </div>
   </div>
 
-  <form id="app-form" class="space-y-6">
+  <form id="app-form" class="space-y-8">
     <!-- Basic Information -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          App Name *
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={app?.name || ''}
-          required
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="Enter app name"
-        />
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+        Basic Information
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            App Name *
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={app?.name || ''}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Enter app name"
+          />
+        </div>
+
+        <div>
+          <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            URL Slug *
+          </label>
+          <input
+            type="text"
+            id="slug"
+            name="slug"
+            value={app?.slug || ''}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="app-name-slug"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            URL-friendly version (e.g., chatgpt-premium)
+          </p>
+        </div>
+
+        <div>
+          <label for="version" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Version *
+          </label>
+          <input
+            type="text"
+            id="version"
+            name="version"
+            value={app?.version || '1.0.0'}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="1.0.0"
+          />
+        </div>
+
+        <div>
+          <label for="size" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            File Size *
+          </label>
+          <input
+            type="text"
+            id="size"
+            name="size"
+            value={app?.size || '0 MB'}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="25.5 MB"
+          />
+        </div>
+
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Category *
+          </label>
+          <select
+            id="category"
+            name="category"
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+          >
+            <option value="">Select Category</option>
+            <option value="Productivity" selected={app?.category === 'Productivity'}>Productivity</option>
+            <option value="Music" selected={app?.category === 'Music'}>Music</option>
+            <option value="Video" selected={app?.category === 'Video'}>Video</option>
+            <option value="Entertainment" selected={app?.category === 'Entertainment'}>Entertainment</option>
+            <option value="Social" selected={app?.category === 'Social'}>Social</option>
+            <option value="Photography" selected={app?.category === 'Photography'}>Photography</option>
+            <option value="Games" selected={app?.category === 'Games'}>Games</option>
+            <option value="Media" selected={app?.category === 'Media'}>Media</option>
+            <option value="Apps" selected={app?.category === 'Apps'}>Apps</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="publisher" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Publisher *
+          </label>
+          <input
+            type="text"
+            id="publisher"
+            name="publisher"
+            value={app?.publisher || 'Unknown'}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Publisher Name"
+          />
+        </div>
+
+        <div>
+          <label for="requirements" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Requirements *
+          </label>
+          <input
+            type="text"
+            id="requirements"
+            name="requirements"
+            value={app?.requirements || 'Android 5.0+'}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Android 5.0+"
+          />
+        </div>
+
+        <div>
+          <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Price
+          </label>
+          <input
+            type="text"
+            id="price"
+            name="price"
+            value={app?.price || 'Free'}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Free"
+          />
+        </div>
+
+        <div>
+          <label for="platform" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Platform
+          </label>
+          <input
+            type="text"
+            id="platform"
+            name="platform"
+            value={app?.platform || 'Google Play'}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Google Play"
+          />
+        </div>
+
+        <div>
+          <label for="last_updated" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Last Updated
+          </label>
+          <input
+            type="text"
+            id="last_updated"
+            name="last_updated"
+            value={app?.last_updated || new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Jan 01, 2025"
+          />
+        </div>
+
+        <div>
+          <label for="rating" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Rating (0-5)
+          </label>
+          <input
+            type="number"
+            id="rating"
+            name="rating"
+            min="0"
+            max="5"
+            step="0.1"
+            value={app?.rating || 4.0}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="4.0"
+          />
+        </div>
+
+        <div>
+          <label for="votes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Vote Count
+          </label>
+          <input
+            type="number"
+            id="votes"
+            name="votes"
+            min="0"
+            value={app?.votes || 0}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="1000"
+          />
+        </div>
       </div>
 
+      <!-- Description -->
       <div>
-        <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          URL Slug *
+        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Description *
         </label>
-        <input
-          type="text"
-          id="slug"
-          name="slug"
-          value={app?.slug || ''}
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
           required
           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="app-name-slug"
-        />
+          placeholder="Enter app description..."
+        >{app?.description || ''}</textarea>
+      </div>
+
+      <!-- URLs -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="icon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Icon URL
+          </label>
+          <input
+            type="url"
+            id="icon"
+            name="icon"
+            value={app?.icon || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="https://example.com/icon.png"
+          />
+        </div>
+
+        <div>
+          <label for="download_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Download URL
+          </label>
+          <input
+            type="url"
+            id="download_url"
+            name="download_url"
+            value={app?.download_url || '#'}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="https://example.com/download"
+          />
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div>
+        <label for="features" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Features (one per line)
+        </label>
+        <textarea
+          id="features"
+          name="features"
+          rows="4"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+          placeholder="Premium features unlocked&#10;No ads&#10;Unlimited access"
+        >{app?.features ? app.features.join('\n') : ''}</textarea>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          URL-friendly version (e.g., chatgpt-premium)
+          Enter each feature on a new line
         </p>
       </div>
 
+      <!-- MOD Info -->
       <div>
-        <label for="version" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Version *
+        <label for="mod_info" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          MOD Information (one per line)
         </label>
-        <input
-          type="text"
-          id="version"
-          name="version"
-          value={app?.version || '1.0.0'}
-          required
+        <textarea
+          id="mod_info"
+          name="mod_info"
+          rows="4"
           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="1.0.0"
-        />
+          placeholder="Premium Unlocked&#10;Ad-Free Experience&#10;No Root Required"
+        >{app?.mod_info ? app.mod_info.join('\n') : ''}</textarea>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Enter each MOD feature on a new line
+        </p>
       </div>
 
+      <!-- Screenshots -->
       <div>
-        <label for="size" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          File Size *
+        <label for="screenshots" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Screenshot URLs (one per line)
         </label>
-        <input
-          type="text"
-          id="size"
-          name="size"
-          value={app?.size || '0 MB'}
-          required
+        <textarea
+          id="screenshots"
+          name="screenshots"
+          rows="3"
           class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="25.5 MB"
-        />
-      </div>
-
-      <div>
-        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Category *
-        </label>
-        <select
-          id="category"
-          name="category"
-          required
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-        >
-          <option value="">Select Category</option>
-          <option value="Productivity" selected={app?.category === 'Productivity'}>Productivity</option>
-          <option value="Music" selected={app?.category === 'Music'}>Music</option>
-          <option value="Video" selected={app?.category === 'Video'}>Video</option>
-          <option value="Entertainment" selected={app?.category === 'Entertainment'}>Entertainment</option>
-          <option value="Social" selected={app?.category === 'Social'}>Social</option>
-          <option value="Photography" selected={app?.category === 'Photography'}>Photography</option>
-          <option value="Games" selected={app?.category === 'Games'}>Games</option>
-          <option value="Media" selected={app?.category === 'Media'}>Media</option>
-          <option value="Apps" selected={app?.category === 'Apps'}>Apps</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="publisher" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Publisher *
-        </label>
-        <input
-          type="text"
-          id="publisher"
-          name="publisher"
-          value={app?.publisher || 'Unknown'}
-          required
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="Publisher Name"
-        />
-      </div>
-
-      <div>
-        <label for="requirements" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Requirements *
-        </label>
-        <input
-          type="text"
-          id="requirements"
-          name="requirements"
-          value={app?.requirements || 'Android 5.0+'}
-          required
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="Android 5.0+"
-        />
-      </div>
-
-      <div>
-        <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Price
-        </label>
-        <input
-          type="text"
-          id="price"
-          name="price"
-          value={app?.price || 'Free'}
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="Free"
-        />
-      </div>
-
-      <div>
-        <label for="platform" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Platform
-        </label>
-        <input
-          type="text"
-          id="platform"
-          name="platform"
-          value={app?.platform || 'Google Play'}
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="Google Play"
-        />
-      </div>
-
-      <div>
-        <label for="last_updated" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Last Updated
-        </label>
-        <input
-          type="text"
-          id="last_updated"
-          name="last_updated"
-          value={app?.last_updated || new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="Jan 01, 2025"
-        />
-      </div>
-
-      <div>
-        <label for="rating" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Rating (0-5)
-        </label>
-        <input
-          type="number"
-          id="rating"
-          name="rating"
-          min="0"
-          max="5"
-          step="0.1"
-          value={app?.rating || 4.0}
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="4.0"
-        />
-      </div>
-
-      <div>
-        <label for="votes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Vote Count
-        </label>
-        <input
-          type="number"
-          id="votes"
-          name="votes"
-          min="0"
-          value={app?.votes || 0}
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="1000"
-        />
+          placeholder="https://example.com/screenshot1.jpg&#10;https://example.com/screenshot2.jpg"
+        >{app?.screenshots ? app.screenshots.join('\n') : ''}</textarea>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Enter each screenshot URL on a new line
+        </p>
       </div>
     </div>
 
-    <!-- Description -->
-    <div>
-      <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Description *
-      </label>
-      <textarea
-        id="description"
-        name="description"
-        rows="4"
-        required
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-        placeholder="Enter app description..."
-      >{app?.description || ''}</textarea>
-    </div>
+    <!-- SEO Settings -->
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+        SEO Settings
+      </h3>
+      
+      <div class="grid grid-cols-1 gap-6">
+        <div>
+          <label for="seo_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            SEO Title
+          </label>
+          <input
+            type="text"
+            id="seo_title"
+            name="seo_title"
+            value={app?.seo_title || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Custom SEO title (leave empty for auto-generated)"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            If empty, will auto-generate: "{app?.name || 'App Name'} v{app?.version || '1.0.0'} MOD APK - Premium Features Unlocked | DexAPK"
+          </p>
+        </div>
 
-    <!-- URLs -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <label for="icon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Icon URL
-        </label>
-        <input
-          type="url"
-          id="icon"
-          name="icon"
-          value={app?.icon || ''}
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="https://example.com/icon.png"
-        />
+        <div>
+          <label for="seo_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            SEO Description
+          </label>
+          <textarea
+            id="seo_description"
+            name="seo_description"
+            rows="3"
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Custom SEO description (leave empty for auto-generated)"
+          >{app?.seo_description || ''}</textarea>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Recommended length: 150-160 characters. If empty, will auto-generate from app description.
+          </p>
+        </div>
+
+        <div>
+          <label for="seo_featured_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            SEO Featured Image URL
+          </label>
+          <input
+            type="url"
+            id="seo_featured_image"
+            name="seo_featured_image"
+            value={app?.seo_featured_image || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="https://example.com/featured-image.jpg"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Used for social media sharing (OG/Twitter cards). If empty, will use app icon. Recommended size: 1200x630px.
+          </p>
+        </div>
+
+        <div>
+          <label for="seo_keywords" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            SEO Keywords
+          </label>
+          <input
+            type="text"
+            id="seo_keywords"
+            name="seo_keywords"
+            value={app?.seo_keywords || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="keyword1, keyword2, keyword3"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Comma-separated keywords. If empty, will auto-generate from app name and category.
+          </p>
+        </div>
+
+        <div>
+          <label for="seo_canonical_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Canonical URL
+          </label>
+          <input
+            type="url"
+            id="seo_canonical_url"
+            name="seo_canonical_url"
+            value={app?.seo_canonical_url || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="https://dexapk.com/app-slug"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Custom canonical URL. If empty, will use the default app URL.
+          </p>
+        </div>
       </div>
-
-      <div>
-        <label for="download_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Download URL
-        </label>
-        <input
-          type="url"
-          id="download_url"
-          name="download_url"
-          value={app?.download_url || '#'}
-          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-          placeholder="https://example.com/download"
-        />
-      </div>
-    </div>
-
-    <!-- Features -->
-    <div>
-      <label for="features" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Features (one per line)
-      </label>
-      <textarea
-        id="features"
-        name="features"
-        rows="4"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-        placeholder="Premium features unlocked&#10;No ads&#10;Unlimited access"
-      >{app?.features ? app.features.join('\n') : ''}</textarea>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Enter each feature on a new line
-      </p>
-    </div>
-
-    <!-- MOD Info -->
-    <div>
-      <label for="mod_info" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        MOD Information (one per line)
-      </label>
-      <textarea
-        id="mod_info"
-        name="mod_info"
-        rows="4"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-        placeholder="Premium Unlocked&#10;Ad-Free Experience&#10;No Root Required"
-      >{app?.mod_info ? app.mod_info.join('\n') : ''}</textarea>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Enter each MOD feature on a new line
-      </p>
-    </div>
-
-    <!-- Screenshots -->
-    <div>
-      <label for="screenshots" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        Screenshot URLs (one per line)
-      </label>
-      <textarea
-        id="screenshots"
-        name="screenshots"
-        rows="3"
-        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
-        placeholder="https://example.com/screenshot1.jpg&#10;https://example.com/screenshot2.jpg"
-      >{app?.screenshots ? app.screenshots.join('\n') : ''}</textarea>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        Enter each screenshot URL on a new line
-      </p>
     </div>
 
     <!-- Status Toggles -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-        <div>
-          <label for="is_featured" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Featured App
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+        Status Settings
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div>
+            <label for="is_featured" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Featured App
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Show in featured section
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="is_featured"
+              name="is_featured"
+              checked={app?.is_featured || false}
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
           </label>
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            Show in featured section
-          </p>
         </div>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            id="is_featured"
-            name="is_featured"
-            checked={app?.is_featured || false}
-            class="sr-only peer"
-          />
-          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-        </label>
-      </div>
 
-      <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-        <div>
-          <label for="is_active" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Active Status
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div>
+            <label for="is_active" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Active Status
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Publicly visible
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="is_active"
+              name="is_active"
+              checked={app?.is_active !== false}
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
           </label>
-          <p class="text-xs text-gray-500 dark:text-gray-400">
-            Publicly visible
-          </p>
         </div>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            id="is_active"
-            name="is_active"
-            checked={app?.is_active !== false}
-            class="sr-only peer"
-          />
-          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-        </label>
       </div>
     </div>
 
@@ -479,7 +584,13 @@ const isEdit = mode === 'edit';
           mod_info: modInfoText ? modInfoText.split('\n').filter(f => f.trim()) : [],
           screenshots: screenshotsText ? screenshotsText.split('\n').filter(f => f.trim()) : [],
           is_featured: formData.has('is_featured'),
-          is_active: formData.has('is_active')
+          is_active: formData.has('is_active'),
+          // SEO fields
+          seo_title: formData.get('seo_title') || null,
+          seo_description: formData.get('seo_description') || null,
+          seo_featured_image: formData.get('seo_featured_image') || null,
+          seo_keywords: formData.get('seo_keywords') || null,
+          seo_canonical_url: formData.get('seo_canonical_url') || null
         };
 
         console.log('Form data being submitted:', appData);
