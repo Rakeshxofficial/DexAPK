@@ -289,26 +289,12 @@ export async function updateApp(slug: string, updates: any) {
 export async function deleteApp(slug: string) {
   try {
     console.log('Attempting to delete app with slug:', slug);
-    
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
       return { success: false, error: 'Supabase credentials not available' };
     }
-
-    // First, verify the app exists
-    const { data: existingApp, error: fetchError } = await supabase
-      .from('apps')
-      .select('id, slug')
-      .eq('slug', slug)
-      .single();
-
-    if (fetchError) {
-      console.error('Error fetching app before deletion:', fetchError);
-      return { success: false, error: `App not found: ${fetchError.message}` };
-    }
-
-    console.log('Found app to delete:', existingApp);
 
     // Perform the deletion
     const { error } = await supabase
