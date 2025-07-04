@@ -4,10 +4,8 @@
 
 [build.environment]
   NODE_VERSION = "18"
-  # Disable Netlify's automatic trailing slash handling
-  NETLIFY_TRAILING_SLASH = "never"
 
-# Explicitly handle trailing slashes - this is the key fix
+# Explicitly handle trailing slashes - this is critical for preventing redirect loops
 [[redirects]]
   from = "/*/"
   to = "/:splat"
