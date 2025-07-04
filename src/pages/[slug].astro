@@ -127,20 +127,18 @@ const dynamicFAQs = [
 <Layout seoData={seoData}>
   <Fragment slot="head">
     <!-- FAQ Schema -->
-    {app.article_content && (
-      <script type="application/ld+json" set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": dynamicFAQs.map(faq => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer
-          }
-        }))
-      })} />
-    )}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": dynamicFAQs.map(faq => ({
+        "@type": "Question",
+        "name": faq.question,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": faq.answer
+        }
+      }))
+    })} />
 
     <!-- Breadcrumb Schema -->
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -175,30 +173,75 @@ const dynamicFAQs = [
     })} />
 
     <!-- Review Schema -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Review",
-      "itemReviewed": {
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": "SoftwareApplication",
+          "name": app.name,
+          "applicationCategory": "MobileApplication",
+          "operatingSystem": "Android"
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": app.rating,
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "DexAPK"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "DexAPK"
+        }
+      })}
+    </script>
+    
+    <!-- SoftwareApplication Schema -->
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": app.name,
         "applicationCategory": "MobileApplication",
-        "operatingSystem": "Android"
-      },
-      "reviewRating": {
-        "@type": "Rating",
-        "ratingValue": app.rating,
-        "bestRating": "5",
-        "worstRating": "1"
-      },
-      "author": {
-        "@type": "Organization",
-        "name": "DexAPK"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "DexAPK"
-      }
-    })} />
+        "operatingSystem": "Android",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": app.rating,
+          "ratingCount": app.votes,
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "softwareVersion": app.version,
+        "fileSize": app.size,
+        "datePublished": app.created_at || new Date().toISOString(),
+        "dateModified": app.updated_at || new Date().toISOString(),
+        "description": app.description
+      })}
+    </script>
+    
+    <!-- Website Schema -->
+    <script type="application/ld+json">
+      {JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "DexAPK",
+        "url": "https://dexapk.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://dexapk.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      })}
+    </script>
   </Fragment>
 
   <Header />
