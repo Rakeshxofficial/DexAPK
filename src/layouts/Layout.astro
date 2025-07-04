@@ -30,6 +30,31 @@ const {
 const finalTitle = seoData?.title || title;
 const finalDescription = seoData?.description || description;
 
+// Organization schema
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "DexAPK",
+  "url": "https://dexapk.com",
+  "logo": "https://dexapk.com/web-app-manifest-512x512.png",
+  "sameAs": [
+    "https://twitter.com/dexapk",
+    "https://github.com/dexapk"
+  ]
+};
+
+// Website schema
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DexAPK",
+  "url": "https://dexapk.com",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://dexapk.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+};
 ---
 
 <!doctype html>
@@ -127,90 +152,45 @@ const finalDescription = seoData?.description || description;
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
 
-    <!-- Organization Schema -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "@id": "https://dexapk.com/#organization",
-        "@id": "https://dexapk.com/#organization",
-        "name": "DexAPK",
-        "url": "https://dexapk.com",
-        "logo": "https://dexapk.com/web-app-manifest-512x512.png",
-        "sameAs": [
-          "https://twitter.com/dexapk",
-          "https://github.com/dexapk"
-        ]
-      }
-    </script>
-
-    <!-- Website Schema -->
-    <!-- Website Schema -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "@id": "https://dexapk.com/#website",
-        "@id": "https://dexapk.com/#website",
-        "name": "DexAPK",
-        "url": "https://dexapk.com",
-        "publisher": {
-          "@id": "https://dexapk.com/#organization"
-        },
-        "publisher": {
-          "@id": "https://dexapk.com/#organization"
-        },
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://dexapk.com/search?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
-      }
-    </script>
+    <!-- Base Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 
     <!-- App Structured Data -->
     {seoData?.appName && (
-      <script type="application/ld+json">
-        {
+      <script type="application/ld+json" set:html={JSON.stringify({
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
-          "@id": `https://dexapk.com/${seoData.appName?.toLowerCase().replace(/\s+/g, '-')}#software`,
           "name": seoData.appName,
           "applicationCategory": "MobileApplication",
           "operatingSystem": "Android",
           "offers": {
             "@type": "Offer",
             "price": "0",
-            "priceCurrency": "USD",
-            "availability": "https://schema.org/InStock"
+            "priceCurrency": "USD"
           },
-          "softwareVersion": seoData.appVersion || "1.0.0",
-          "applicationSubCategory": seoData.appCategory || "Apps",
-          "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": seoData.appRating || 4.0,
-            "ratingCount": seoData.appVotes || 100,
-            "bestRating": "5",
-            "worstRating": "1"
-          },
-          "author": {
-            "@type": "Organization",
-            "name": seoData.appPublisher || "Unknown"
-          },
-          "fileSize": seoData.appSize || "0 MB",
-          "dateModified": seoData.lastUpdated || new Date().toISOString(),
-          "description": finalDescription,
-          "image": seoData.featuredImage || "/web-app-manifest-512x512.png"
-        }
-              ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
-              ...(finalDescription && { "description": finalDescription }),
-              ...(seoData.featuredImage && { "image": seoData.featuredImage })
-            },
-            null,
-            2
-          )
-        }
-      </script>
+          ...(seoData.appVersion && { "softwareVersion": seoData.appVersion }),
+          ...(seoData.appCategory && { "applicationSubCategory": seoData.appCategory }),
+          ...(seoData.appRating && seoData.appVotes && {
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": seoData.appRating,
+              "ratingCount": seoData.appVotes,
+              "bestRating": "5",
+              "worstRating": "1"
+            }
+          }),
+          ...(seoData.appPublisher && {
+            "author": {
+              "@type": "Organization",
+              "name": seoData.appPublisher
+            }
+          }),
+          ...(seoData.appSize && { "fileSize": seoData.appSize }),
+          ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
+          ...(finalDescription && { "description": finalDescription }),
+          ...(seoData.featuredImage && { "image": seoData.featuredImage })
+        })} />
     )}
 
     <!-- Additional SEO Meta Tags -->
