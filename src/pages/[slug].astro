@@ -106,9 +106,10 @@ const articleContent = app.article_content || defaultArticleContent;
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
     <!-- Breadcrumbs -->
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-hidden" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ol class="flex items-center space-x-2 py-4 text-sm" role="list">
+        <div class="overflow-x-auto scrollbar-hide py-4">
+          <ol class="flex items-center space-x-2 text-sm whitespace-nowrap" role="list">
           <li>
             <a href="/" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" aria-label="Go to homepage">
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -139,7 +140,8 @@ const articleContent = app.article_content || defaultArticleContent;
             </svg>
             <span class="ml-2 font-medium text-gray-900 dark:text-white" aria-current="page">{app.name}</span>
           </li>
-        </ol>
+          </ol>
+        </div>
       </div>
     </nav>
 
