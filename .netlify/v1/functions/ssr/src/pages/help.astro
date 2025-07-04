@@ -1,0 +1,458 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const title = "Help Center - DexAPK";
+const description = "Get help with downloading and installing MOD APKs. Find answers to common questions about DexAPK.";
+---
+
+<Layout title={title} description={description}>
+  <Header />
+  
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
+    <!-- Breadcrumbs -->
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ol class="flex items-center space-x-2 py-4 text-sm" role="list">
+          <li>
+            <a href="/" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" aria-label="Go to homepage">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+              </svg>
+              <span class="sr-only">Home</span>
+            </a>
+          </li>
+          <li class="flex items-center">
+            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="ml-2 font-medium text-gray-900 dark:text-white" aria-current="page">Help Center</span>
+          </li>
+        </ol>
+      </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+            <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+          Help Center
+        </h1>
+        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
+          Find answers to common questions and get support for DexAPK
+        </p>
+      </div>
+    </section>
+
+    <!-- Help Content -->
+    <section class="py-12">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Quick Links -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <a href="#download-help" class="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Download Help</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">Troubleshoot download issues and learn how to get MOD APKs</p>
+          </a>
+          
+          <a href="#installation-help" class="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Installation Guide</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">Step-by-step instructions for installing MOD APKs safely</p>
+          </a>
+          
+          <a href="#faq" class="bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">FAQ</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">Answers to frequently asked questions about DexAPK</p>
+          </a>
+        </div>
+
+        <!-- Download Help Section -->
+        <div id="download-help" class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <svg class="w-6 h-6 mr-3 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+            </svg>
+            Download Help
+          </h2>
+          
+          <div class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">How to Download MOD APKs</h3>
+              <ol class="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
+                <li>Browse our collection of MOD APKs on the homepage or through categories</li>
+                <li>Click on the app you want to download to view its details page</li>
+                <li>Click the <strong>Download</strong> button on the app details page</li>
+                <li>Wait for the download to complete in your browser</li>
+                <li>Once downloaded, proceed to installation (see Installation Guide)</li>
+              </ol>
+            </div>
+            
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Troubleshooting Download Issues</h3>
+              <div class="space-y-4">
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">Download Not Starting</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>Check your internet connection</li>
+                    <li>Try refreshing the page</li>
+                    <li>Ensure you have enough storage space on your device</li>
+                    <li>Try using a different browser</li>
+                  </ul>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">Download Speed Issues</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>Check your internet connection speed</li>
+                    <li>Try downloading during off-peak hours</li>
+                    <li>Close other applications that might be using bandwidth</li>
+                  </ul>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">Corrupted Downloads</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>Delete the partially downloaded file and try again</li>
+                    <li>Use a download manager app for better reliability</li>
+                    <li>Check if your device has enough storage space</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Installation Help Section -->
+        <div id="installation-help" class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <svg class="w-6 h-6 mr-3 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            Installation Guide
+          </h2>
+          
+          <div class="space-y-6">
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Step-by-Step Installation</h3>
+              <div class="space-y-4">
+                <div class="flex items-start">
+                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">1</div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Enable Unknown Sources</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-2">Before installing APK files, you need to enable installation from unknown sources:</p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 text-sm">
+                      <li>Go to <strong>Settings</strong> on your Android device</li>
+                      <li>Navigate to <strong>Security</strong> or <strong>Privacy</strong></li>
+                      <li>Find and enable <strong>Unknown Sources</strong> or <strong>Install unknown apps</strong></li>
+                      <li>On newer Android versions (8.0+), you may need to enable it per app (for your browser or file manager)</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">2</div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Locate the Downloaded APK</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-2">Find the APK file you downloaded:</p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 text-sm">
+                      <li>Open your device's <strong>File Manager</strong> or <strong>Downloads</strong> app</li>
+                      <li>Navigate to the <strong>Downloads</strong> folder</li>
+                      <li>Look for the APK file you just downloaded</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">3</div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Install the APK</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-2">Install the application:</p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 text-sm">
+                      <li>Tap on the APK file to start the installation process</li>
+                      <li>Review the permissions requested by the app</li>
+                      <li>Tap <strong>Install</strong> to proceed with installation</li>
+                      <li>Wait for the installation to complete</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div class="flex items-start">
+                  <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">4</div>
+                  <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-1">Open and Enjoy</h4>
+                    <p class="text-gray-700 dark:text-gray-300 mb-2">Start using the MOD APK:</p>
+                    <ul class="list-disc list-inside text-gray-600 dark:text-gray-400 text-sm">
+                      <li>Tap <strong>Open</strong> after installation completes, or find the app in your app drawer</li>
+                      <li>Enjoy all premium features unlocked in the MOD version</li>
+                      <li>If you encounter any issues, check our troubleshooting section below</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Installation Troubleshooting</h3>
+              <div class="space-y-4">
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">"App not installed" Error</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>Ensure you have enough storage space on your device</li>
+                    <li>Uninstall any previous version of the app first</li>
+                    <li>Try downloading the APK file again</li>
+                    <li>Restart your device and try installing again</li>
+                  </ul>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">"Parse Error" or "There was a problem parsing the package"</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>The APK file might be corrupted - try downloading again</li>
+                    <li>Ensure your device meets the minimum Android version requirement</li>
+                    <li>Check if the APK is compatible with your device architecture (ARM, x86, etc.)</li>
+                  </ul>
+                </div>
+                
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">"Install blocked" or Security Warning</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>Make sure you've enabled installation from unknown sources</li>
+                    <li>On newer Android versions, grant permission to your browser or file manager to install apps</li>
+                    <li>Temporarily disable any antivirus apps that might be blocking installation</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div id="faq" class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+            <svg class="w-6 h-6 mr-3 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Frequently Asked Questions
+          </h2>
+          
+          <div class="space-y-6">
+            <details class="group border-l-4 border-purple-500 pl-4 transition-all duration-200 hover:border-purple-600">
+              <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-purple-600 dark:group-open:text-purple-400 transition-colors duration-200">
+                <span>Are MOD APKs safe to use?</span>
+                <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p>All MOD APKs on DexAPK are thoroughly scanned for malware and viruses before being made available for download. However, as with any modified application, there are some inherent risks:</p>
+                <ul class="list-disc list-inside mt-2 space-y-1">
+                  <li>We recommend using a reliable antivirus app on your device</li>
+                  <li>Only download MOD APKs from trusted sources like DexAPK</li>
+                  <li>Be cautious about granting excessive permissions to apps</li>
+                  <li>Consider using a separate user profile or secure folder for MOD apps</li>
+                </ul>
+              </div>
+            </details>
+            
+            <details class="group border-l-4 border-purple-500 pl-4 transition-all duration-200 hover:border-purple-600">
+              <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-purple-600 dark:group-open:text-purple-400 transition-colors duration-200">
+                <span>Do I need to root my device to use MOD APKs?</span>
+                <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p>No, the vast majority of MOD APKs on DexAPK do not require root access. They are designed to work on standard Android devices without any special modifications. However, some advanced mods for certain games or apps might require root access for full functionality. We clearly indicate in the app description if root is required.</p>
+              </div>
+            </details>
+            
+            <details class="group border-l-4 border-purple-500 pl-4 transition-all duration-200 hover:border-purple-600">
+              <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-purple-600 dark:group-open:text-purple-400 transition-colors duration-200">
+                <span>Will I get banned for using MOD APKs?</span>
+                <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p>The risk of getting banned depends on the type of app and how it's used:</p>
+                <ul class="list-disc list-inside mt-2 space-y-1">
+                  <li>For single-player games or offline apps, the risk is minimal</li>
+                  <li>For online games or apps with server verification, there is a higher risk of account bans</li>
+                  <li>Social media and streaming service MODs may result in account suspension if detected</li>
+                </ul>
+                <p class="mt-2">We recommend using a secondary account for online services when using MOD APKs to minimize risks to your main accounts.</p>
+              </div>
+            </details>
+            
+            <details class="group border-l-4 border-purple-500 pl-4 transition-all duration-200 hover:border-purple-600">
+              <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-purple-600 dark:group-open:text-purple-400 transition-colors duration-200">
+                <span>How often are MOD APKs updated?</span>
+                <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p>We strive to keep our MOD APKs up-to-date with the latest versions. Update frequency depends on several factors:</p>
+                <ul class="list-disc list-inside mt-2 space-y-1">
+                  <li>Popular apps are updated more frequently, usually within days of official updates</li>
+                  <li>Some apps may take longer to update if the modifications are complex</li>
+                  <li>We prioritize security updates and bug fixes</li>
+                </ul>
+                <p class="mt-2">You can check the "Last Updated" date on each app page to see when it was last updated.</p>
+              </div>
+            </details>
+            
+            <details class="group border-l-4 border-purple-500 pl-4 transition-all duration-200 hover:border-purple-600">
+              <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-purple-600 dark:group-open:text-purple-400 transition-colors duration-200">
+                <span>What should I do if an app crashes or doesn't work?</span>
+                <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p>If you're experiencing issues with a MOD APK, try these troubleshooting steps:</p>
+                <ol class="list-decimal list-inside mt-2 space-y-1">
+                  <li>Uninstall any previous version of the app completely</li>
+                  <li>Restart your device to clear memory and background processes</li>
+                  <li>Make sure your device meets the minimum requirements for the app</li>
+                  <li>Try downloading the APK again in case the file was corrupted</li>
+                  <li>Check if there's a newer version available on our site</li>
+                </ol>
+                <p class="mt-2">If the problem persists, please contact us through our <a href="/contact" class="text-blue-600 dark:text-blue-400 hover:underline">Contact Page</a> with details about the issue, your device model, and Android version.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- Contact Us Button -->
+        <div class="text-center mt-12">
+          <p class="text-gray-600 dark:text-gray-400 mb-4">Still have questions or need further assistance?</p>
+          <a 
+            href="/contact" 
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            Contact Us
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+  
+  <Footer />
+</Layout>
+
+<style>
+  details[open] summary {
+    margin-bottom: 0.5rem;
+  }
+  
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  details summary {
+    list-style: none;
+  }
+  
+  /* Smooth scrolling for anchor links */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Ensure minimum touch target sizes */
+  a, button {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
+
+<script>
+  // Add smooth scrolling for anchor links
+  document.addEventListener('DOMContentLoaded', function() {
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    
+    anchorLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').slice(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          // Check if user prefers reduced motion
+          const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          
+          targetElement.scrollIntoView({
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            block: 'start'
+          });
+          
+          // Update URL without triggering page reload
+          history.pushState(null, null, `#${targetId}`);
+          
+          // Announce to screen readers
+          announceToScreenReader(`Navigated to ${targetId.replace(/-/g, ' ')} section`);
+        }
+      });
+    });
+    
+    // Screen reader announcements
+    function announceToScreenReader(message) {
+      const announcement = document.createElement('div');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.setAttribute('aria-atomic', 'true');
+      announcement.className = 'sr-only';
+      announcement.textContent = message;
+      
+      document.body.appendChild(announcement);
+      
+      setTimeout(() => {
+        document.body.removeChild(announcement);
+      }, 1000);
+    }
+  });
+</script>
