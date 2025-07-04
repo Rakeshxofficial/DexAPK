@@ -121,6 +121,11 @@ const dynamicFAQs = generateDynamicFAQ(app);
 </div>
 
 <style>
+  /* Add schema markup for FAQ */
+  :global(.faq-schema) {
+    display: none;
+  }
+  
   details[open] summary {
     margin-bottom: 0.5rem;
   }
@@ -133,3 +138,40 @@ const dynamicFAQs = generateDynamicFAQ(app);
     list-style: none;
   }
 </style>
+
+<script>
+  // Generate FAQ schema markup
+  document.addEventListener('DOMContentLoaded', function() {
+    const faqItems = document.querySelectorAll('details');
+    if (faqItems.length === 0) return;
+    
+    const faqSchema = {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": []
+    };
+    
+    faqItems.forEach(item => {
+      const question = item.querySelector('summary')?.textContent?.trim();
+      const answer = item.querySelector('summary + div')?.textContent?.trim();
+      
+      if (question && answer) {
+        faqSchema.mainEntity.push({
+          "@type": "Question",
+          "name": question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": answer
+          }
+        });
+      }
+    });
+    
+    // Add schema to page
+    const schemaScript = document.createElement('script');
+    schemaScript.type = 'application/ld+json';
+    schemaScript.textContent = JSON.stringify(faqSchema);
+    schemaScript.className = 'faq-schema';
+    document.head.appendChild(schemaScript);
+  });
+</script>

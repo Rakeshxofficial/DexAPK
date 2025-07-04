@@ -99,148 +99,9 @@ ${app.name} MOD APK offers an exceptional experience with all premium features u
 
 const articleContent = app.article_content || defaultArticleContent;
 
-// Generate dynamic FAQs
-const dynamicFAQs = app ? [
-  {
-    question: `What is ${app.name} MOD APK?`,
-    answer: `${app.name} MOD APK is a modified version of the original ${app.name} app that provides premium features unlocked for free. It offers enhanced functionality and removes limitations present in the standard version.`
-  },
-  {
-    question: `Is ${app.name} MOD APK safe to download?`,
-    answer: `Yes, our ${app.name} MOD APK is thoroughly tested and scanned for malware. We ensure all our APK files are safe and secure for download and installation.`
-  },
-  {
-    question: `How do I install ${app.name} MOD APK?`,
-    answer: `To install ${app.name} MOD APK, first enable "Unknown Sources" in your Android settings, then download the APK file and tap to install it on your device.`
-  },
-  {
-    question: `What are the system requirements for ${app.name}?`,
-    answer: `${app.name} requires ${app.requirements} to run properly on your Android device.`
-  },
-  {
-    question: `Can I update ${app.name} MOD APK?`,
-    answer: `You can update ${app.name} MOD APK by downloading the latest version from our website. Make sure to uninstall the previous version before installing the new one.`
-  }
-] : [];
 ---
 
 <Layout seoData={seoData}>
-  {app && (
-    <Fragment slot="head">
-      <!-- FAQ Schema -->
-      <script type="application/ld+json" set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "mainEntity": dynamicFAQs.map(faq => ({
-          "@type": "Question",
-          "name": faq.question,
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": faq.answer
-          }
-        }))
-      })} />
-
-      <!-- Breadcrumb Schema -->
-      <script type="application/ld+json" set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://dexapk.com"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Apps",
-            "item": "https://dexapk.com/apps"
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": app.category,
-            "item": `https://dexapk.com/categories/${app.category.toLowerCase()}`
-          },
-          {
-            "@type": "ListItem",
-            "position": 4,
-            "name": app.name,
-            "item": `https://dexapk.com/${app.slug}`
-          }
-        ]
-      })} />
-
-      <!-- SoftwareApplication Schema -->
-      <script type="application/ld+json" set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": app.name,
-        "applicationCategory": "MobileApplication",
-        "applicationSubCategory": app.category,
-        "operatingSystem": "Android",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": app.rating,
-          "ratingCount": app.votes,
-          "bestRating": "5",
-          "worstRating": "1"
-        },
-        "softwareVersion": app.version,
-        "fileSize": app.size,
-        "datePublished": app.created_at || new Date().toISOString(),
-        "dateModified": app.updated_at || new Date().toISOString(),
-        "description": app.description
-      })} />
-
-      <!-- Review Schema -->
-      <script type="application/ld+json" set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Review",
-        "itemReviewed": {
-          "@type": "SoftwareApplication",
-          "name": app.name,
-          "applicationCategory": "MobileApplication",
-          "operatingSystem": "Android"
-        },
-        "reviewRating": {
-          "@type": "Rating",
-          "ratingValue": app.rating,
-          "bestRating": "5",
-          "worstRating": "1"
-        },
-        "author": {
-          "@type": "Organization",
-          "name": "DexAPK"
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "DexAPK"
-        }
-      })} />
-      
-      <!-- Website Schema -->
-      <script type="application/ld+json" set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "DexAPK",
-        "url": "https://dexapk.com",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://dexapk.com/search?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
-      })} />
-    </Fragment>
-  )}
-
   <Header />
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -574,6 +435,185 @@ const dynamicFAQs = app ? [
   </main>
   
   <Footer />
+  
+  {app && (
+    <script is:inline define:vars={{ 
+      appName: app.name,
+      appSlug: app.slug,
+      appCategory: app.category,
+      appRating: app.rating,
+      appVotes: app.votes,
+      appVersion: app.version,
+      appSize: app.size,
+      appDescription: app.description,
+      appRequirements: app.requirements,
+      appCreatedAt: app.created_at,
+      appUpdatedAt: app.updated_at
+    }}>
+      // Add structured data for better SEO
+      document.addEventListener('DOMContentLoaded', function() {
+        // FAQ Schema
+        const faqSchema = {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": `What is ${appName} MOD APK?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `${appName} MOD APK is a modified version of the original ${appName} app that provides premium features unlocked for free. It offers enhanced functionality and removes limitations present in the standard version.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `Is ${appName} MOD APK safe to download?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `Yes, our ${appName} MOD APK is thoroughly tested and scanned for malware. We ensure all our APK files are safe and secure for download and installation.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `How do I install ${appName} MOD APK?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `To install ${appName} MOD APK, first enable "Unknown Sources" in your Android settings, then download the APK file and tap to install it on your device.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `What are the system requirements for ${appName}?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `${appName} requires ${appRequirements} to run properly on your Android device.`
+              }
+            },
+            {
+              "@type": "Question",
+              "name": `Can I update ${appName} MOD APK?`,
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `You can update ${appName} MOD APK by downloading the latest version from our website. Make sure to uninstall the previous version before installing the new one.`
+              }
+            }
+          ]
+        };
+
+        // Breadcrumb Schema
+        const breadcrumbSchema = {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://dexapk.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Apps",
+              "item": "https://dexapk.com/apps"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": appCategory,
+              "item": `https://dexapk.com/categories/${appCategory.toLowerCase()}`
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": appName,
+              "item": `https://dexapk.com/${appSlug}`
+            }
+          ]
+        };
+
+        // SoftwareApplication Schema
+        const softwareSchema = {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": appName,
+          "applicationCategory": "MobileApplication",
+          "applicationSubCategory": appCategory,
+          "operatingSystem": "Android",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": appRating,
+            "ratingCount": appVotes,
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "softwareVersion": appVersion,
+          "fileSize": appSize,
+          "datePublished": appCreatedAt || new Date().toISOString(),
+          "dateModified": appUpdatedAt || new Date().toISOString(),
+          "description": appDescription
+        };
+
+        // Review Schema
+        const reviewSchema = {
+          "@context": "https://schema.org",
+          "@type": "Review",
+          "itemReviewed": {
+            "@type": "SoftwareApplication",
+            "name": appName,
+            "applicationCategory": "MobileApplication",
+            "operatingSystem": "Android"
+          },
+          "reviewRating": {
+            "@type": "Rating",
+            "ratingValue": appRating,
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "author": {
+            "@type": "Organization",
+            "name": "DexAPK"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "DexAPK"
+          }
+        };
+
+        // Website Schema
+        const websiteSchema = {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "DexAPK",
+          "url": "https://dexapk.com",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://dexapk.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        };
+
+        // Add schemas to the page
+        function addSchema(schema) {
+          const script = document.createElement('script');
+          script.type = 'application/ld+json';
+          script.textContent = JSON.stringify(schema);
+          document.head.appendChild(script);
+        }
+
+        addSchema(faqSchema);
+        addSchema(breadcrumbSchema);
+        addSchema(softwareSchema);
+        addSchema(reviewSchema);
+        addSchema(websiteSchema);
+      });
+    </script>
+  )}
 </Layout>
 
 <style>

@@ -30,31 +30,6 @@ const {
 const finalTitle = seoData?.title || title;
 const finalDescription = seoData?.description || description;
 
-// Organization schema
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "DexAPK",
-  "url": "https://dexapk.com",
-  "logo": "https://dexapk.com/web-app-manifest-512x512.png",
-  "sameAs": [
-    "https://twitter.com/dexapk",
-    "https://github.com/dexapk"
-  ]
-};
-
-// Website schema
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "DexAPK",
-  "url": "https://dexapk.com",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://dexapk.com/search?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
-};
 ---
 
 <!doctype html>
@@ -152,45 +127,75 @@ const websiteSchema = {
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
 
-    <!-- Base Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
-    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "DexAPK",
+        "url": "https://dexapk.com",
+        "logo": "https://dexapk.com/web-app-manifest-512x512.png",
+        "sameAs": [
+          "https://twitter.com/dexapk",
+          "https://github.com/dexapk"
+        ]
+      }
+    </script>
+
+    <!-- Website Schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "DexAPK",
+        "url": "https://dexapk.com",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://dexapk.com/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
 
     <!-- App Structured Data -->
     {seoData?.appName && (
-      <script type="application/ld+json" set:html={JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          "name": seoData.appName,
-          "applicationCategory": "MobileApplication",
-          "operatingSystem": "Android",
-          "offers": {
-            "@type": "Offer",
-            "price": "0",
-            "priceCurrency": "USD"
-          },
-          ...(seoData.appVersion && { "softwareVersion": seoData.appVersion }),
-          ...(seoData.appCategory && { "applicationSubCategory": seoData.appCategory }),
-          ...(seoData.appRating && seoData.appVotes && {
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": seoData.appRating,
-              "ratingCount": seoData.appVotes,
-              "bestRating": "5",
-              "worstRating": "1"
-            }
-          }),
-          ...(seoData.appPublisher && {
-            "author": {
-              "@type": "Organization",
-              "name": seoData.appPublisher
-            }
-          }),
-          ...(seoData.appSize && { "fileSize": seoData.appSize }),
-          ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
-          ...(finalDescription && { "description": finalDescription }),
-          ...(seoData.featuredImage && { "image": seoData.featuredImage })
-        })} />
+      <script type="application/ld+json">
+        {
+          JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": seoData.appName,
+            "applicationCategory": "MobileApplication",
+            "operatingSystem": "Android",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            ...(seoData.appVersion && { "softwareVersion": seoData.appVersion }),
+            ...(seoData.appCategory && { "applicationSubCategory": seoData.appCategory }),
+            ...(seoData.appRating && seoData.appVotes && {
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": seoData.appRating,
+                "ratingCount": seoData.appVotes,
+                "bestRating": "5",
+                "worstRating": "1"
+              }
+            }),
+            ...(seoData.appPublisher && {
+              "author": {
+                "@type": "Organization",
+                "name": seoData.appPublisher
+              }
+            }),
+            ...(seoData.appSize && { "fileSize": seoData.appSize }),
+            ...(seoData.lastUpdated && { "dateModified": seoData.lastUpdated }),
+            ...(finalDescription && { "description": finalDescription }),
+            ...(seoData.featuredImage && { "image": seoData.featuredImage })
+          })
+        }
+      </script>
     )}
 
     <!-- Additional SEO Meta Tags -->
