@@ -193,9 +193,20 @@ export async function createApp(appData: any) {
   try {
     console.log('Creating app with data:', appData);
     
+    // Ensure all SEO fields are included
+    const completeAppData = {
+      ...appData,
+      // Ensure SEO fields are properly set (null if empty string)
+      seo_title: appData.seo_title || null,
+      seo_description: appData.seo_description || null,
+      seo_featured_image: appData.seo_featured_image || null,
+      seo_keywords: appData.seo_keywords || null,
+      seo_canonical_url: appData.seo_canonical_url || null
+    };
+    
     const { data, error } = await supabase
       .from('apps')
-      .insert([appData])
+      .insert([completeAppData])
       .select()
       .single();
 
@@ -231,10 +242,25 @@ export async function updateApp(slug: string, updates: any) {
 
     console.log('Existing app found:', existingApp);
 
+    // Ensure all SEO fields are included in the update
+    const completeUpdates = {
+      ...updates,
+      // Ensure SEO fields are properly set (null if empty string)
+      seo_title: updates.seo_title || null,
+      seo_description: updates.seo_description || null,
+      seo_featured_image: updates.seo_featured_image || null,
+      seo_keywords: updates.seo_keywords || null,
+      seo_canonical_url: updates.seo_canonical_url || null,
+      // Update the updated_at timestamp
+      updated_at: new Date().toISOString()
+    };
+
+    console.log('Complete update data with SEO fields:', completeUpdates);
+
     // Perform the update
     const { data, error } = await supabase
       .from('apps')
-      .update(updates)
+      .update(completeUpdates)
       .eq('slug', slug)
       .select()
       .single();
