@@ -724,6 +724,8 @@ Your conclusion here..."
           seo_featured_image: formData.get('seo_featured_image') || null,
           seo_keywords: formData.get('seo_keywords') || null,
           seo_canonical_url: formData.get('seo_canonical_url') || null
+          // Custom H1 title - ensure it's included in the form data
+          custom_h1_title: formData.get('custom_h1_title') || null
         };
 
         console.log('Form data being submitted:', appData);
