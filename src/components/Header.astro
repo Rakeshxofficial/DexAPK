@@ -1,10 +1,9 @@
 ---
 // Header component with sidebar menu integration
 import Logo from './Logo.astro';
-
 ---
 
-<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300 overflow-hidden">
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
     <div class="relative flex items-center h-20 sm:h-24 overflow-hidden">
       
@@ -494,7 +493,7 @@ import Logo from './Logo.astro';
 </script>
 
 <style>
-  /* Constrain logo link to proper boundaries */
+  /* Ensure header container constrains all child elements */
   header {
     position: sticky;
     contain: layout paint style;
@@ -514,6 +513,12 @@ import Logo from './Logo.astro';
     max-height: 60px;
     overflow: hidden;
     contain: layout style;
+  }
+  
+  /* Ensure no pseudo-elements extend beyond boundaries */
+  header a[href="/"]::before,
+  header a[href="/"]::after {
+    display: none;
   }
   
   /* Sidebar animations */

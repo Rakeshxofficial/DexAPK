@@ -7,9 +7,7 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
-  adapter: netlify({
-    imageCDN: true
-  }),
+  adapter: netlify(),
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',
@@ -20,11 +18,6 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore',
-    ssr: {
-      optimizeDeps: {
-        timeout: 300000 // 5 minutes timeout for SSR optimization
-      }
-    }
+    trailingSlash: 'ignore'
   },
 });

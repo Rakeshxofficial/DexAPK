@@ -1,19 +1,5 @@
 // Import Supabase functions at the top
-import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase.js';
-
-// Use a lightweight promise-based approach
-const loadTasks = (slug) => {
-  return new Promise(async (resolve) => {
-    try {
-      if (!slug) return resolve([]);
-      const appTasks = await getAppDownloadTasksBySlug(slug);
-      resolve(appTasks || []);
-    } catch (e) {
-      console.error('Error loading tasks:', e);
-      resolve([]);
-    }
-  });
-};
+import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
 
 // Global variables
 let tasks = [];
@@ -30,28 +16,27 @@ let progressText;
 let downloadNowBtn;
 
 // Initialize when the component is loaded
-async function initializeModal() {
-  try {
-    // Get DOM elements
-    modal = document.getElementById('download-tasks-modal');
-    closeBtn = document.getElementById('close-download-tasks');
-    tasksList = document.getElementById('download-tasks-list');
-    progressBar = document.getElementById('tasks-progress-bar');
-    progressText = document.getElementById('tasks-progress-text');
-    downloadNowBtn = document.getElementById('download-now-btn');
-    
-    // Get app slug from hidden input
-    const slugInput = document.getElementById('modal-app-slug');
-    currentAppSlug = slugInput ? slugInput.value : '';
-    
-    // Set up event listeners
-    setupEventListeners();
-    
-    // Initialize download button
-    await initializeDownloadButton();
-  } catch (e) {
-    console.error('Error initializing modal:', e);
-  }
+function initializeModal() {
+  console.log('Initializing download tasks modal');
+  
+  // Get DOM elements
+  modal = document.getElementById('download-tasks-modal');
+  closeBtn = document.getElementById('close-download-tasks');
+  tasksList = document.getElementById('download-tasks-list');
+  progressBar = document.getElementById('tasks-progress-bar');
+  progressText = document.getElementById('tasks-progress-text');
+  downloadNowBtn = document.getElementById('download-now-btn');
+  
+  // Get app slug from hidden input
+  const slugInput = document.getElementById('modal-app-slug');
+  currentAppSlug = slugInput ? slugInput.value : '';
+  console.log('Modal initialized with app slug:', currentAppSlug);
+  
+  // Set up event listeners
+  setupEventListeners();
+  
+  // Initialize download button
+  initializeDownloadButton();
 }
 
 // Set up event listeners
@@ -140,85 +125,98 @@ async function checkForDownloadTasks(slug) {
 
 // Function to open the modal and load tasks
 async function openDownloadTasksModal() {
+  if (!modal || !tasksList || !currentAppSlug) {
+    console.error('Cannot open modal - missing elements:', { 
+      modal: !!modal, 
+      tasksList: !!tasksList, 
+      appSlug: currentAppSlug 
+    });
+    return;
+  }
+
+  console.log('Opening download tasks modal for app:', currentAppSlug);
+  
+  // Show the modal
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+  
+  // Focus the close button for accessibility
+  closeBtn?.focus();
+  
+  // Reset tasks state
+  tasks = [];
+  completedTasks = [];
+  
+  // Reset download button state
+  if (downloadNowBtn) {
+    downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
+    downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    downloadNowBtn.disabled = true;
+    
+    // Remove any existing click handlers
+    downloadNowBtn.removeEventListener('click', directDownload);
+  }
+  
+  // Show loading state
+  tasksList.innerHTML = `
+    <div class="flex items-center justify-center py-8">
+      <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+    </div>
+  `;
+  
+  // Load tasks from the server
   try {
-    if (!modal || !tasksList || !currentAppSlug) {
-      console.error('Cannot open modal - missing elements');
+    console.log('Fetching app details for slug:', currentAppSlug);
+    
+    // Get app details
+    const app = await getAppBySlug(currentAppSlug);
+    if (!app) {
+      console.error('App not found:', currentAppSlug);
+      tasksList.innerHTML = `
+        <p class="text-red-600 dark:text-red-400 py-4">
+          Error: App not found
+        </p>
+      `;
       return;
     }
-
-    console.log('Opening download tasks modal for app:', currentAppSlug);
     
-    // Show the modal
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
+    console.log('Fetching download tasks for app:', app.slug);
     
-    // Focus the close button for accessibility
-    closeBtn?.focus();
+    // Get tasks for this app
+    const appTasks = await getAppDownloadTasksBySlug(app.slug);
+    console.log('Download tasks found:', appTasks);
     
-    // Reset tasks state
-    tasks = [];
-    completedTasks = [];
-    
-    // Reset download button state
-    if (downloadNowBtn) {
-      downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-      downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-      downloadNowBtn.disabled = true;
+    // If no tasks, enable direct download
+    if (!appTasks || appTasks.length === 0) {
+      console.log('No tasks found, enabling direct download');
+      enableDownload();
       
-      // Remove any existing click handlers
-      downloadNowBtn.removeEventListener('click', directDownload);
+      // Update tasks list
+      tasksList.innerHTML = `
+        <p class="text-gray-600 dark:text-gray-400 py-4">
+          No tasks required. Click the button below to download.
+        </p>
+      `;
+      
+      // Update progress
+      updateProgress(1, 1);
+      return;
     }
     
-    // Show loading state
-    tasksList.innerHTML = `
-      <div class="flex items-center justify-center py-8">
-        <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-      </div>
-    `;
+    // Process tasks
+    tasks = appTasks
+      .filter(item => item && item.download_tasks)
+      .map(item => item.download_tasks);
     
-    // Load tasks in the background
-    setTimeout(async () => {
-      try {
-        // Get tasks for this app
-        const appTasks = await loadTasks(currentAppSlug);
-        
-        // If no tasks, enable direct download
-        if (!appTasks || appTasks.length === 0) {
-          console.log('No tasks found, enabling direct download');
-          enableDownload();
-          
-          // Update tasks list
-          tasksList.innerHTML = `
-            <p class="text-gray-600 dark:text-gray-400 py-4">
-              No tasks required. Click the button below to download.
-            </p>
-          `;
-          
-          // Update progress
-          updateProgress(1, 1);
-          return;
-        }
-        
-        // Process tasks
-        tasks = appTasks
-          .filter(item => item && item.download_tasks)
-          .map(item => item.download_tasks);
-        
-        // Render tasks
-        renderTasks();
-        
-        // Update progress
-        updateProgress(completedTasks.length, tasks.length);
-      } catch (error) {
-        console.error('Error loading download tasks:', error);
-        tasksList.innerHTML = `
-          <p class="text-red-600 dark:text-red-400 py-4">
-            Error loading tasks. Please try again later.
-          </p>
-        `;
-      }
-    }, 100);
+    console.log('Processed tasks:', tasks);
+    
+    // Render tasks
+    renderTasks();
+    
+    // Update progress
+    updateProgress(completedTasks.length, tasks.length);
+    
   } catch (error) {
     console.error('Error loading download tasks:', error);
     tasksList.innerHTML = `
@@ -389,21 +387,12 @@ function closeDownloadTasksModal() {
 
 // Initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Use requestIdleCallback to defer non-critical initialization
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(() => initializeModal());
-  } else {
-    setTimeout(initializeModal, 100);
-  }
+  initializeModal();
   
   // Force re-initialization when the page is fully loaded
   window.addEventListener('load', function() {
     // Short delay to ensure everything is loaded
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => initializeModal());
-    } else {
-      setTimeout(initializeModal, 100);
-    }
+    setTimeout(initializeModal, 100);
   });
 });
 
@@ -412,8 +401,8 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeModal);
 } else {
   // Initialize now and again after a short delay
-  // Defer initialization to not block rendering
-  setTimeout(initializeModal, 0);
+  initializeModal();
+  setTimeout(initializeModal, 100);
 }
 
 // Helper functions for task type styling
