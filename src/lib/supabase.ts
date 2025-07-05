@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Get environment variables - prioritize runtime environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = typeof import.meta !== 'undefined' ? import.meta.env.VITE_SUPABASE_URL || '' : '';
+const supabaseAnonKey = typeof import.meta !== 'undefined' ? import.meta.env.VITE_SUPABASE_ANON_KEY || '' : '';
 
 // Validate environment variables and create client
 if (!supabaseUrl || !supabaseAnonKey) {
@@ -23,6 +23,11 @@ export const supabase = createClient(
 
 // App-related database functions
 export async function getAllApps() {
+  // Implement caching for better performance
+  if (typeof window !== 'undefined' && window.__APP_CACHE && window.__APP_CACHE.allApps) {
+    return window.__APP_CACHE.allApps;
+  }
+
   try {
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
@@ -40,6 +45,13 @@ export async function getAllApps() {
       console.error('Supabase error fetching apps:', error);
       return [];
     }
+    
+    // Cache the result in the browser
+    if (typeof window !== 'undefined') {
+      window.__APP_CACHE = window.__APP_CACHE || {};
+      window.__APP_CACHE.allApps = data || [];
+      window.__APP_CACHE.timestamp = Date.now();
+    }
 
     return data || [];
   } catch (error) {
@@ -50,6 +62,11 @@ export async function getAllApps() {
 
 export async function getFeaturedApps(limit = 10) {
   try {
+    // Use cache if available
+    if (typeof window !== 'undefined' && window.__APP_CACHE && window.__APP_CACHE.featuredApps) {
+      return window.__APP_CACHE.featuredApps;
+    }
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -68,6 +85,12 @@ export async function getFeaturedApps(limit = 10) {
       console.error('Supabase error fetching featured apps:', error);
       return [];
     }
+    
+    // Cache the result
+    if (typeof window !== 'undefined') {
+      window.__APP_CACHE = window.__APP_CACHE || {};
+      window.__APP_CACHE.featuredApps = data || [];
+    }
 
     return data || [];
   } catch (error) {
@@ -78,6 +101,11 @@ export async function getFeaturedApps(limit = 10) {
 
 export async function getAppBySlug(slug: string) {
   try {
+    // Use cache if available
+    if (typeof window !== 'undefined' && window.__APP_CACHE && window.__APP_CACHE.appBySlug && window.__APP_CACHE.appBySlug[slug]) {
+      return window.__APP_CACHE.appBySlug[slug];
+    }
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -95,6 +123,13 @@ export async function getAppBySlug(slug: string) {
       console.error('Supabase error fetching app by slug:', error);
       return null;
     }
+    
+    // Cache the result
+    if (typeof window !== 'undefined') {
+      window.__APP_CACHE = window.__APP_CACHE || {};
+      window.__APP_CACHE.appBySlug = window.__APP_CACHE.appBySlug || {};
+      window.__APP_CACHE.appBySlug[slug] = data;
+    }
 
     return data;
   } catch (error) {
@@ -105,6 +140,11 @@ export async function getAppBySlug(slug: string) {
 
 export async function getAppsByCategory(category: string, limit = 20) {
   try {
+    // Use cache if available
+    if (typeof window !== 'undefined' && window.__APP_CACHE && window.__APP_CACHE.appsByCategory && window.__APP_CACHE.appsByCategory[category]) {
+      return window.__APP_CACHE.appsByCategory[category];
+    }
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -123,6 +163,13 @@ export async function getAppsByCategory(category: string, limit = 20) {
       console.error('Supabase error fetching apps by category:', error);
       return [];
     }
+    
+    // Cache the result
+    if (typeof window !== 'undefined') {
+      window.__APP_CACHE = window.__APP_CACHE || {};
+      window.__APP_CACHE.appsByCategory = window.__APP_CACHE.appsByCategory || {};
+      window.__APP_CACHE.appsByCategory[category] = data || [];
+    }
 
     return data || [];
   } catch (error) {
@@ -133,6 +180,11 @@ export async function getAppsByCategory(category: string, limit = 20) {
 
 export async function getRelatedApps(currentSlug: string, category: string, limit = 4) {
   try {
+    // Use cache if available
+    if (typeof window !== 'undefined' && window.__APP_CACHE && window.__APP_CACHE.relatedApps && window.__APP_CACHE.relatedApps[`${currentSlug}-${category}`]) {
+      return window.__APP_CACHE.relatedApps[`${currentSlug}-${category}`];
+    }
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -152,6 +204,13 @@ export async function getRelatedApps(currentSlug: string, category: string, limi
       console.error('Supabase error fetching related apps:', error);
       return [];
     }
+    
+    // Cache the result
+    if (typeof window !== 'undefined') {
+      window.__APP_CACHE = window.__APP_CACHE || {};
+      window.__APP_CACHE.relatedApps = window.__APP_CACHE.relatedApps || {};
+      window.__APP_CACHE.relatedApps[`${currentSlug}-${category}`] = data || [];
+    }
 
     return data || [];
   } catch (error) {
@@ -162,6 +221,11 @@ export async function getRelatedApps(currentSlug: string, category: string, limi
 
 export async function searchApps(query: string, limit = 20) {
   try {
+    // Use cache if available
+    if (typeof window !== 'undefined' && window.__APP_CACHE && window.__APP_CACHE.searchResults && window.__APP_CACHE.searchResults[query]) {
+      return window.__APP_CACHE.searchResults[query];
+    }
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -179,6 +243,13 @@ export async function searchApps(query: string, limit = 20) {
     if (error) {
       console.error('Supabase error searching apps:', error);
       return [];
+    }
+    
+    // Cache the result
+    if (typeof window !== 'undefined') {
+      window.__APP_CACHE = window.__APP_CACHE || {};
+      window.__APP_CACHE.searchResults = window.__APP_CACHE.searchResults || {};
+      window.__APP_CACHE.searchResults[query] = data || [];
     }
 
     return data || [];
@@ -581,6 +652,11 @@ export async function getAppDownloadTasksById(appId: string) {
 
 export async function getAppDownloadTasksBySlug(slug: string) {
   try {
+    // Use cache if available
+    if (typeof window !== 'undefined' && window.__APP_CACHE && window.__APP_CACHE.appDownloadTasks && window.__APP_CACHE.appDownloadTasks[slug]) {
+      return window.__APP_CACHE.appDownloadTasks[slug];
+    }
+
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) return [];
     
@@ -619,6 +695,13 @@ export async function getAppDownloadTasksBySlug(slug: string) {
     if (error) {
       console.error('Error fetching download tasks:', error);
       return [];
+    }
+    
+    // Cache the result
+    if (typeof window !== 'undefined') {
+      window.__APP_CACHE = window.__APP_CACHE || {};
+      window.__APP_CACHE.appDownloadTasks = window.__APP_CACHE.appDownloadTasks || {};
+      window.__APP_CACHE.appDownloadTasks[slug] = data || [];
     }
 
     console.log('Found download tasks for app:', data?.length || 0);

@@ -71,7 +71,16 @@ const { appSlug } = Astro.props;
 </div>
 
 <script>
-  import '../components/downloadTasksModalScript.js';
+  // Defer loading of the script
+  document.addEventListener('DOMContentLoaded', () => {
+    // Only load the script if the download button exists
+    if (document.getElementById('download-button')) {
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = '../components/downloadTasksModalScript.js';
+      document.body.appendChild(script);
+    }
+  });
 </script>
 
 <style>

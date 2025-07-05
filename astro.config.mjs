@@ -9,6 +9,9 @@ export default defineConfig({
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
   adapter: netlify(),
   compressHTML: true,
+  experimental: {
+    optimizeHoistedScript: true,
+  },
   build: {
     inlineStylesheets: 'auto',
   },
@@ -18,6 +21,20 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore'
+    trailingSlash: 'ignore',
+    build: {
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'supabase': ['@supabase/supabase-js'],
+            'ui-components': [
+              './src/components/Header.astro',
+              './src/components/Footer.astro'
+            ]
+          }
+        }
+      }
+    }
   },
 });
