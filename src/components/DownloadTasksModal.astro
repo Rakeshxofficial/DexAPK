@@ -1,13 +1,14 @@
 ---
 // Download Tasks Modal Component
 export interface Props {
-  appSlug: string;
+  appSlug?: string;
 }
 
 const { appSlug } = Astro.props;
 ---
 
 <div id="download-tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" aria-modal="true" role="dialog" aria-labelledby="download-tasks-title">
+  <input type="hidden" id="modal-app-slug" value={appSlug} />
   <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full mx-4 relative overflow-hidden">
     <!-- Close Button -->
     <button 
@@ -72,32 +73,46 @@ const { appSlug } = Astro.props;
 <script>
   import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
   
-  document.addEventListener('DOMContentLoaded', async function() {
-    const modal = document.getElementById('download-tasks-modal');
-    const appSlug = modal?.dataset.appSlug;
-    const downloadBtn = document.querySelector('a[href*="download"]');
-    const closeBtn = document.getElementById('close-download-tasks');
-    const tasksList = document.getElementById('download-tasks-list');
-    const progressBar = document.getElementById('tasks-progress-bar');
-    const progressText = document.getElementById('tasks-progress-text');
-    const downloadNowBtn = document.getElementById('download-now-btn');
+  // Global variables
+  let tasks = [];
+  let completedTasks = [];
+  let originalDownloadUrl = '';
+  let currentAppSlug = '';
+  
+  // DOM elements
+  let modal;
+  let closeBtn;
+  let tasksList;
+  let progressBar;
+  let progressText;
+  let downloadNowBtn;
+  
+  // Initialize when the component is loaded
+  function initializeModal() {
+    console.log('Initializing download tasks modal');
     
-    let tasks = [];
-    let completedTasks = [];
-    let originalDownloadUrl = '';
+    // Get DOM elements
+    modal = document.getElementById('download-tasks-modal');
+    closeBtn = document.getElementById('close-download-tasks');
+    tasksList = document.getElementById('download-tasks-list');
+    progressBar = document.getElementById('tasks-progress-bar');
+    progressText = document.getElementById('tasks-progress-text');
+    downloadNowBtn = document.getElementById('download-now-btn');
     
-    // Initialize immediately
-    if (modal && appSlug) {
-      modal.dataset.appSlug = appSlug;
-    }
+    // Get app slug from hidden input
+    const slugInput = document.getElementById('modal-app-slug');
+    currentAppSlug = slugInput ? slugInput.value : '';
+    console.log('Modal initialized with app slug:', currentAppSlug);
     
-    // Initialize download button click handler
-    await initializeDownloadButton();
+    // Set up event listeners
+    setupEventListeners();
     
-    // Log initialization status
-    console.log('Download tasks modal initialized for app slug:', appSlug);
-    console.log('Download button found:', !!downloadBtn);
-    
+    // Initialize download button
+    initializeDownloadButton();
+  }
+  
+  // Set up event listeners
+  function setupEventListeners() {
     // Close modal handler
     if (closeBtn) {
       closeBtn.addEventListener('click', closeDownloadTasksModal);
@@ -118,160 +133,132 @@ const { appSlug } = Astro.props;
         closeDownloadTasksModal();
       }
     });
+  }
+  
+  // Initialize the download button
+  async function initializeDownloadButton() {
+    const downloadBtn = document.querySelector('a[href*="download"]');
     
-    // Initialize the download button
-    async function initializeDownloadButton() {
-      if (!downloadBtn || !appSlug) return;
-        console.error('Download button or app slug not found:', { downloadBtn, appSlug });
-      
-      try {
-        // Store the original download URL
-        originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
-        console.log('Original download URL:', originalDownloadUrl);
-        
-        // Check if the app has any download tasks
-        const hasTasks = await checkForDownloadTasks(appSlug);
-        console.log('App has download tasks:', hasTasks);
-        
-        if (hasTasks) {
-          console.log('App has download tasks, overriding click behavior');
-          
-          // Remove any existing click listeners
-          downloadBtn.removeEventListener('click', openDownloadTasksModal);
-          
-          // Add new click listener
-          downloadBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openDownloadTasksModal();
-          });
-        } else {
-          console.log('App has no download tasks, using default behavior');
-        }
-      } catch (error) {
-        console.error('Error initializing download button:', error);
-      }
+    if (!downloadBtn || !currentAppSlug) {
+      console.error('Download button or app slug not found:', { 
+        downloadBtn: !!downloadBtn, 
+        appSlug: currentAppSlug 
+      });
+      return;
     }
     
-    // Function to check if an app has download tasks
-    async function checkForDownloadTasks(slug) {
-      if (!slug) return false;
+    try {
+      // Store the original download URL
+      originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
+      console.log('Original download URL:', originalDownloadUrl);
       
-      try {
-        const appTasks = await getAppDownloadTasksBySlug(slug);
-        console.log('App tasks found:', appTasks);
-        // Check if there are any active tasks
-        const hasActiveTasks = Array.isArray(appTasks) && appTasks.length > 0 && 
-          appTasks.some(item => item && item.download_tasks && item.is_active);
-        console.log('Has active tasks:', hasActiveTasks);
-        return hasActiveTasks;
-      } catch (error) {
-        console.error('Error checking for download tasks:', error);
-        return false;
+      // Check if the app has any download tasks
+      const hasTasks = await checkForDownloadTasks(currentAppSlug);
+      console.log('App has download tasks:', hasTasks);
+      
+      if (hasTasks) {
+        console.log('App has download tasks, overriding click behavior');
+        
+        // Add click event listener
+        downloadBtn.addEventListener('click', handleDownloadClick);
+        
+        // Add data attribute to indicate tasks are available
+        downloadBtn.setAttribute('data-has-tasks', 'true');
+        
+        console.log('Download button click handler attached');
+      } else {
+        console.log('App has no download tasks, using default behavior');
       }
+    } catch (error) {
+      console.error('Error initializing download button:', error);
     }
+  }
+  
+  // Handle download button click
+  function handleDownloadClick(e) {
+    console.log('Download button clicked');
+    e.preventDefault();
+    e.stopPropagation();
+    openDownloadTasksModal();
+  }
+  
+  // Function to check if an app has download tasks
+  async function checkForDownloadTasks(slug) {
+    if (!slug) return false;
     
-    // Function to open the modal and load tasks
-    async function openDownloadTasksModal() {
-      if (!modal || !tasksList || !appSlug) return;
-        console.error('Cannot open modal - missing elements:', { modal: !!modal, tasksList: !!tasksList, appSlug });
+    try {
+      const appTasks = await getAppDownloadTasksBySlug(slug);
+      console.log('App tasks found:', appTasks);
+      
+      // Check if there are any active tasks
+      const hasActiveTasks = Array.isArray(appTasks) && appTasks.length > 0 && 
+        appTasks.some(item => item && item.download_tasks && item.is_active);
+      
+      console.log('Has active tasks:', hasActiveTasks);
+      return hasActiveTasks;
+    } catch (error) {
+      console.error('Error checking for download tasks:', error);
+      return false;
+    }
+  }
+  
+  // Function to open the modal and load tasks
+  async function openDownloadTasksModal() {
+    if (!modal || !tasksList || !currentAppSlug) {
+      console.error('Cannot open modal - missing elements:', { 
+        modal: !!modal, 
+        tasksList: !!tasksList, 
+        appSlug: currentAppSlug 
+      });
+      return;
+    }
 
-      console.log('Opening download tasks modal for app:', appSlug);
+    console.log('Opening download tasks modal for app:', currentAppSlug);
+    
+    // Show the modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus the close button for accessibility
+    closeBtn?.focus();
+    
+    // Reset tasks state
+    tasks = [];
+    completedTasks = [];
+    
+    // Show loading state
+    tasksList.innerHTML = `
+      <div class="flex items-center justify-center py-8">
+        <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+      </div>
+    `;
+    
+    // Load tasks from the server
+    try {
+      console.log('Fetching app details for slug:', currentAppSlug);
       
-      // Show the modal
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      document.body.style.overflow = 'hidden';
-      
-      // Focus the close button for accessibility
-      closeBtn?.focus();
-      
-      // Reset tasks state
-      tasks = [];
-      completedTasks = [];
-      
-      // Show loading state
-      tasksList.innerHTML = `
-        <div class="flex items-center justify-center py-8">
-          <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-        </div>
-      `;
-      
-      // Load tasks from the server
-      try {
-        console.log('Fetching app details for slug:', appSlug);
-        
-        // Get app details
-        const app = await getAppBySlug(appSlug);
-        if (!app) {
-          console.error('App not found:', appSlug);
-          tasksList.innerHTML = `
-            <p class="text-red-600 dark:text-red-400 py-4">
-              Error: App not found
-            </p>
-          `;
-          return;
-        }
-        
-        console.log('Fetching download tasks for app:', app.slug);
-        
-        // Get tasks for this app
-        const appTasks = await getAppDownloadTasksBySlug(app.slug);
-        console.log('Download tasks found:', appTasks);
-        
-        // If no tasks, enable direct download
-        if (!appTasks || appTasks.length === 0) {
-          console.log('No tasks found, enabling direct download');
-          if (downloadNowBtn) {
-            downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-            downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-            downloadNowBtn.disabled = false;
-            downloadNowBtn.addEventListener('click', directDownload);
-          }
-          
-          // Update tasks list
-          tasksList.innerHTML = `
-            <p class="text-gray-600 dark:text-gray-400 py-4">
-              No tasks required. Click the button below to download.
-            </p>
-          `;
-          
-          // Update progress
-          updateProgress(1, 1);
-          return;
-        }
-        
-        // Process tasks
-        tasks = appTasks
-          .filter(item => item && item.download_tasks)
-          .map(item => item.download_tasks);
-        
-        console.log('Processed tasks:', tasks);
-        
-        // Render tasks
-        renderTasks();
-        
-        // Update progress
-        updateProgress(completedTasks.length, tasks.length);
-        
-      } catch (error) {
-        console.error('Error loading download tasks:', error);
+      // Get app details
+      const app = await getAppBySlug(currentAppSlug);
+      if (!app) {
+        console.error('App not found:', currentAppSlug);
         tasksList.innerHTML = `
           <p class="text-red-600 dark:text-red-400 py-4">
-            Error loading tasks. Please try again later.
+            Error: App not found
           </p>
         `;
+        return;
       }
-    }
-    
-    // Function to render tasks
-    function renderTasks() {
-      if (!tasksList || !tasks) return;
       
-      console.log('Rendering tasks:', tasks);
+      console.log('Fetching download tasks for app:', app.slug);
       
-      if (tasks.length === 0) {
-        // If no tasks, enable direct download
+      // Get tasks for this app
+      const appTasks = await getAppDownloadTasksBySlug(app.slug);
+      console.log('Download tasks found:', appTasks);
+      
+      // If no tasks, enable direct download
+      if (!appTasks || appTasks.length === 0) {
+        console.log('No tasks found, enabling direct download');
         if (downloadNowBtn) {
           downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
           downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
@@ -291,143 +278,204 @@ const { appSlug } = Astro.props;
         return;
       }
       
-      const tasksHtml = tasks.filter(Boolean).map((task, index) => {
-        const isCompleted = completedTasks.includes(task.id);
-        const taskTypeClass = getTaskTypeClass(task.task_type);
-        const taskIcon = getTaskTypeIcon(task.task_type);
-        
-        return `
-          <button
-            class="task-button w-full py-4 px-6 rounded-xl flex items-center justify-between ${taskTypeClass} ${isCompleted ? 'opacity-75' : ''}"
-            data-task-id="${task.id}"
-            data-task-url="${task.task_url}"
-            data-task-completed="${isCompleted}"
-            ${isCompleted ? 'disabled' : ''}
-          >
-            <div class="flex items-center">
-              ${taskIcon}
-              <span class="ml-3 font-medium text-white">${task.name}</span>
-            </div>
-            ${isCompleted ? '<svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>' : ''}
-          </button>
-        `;
-      }).join('');
+      // Process tasks
+      tasks = appTasks
+        .filter(item => item && item.download_tasks)
+        .map(item => item.download_tasks);
       
-      tasksList.innerHTML = tasksHtml;
+      console.log('Processed tasks:', tasks);
       
-      // Add event listeners to task buttons
-      document.querySelectorAll('.task-button').forEach(button => {
-        if (!button.getAttribute('disabled')) {
-          button.addEventListener('click', handleTaskClick, { once: true });
-        }
-      });
+      // Render tasks
+      renderTasks();
+      
+      // Update progress
+      updateProgress(completedTasks.length, tasks.length);
+      
+    } catch (error) {
+      console.error('Error loading download tasks:', error);
+      tasksList.innerHTML = `
+        <p class="text-red-600 dark:text-red-400 py-4">
+          Error loading tasks. Please try again later.
+        </p>
+      `;
     }
+  }
+  
+  // Function to render tasks
+  function renderTasks() {
+    if (!tasksList || !tasks) return;
     
-    // Function to handle task click
-    function handleTaskClick(e) {
-      try {
-        const button = e.target.closest('.task-button');
-        if (!button) return;
-        
-        const taskId = button.dataset.taskId;
-        const taskUrl = button.dataset.taskUrl;
-        
-        if (!taskId || !taskUrl) {
-          console.error('Task ID or URL missing:', { taskId, taskUrl });
-          return;
-        }
-      
-        // Open task URL in new tab
-        window.open(taskUrl, '_blank', 'noopener,noreferrer');
-      
-        // Mark task as completed
-        if (taskId && !completedTasks.includes(taskId)) {
-          completedTasks.push(taskId);
-          button.dataset.taskCompleted = 'true';
-          button.setAttribute('disabled', 'true');
-        
-          // Add completed styles
-          button.classList.add('opacity-75');
-          button.innerHTML = button.innerHTML.replace(/<\/div>(?!.*<\/div>)/s, '</div><svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>');
-        
-          // Update progress
-          updateProgress(completedTasks.length, tasks.length);
-        
-          // Check if all tasks are completed
-          if (completedTasks.length === tasks.length) {
-            enableDownload();
-          }
-        }
-      } catch (error) {
-        console.error('Error handling task click:', error);
+    console.log('Rendering tasks:', tasks);
+    
+    if (tasks.length === 0) {
+      // If no tasks, enable direct download
+      if (downloadNowBtn) {
+        downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
+        downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+        downloadNowBtn.disabled = false;
+        downloadNowBtn.addEventListener('click', directDownload);
       }
+      
+      // Update tasks list
+      tasksList.innerHTML = `
+        <p class="text-gray-600 dark:text-gray-400 py-4">
+          No tasks required. Click the button below to download.
+        </p>
+      `;
+      
+      // Update progress
+      updateProgress(1, 1);
+      return;
     }
     
-    // Function to update progress
-    function updateProgress(completed, total) {
-      if (!progressBar || !progressText) return;
+    const tasksHtml = tasks.filter(Boolean).map((task, index) => {
+      const isCompleted = completedTasks.includes(task.id);
+      const taskTypeClass = getTaskTypeClass(task.task_type);
+      const taskIcon = getTaskTypeIcon(task.task_type);
       
-      const percentage = total > 0 ? (completed / total) * 100 : 0;
-      progressBar.style.width = `${Math.min(percentage, 100)}%`;
-      progressText.textContent = `${completed} of ${total} tasks completed`;
-      
-      // Announce to screen readers
-      const announcement = document.createElement('div');
-      announcement.setAttribute('aria-live', 'polite');
-      announcement.setAttribute('aria-atomic', 'true');
-      announcement.className = 'sr-only';
-      announcement.textContent = `${completed} of ${total} tasks completed. ${completed === total ? 'All tasks completed. Download now available.' : ''}`;
-      
-      document.body.appendChild(announcement);
-      setTimeout(() => document.body.removeChild(announcement), 1000);
-    }
+      return `
+        <button
+          class="task-button w-full py-4 px-6 rounded-xl flex items-center justify-between ${taskTypeClass} ${isCompleted ? 'opacity-75' : ''}"
+          data-task-id="${task.id}"
+          data-task-url="${task.task_url}"
+          data-task-completed="${isCompleted}"
+          ${isCompleted ? 'disabled' : ''}
+        >
+          <div class="flex items-center">
+            ${taskIcon}
+            <span class="ml-3 font-medium text-white">${task.name}</span>
+          </div>
+          ${isCompleted ? '<svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>' : ''}
+        </button>
+      `;
+    }).join('');
     
-    // Function to enable download
-    function enableDownload() {
-      if (!downloadNowBtn) return;
-      
-      downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-      downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-      downloadNowBtn.disabled = false;
-      
-      // Add click handler
-      downloadNowBtn.addEventListener('click', directDownload);
-    }
+    tasksList.innerHTML = tasksHtml;
     
-    // Function to perform direct download
-    function directDownload() {
-      // Close the modal
-      try {
-        closeDownloadTasksModal();
+    // Add event listeners to task buttons
+    document.querySelectorAll('.task-button').forEach(button => {
+      if (!button.getAttribute('disabled')) {
+        button.addEventListener('click', handleTaskClick, { once: true });
+      }
+    });
+  }
+  
+  // Function to handle task click
+  function handleTaskClick(e) {
+    try {
+      const button = e.target.closest('.task-button');
+      if (!button) return;
       
-        // Redirect to the original download URL after a short delay
-        if (originalDownloadUrl && originalDownloadUrl !== '#') {
-          window.location.href = originalDownloadUrl;
-        }
-      } catch (error) {
-        console.error('Error during direct download:', error);
-        // Fallback - try to open the URL directly
-        if (originalDownloadUrl && originalDownloadUrl !== '#') {
-          window.location.href = originalDownloadUrl;
+      const taskId = button.dataset.taskId;
+      const taskUrl = button.dataset.taskUrl;
+      
+      if (!taskId || !taskUrl) {
+        console.error('Task ID or URL missing:', { taskId, taskUrl });
+        return;
+      }
+    
+      // Open task URL in new tab
+      window.open(taskUrl, '_blank', 'noopener,noreferrer');
+    
+      // Mark task as completed
+      if (taskId && !completedTasks.includes(taskId)) {
+        completedTasks.push(taskId);
+        button.dataset.taskCompleted = 'true';
+        button.setAttribute('disabled', 'true');
+      
+        // Add completed styles
+        button.classList.add('opacity-75');
+        button.innerHTML = button.innerHTML.replace(/<\/div>(?!.*<\/div>)/s, '</div><svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>');
+      
+        // Update progress
+        updateProgress(completedTasks.length, tasks.length);
+      
+        // Check if all tasks are completed
+        if (completedTasks.length === tasks.length) {
+          enableDownload();
         }
       }
+    } catch (error) {
+      console.error('Error handling task click:', error);
     }
+  }
+  
+  // Function to update progress
+  function updateProgress(completed, total) {
+    if (!progressBar || !progressText) return;
     
-    // Function to close the modal
-    function closeDownloadTasksModal() {
-      if (!modal) return;
-      
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      document.body.style.overflow = '';
-      
-      // Return focus to the download button
-      downloadBtn?.focus();
+    const percentage = total > 0 ? (completed / total) * 100 : 0;
+    progressBar.style.width = `${Math.min(percentage, 100)}%`;
+    progressText.textContent = `${completed} of ${total} tasks completed`;
+    
+    // Announce to screen readers
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = `${completed} of ${total} tasks completed. ${completed === total ? 'All tasks completed. Download now available.' : ''}`;
+    
+    document.body.appendChild(announcement);
+    setTimeout(() => document.body.removeChild(announcement), 1000);
+  }
+  
+  // Function to enable download
+  function enableDownload() {
+    if (!downloadNowBtn) return;
+    
+    downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
+    downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    downloadNowBtn.disabled = false;
+    
+    // Add click handler
+    downloadNowBtn.addEventListener('click', directDownload);
+  }
+  
+  // Function to perform direct download
+  function directDownload() {
+    // Close the modal
+    try {
+      closeDownloadTasksModal();
+    
+      // Redirect to the original download URL after a short delay
+      if (originalDownloadUrl && originalDownloadUrl !== '#') {
+        window.location.href = originalDownloadUrl;
+      }
+    } catch (error) {
+      console.error('Error during direct download:', error);
+      // Fallback - try to open the URL directly
+      if (originalDownloadUrl && originalDownloadUrl !== '#') {
+        window.location.href = originalDownloadUrl;
+      }
     }
+  }
+  
+  // Function to close the modal
+  function closeDownloadTasksModal() {
+    if (!modal) return;
     
-    // Helper function to get task type class
-    // Helper functions are now defined at the top of the file
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+    
+    // Return focus to the download button
+    const downloadBtn = document.querySelector('a[href*="download"]');
+    downloadBtn?.focus();
+  }
+  
+  // Initialize when the DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeModal();
   });
+  
+  // Initialize immediately for client:load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeModal);
+  } else {
+    initializeModal();
+  }
+  
+  // Helper functions for task type styling
   function getTaskTypeClass(taskType) {
     switch (taskType?.toLowerCase()) {
       case 'telegram':
@@ -475,6 +523,74 @@ const { appSlug } = Astro.props;
         </svg>`;
     }
   }
+</script>
+
+<script>
+  // This script runs in the global scope to handle the download button click
+  document.addEventListener('DOMContentLoaded', function() {
+    const downloadBtn = document.querySelector('a[href*="download"]');
+    
+    if (downloadBtn) {
+      console.log('Found download button, setting up click handler');
+      
+      // Store original URL
+      const originalUrl = downloadBtn.getAttribute('href');
+      
+      // Add click handler
+      downloadBtn.addEventListener('click', function(e) {
+        console.log('Download button clicked');
+        
+        // Get the modal
+        const modal = document.getElementById('download-tasks-modal');
+        if (!modal) {
+          console.error('Download tasks modal not found');
+          return;
+        }
+        
+        // Get app slug
+        const slugInput = document.getElementById('modal-app-slug');
+        const appSlug = slugInput ? slugInput.value : '';
+        
+        if (!appSlug) {
+          console.error('App slug not found');
+          return;
+        }
+        
+        // Check if we should show the modal
+        getAppDownloadTasksBySlug(appSlug).then(tasks => {
+          const hasTasks = Array.isArray(tasks) && tasks.length > 0;
+          console.log('Has download tasks:', hasTasks, tasks);
+          
+          if (hasTasks) {
+            // Prevent default navigation
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Show the modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            
+            // Dispatch a custom event to trigger the modal to load tasks
+            const event = new CustomEvent('openDownloadTasksModal', { detail: { appSlug } });
+            document.dispatchEvent(event);
+          } else {
+            console.log('No tasks found, proceeding with direct download');
+            // Let the default behavior happen (follow the href)
+          }
+        }).catch(error => {
+          console.error('Error checking for download tasks:', error);
+          // Let the default behavior happen on error
+        });
+      });
+    }
+  });
+  
+  // Listen for the custom event
+  document.addEventListener('openDownloadTasksModal', function(e) {
+    console.log('openDownloadTasksModal event received', e.detail);
+    // This will be handled by the component's script
+  });
 </script>
 
 <style>

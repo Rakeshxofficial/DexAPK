@@ -578,7 +578,7 @@ const dynamicFAQs = app ? [
   <Footer />
   
   <!-- Download Tasks Modal -->
-  <DownloadTasksModal appSlug={app.slug} client:load />
+  <DownloadTasksModal appSlug={app.slug} client:only="astro" />
 </Layout>
 
 <style>
@@ -606,6 +606,7 @@ const dynamicFAQs = app ? [
     position: relative;
     z-index: 10;
     cursor: pointer;
+    user-select: none;
   }
   
   /* Ensure minimum touch target sizes */
@@ -614,6 +615,6 @@ const dynamicFAQs = app ? [
     min-height: 44px;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; 
   }
 </style>

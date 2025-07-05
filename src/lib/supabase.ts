@@ -584,7 +584,7 @@ export async function getAppDownloadTasksBySlug(slug: string) {
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) return [];
     
-    console.log('Getting app download tasks by slug:', slug);
+    console.log('Getting app download tasks by slug:', slug, 'Time:', new Date().toISOString());
 
     // First get the app id from the slug
     const { data: app, error: appError } = await supabase
@@ -596,6 +596,7 @@ export async function getAppDownloadTasksBySlug(slug: string) {
     if (appError || !app) return [];
 
     console.log('Found app with slug:', slug, 'ID:', app.id);
+    console.log('App details:', app);
     
     // Check if app ID is valid
     if (!app.id) {
@@ -608,6 +609,7 @@ export async function getAppDownloadTasksBySlug(slug: string) {
       .from('app_download_tasks')
       .select(`
         id,
+        app_id,
         is_active,
         download_tasks (*)
       `)
@@ -620,7 +622,24 @@ export async function getAppDownloadTasksBySlug(slug: string) {
     }
 
     console.log('Found download tasks for app:', data?.length || 0);
-    console.log('Download tasks data:', data);
+    
+    // Log detailed task information
+    if (data && data.length > 0) {
+      data.forEach((item, index) => {
+        console.log(`Task ${index + 1}:`, {
+          id: item.id,
+          app_id: item.app_id,
+          is_active: item.is_active,
+          task: item.download_tasks ? {
+            id: item.download_tasks.id,
+            name: item.download_tasks.name,
+            task_type: item.download_tasks.task_type,
+            is_active: item.download_tasks.is_active
+          } : null
+        });
+      });
+    }
+    
     return data || [];
   } catch (error) {
     console.error('Error in getAppDownloadTasksBySlug:', error);
