@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 export interface Props {
   title?: string;
   description?: string;
@@ -206,11 +208,6 @@ const websiteSchema = {
     <meta name="HandheldFriendly" content="true" />
     <meta name="MobileOptimized" content="320" />
     
-    <!-- Preload critical assets -->
-    <link rel="preload" href="/_astro/index.css" as="style">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
