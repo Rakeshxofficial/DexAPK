@@ -1,6 +1,4 @@
 ---
-import '../styles/global.css';
-
 export interface Props {
   title?: string;
   description?: string;
@@ -207,7 +205,7 @@ const websiteSchema = {
     <meta name="target" content="all" /> 
     <meta name="HandheldFriendly" content="true" />
     <meta name="MobileOptimized" content="320" />
-    
+
     <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
@@ -219,7 +217,7 @@ const websiteSchema = {
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     
     <!-- Theme Detection Script -->
-    <script is:inline>
+    <script is:inline defer>
       const getThemePreference = () => {
         if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
           return localStorage.getItem('theme');
@@ -241,17 +239,6 @@ const websiteSchema = {
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <slot />
-    
-    <!-- Defer non-critical scripts -->
-    <script>
-      // Add preconnect for Google Analytics after page load
-      window.addEventListener('load', function() {
-        const preconnectGA = document.createElement('link');
-        preconnectGA.rel = 'preconnect';
-        preconnectGA.href = 'https://www.googletagmanager.com';
-        document.head.appendChild(preconnectGA);
-      });
-    </script>
   </body>
 </html>
 
@@ -259,19 +246,16 @@ const websiteSchema = {
   html {
     font-family: 'Inter', system-ui, sans-serif;
     scroll-behavior: smooth;
-    text-rendering: optimizeSpeed;
   }
   
   body {
     margin: 0;
     width: 100%;
     min-height: 100vh;
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
   }
   
   * {
     box-sizing: border-box;
-    contain: content;
   }
 </style>

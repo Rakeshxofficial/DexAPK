@@ -18,16 +18,6 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore',
-    build: {
-      cssCodeSplit: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'vendor': ['@supabase/supabase-js'],
-          }
-        }
-      }
-    }
+    trailingSlash: 'ignore'
   },
 });

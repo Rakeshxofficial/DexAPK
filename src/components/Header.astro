@@ -496,8 +496,7 @@ import Logo from './Logo.astro';
   /* Ensure header container constrains all child elements */
   header {
     position: sticky;
-    contain: layout paint style size;
-    will-change: transform;
+    contain: layout paint style;
   }
   
   /* Prevent any overflow from extending clickable areas */
@@ -509,7 +508,7 @@ import Logo from './Logo.astro';
   /* Constrain logo link to proper boundaries */
   header a[href="/"] {
     position: relative;
-    display: flex;
+    display: inline-flex;
     max-width: 200px;
     max-height: 60px;
     overflow: hidden;
@@ -525,12 +524,12 @@ import Logo from './Logo.astro';
   /* Sidebar animations */
   #sidebar-menu {
     will-change: transform;
-    contain: layout paint style;
+    contain: layout paint;
   }
   
   #sidebar-overlay {
     will-change: opacity;
-    contain: layout paint style;
+    contain: layout paint;
   }
   
   /* Enhanced focus styles for sidebar */

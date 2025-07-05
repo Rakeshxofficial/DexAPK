@@ -104,11 +104,9 @@ try {
                 {app.icon ? (
                   <img 
                     src={app.icon} 
-                    alt=""
+                    alt={`${app.name} icon`}
                     class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
                     loading="lazy"
-                    width="96"
-                    height="96"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                   />
                   <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>
@@ -411,8 +409,7 @@ try {
   /* Enhanced accessibility styles */
   .app-card {
     position: relative;
-    contain: layout style size;
-    will-change: transform;
+    contain: layout style;
   }
   
   .app-card:focus-within {
@@ -455,8 +452,7 @@ try {
   /* Loading state styles */
   .loading-indicator {
     backdrop-filter: blur(4px);
-    will-change: opacity, transform;
-    contain: layout paint;
+    will-change: opacity;
   }
   
   /* Touch feedback */
