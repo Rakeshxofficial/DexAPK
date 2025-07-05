@@ -642,7 +642,7 @@ const dynamicFAQsArray = app ? [
     if (!container) return;
     
     // Dynamically import the markdown parser
-    import('../lib/markdownParser.js').then(module => {
+    import('~/lib/markdownParser.js').then(module => {
       const { parseMarkdown } = module;
       const { html, toc } = parseMarkdown(content, true);
       
