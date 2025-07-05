@@ -549,6 +549,36 @@ export async function getAppDownloadTasks(appId: string) {
   }
 }
 
+export async function getAppDownloadTasksById(appId: string) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .select(`
+        id,
+        is_active,
+        download_tasks (*)
+      `)
+      .eq('app_id', appId)
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Supabase error fetching app download tasks by ID:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAppDownloadTasksById:', error);
+    return [];
+  }
+}
+
 export async function getAppDownloadTasksBySlug(slug: string) {
   try {
     // Check if we have valid credentials before making the request
@@ -597,11 +627,123 @@ export async function getAppDownloadTasksBySlug(slug: string) {
   }
 }
 
-export async function assignTaskToApp(appId: string, taskId: string) {
+export async function assignTaskToApp(appId: string, taskId: string, deactivateExisting: boolean = false) {
   try {
     console.log('Assigning task to app:', { appId, taskId });
     
-    // First check if this app already has an active task
+    // If deactivateExisting is true, deactivate existing tasks
+    if (deactivateExisting) {
+      const { data: existingTasks, error: checkError } = await supabase
+        .from('app_download_tasks')
+        .select('*')
+        .eq('app_id', appId)
+        .eq('is_active', true);
+  
+      if (checkError) {
+        console.error('Supabase error checking existing tasks:', checkError);
+        return { success: false, error: checkError.message };
+      }
+  
+      // Deactivate existing tasks
+      if (existingTasks && existingTasks.length > 0) {
+        for (const task of existingTasks) {
+          const { error: updateError } = await supabase
+            .from('app_download_tasks')
+            .update({ is_active: false })
+            .eq('id', task.id);
+  
+          if (updateError) {
+            console.error('Supabase error deactivating existing task:', updateError);
+            return { success: false, error: updateError.message };
+          }
+        }
+      }
+    }
+
+    // Check if this task is already assigned to this app
+    const { data: existingAssignment, error: checkAssignmentError } = await supabase
+      .from('app_download_tasks')
+      .select('*')
+      .eq('app_id', appId)
+      .eq('task_id', taskId);
+
+    if (checkAssignmentError) {
+      console.error('Supabase error checking existing assignment:', checkAssignmentError);
+      return { success: false, error: checkAssignmentError.message };
+    }
+
+    // If the task is already assigned, just activate it
+    if (existingAssignment && existingAssignment.length > 0) {
+      const { data, error } = await supabase
+        .from('app_download_tasks')
+        .update({ is_active: true })
+        .eq('id', existingAssignment[0].id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase error activating existing assignment:', error);
+        return { success: false, error: error.message };
+      }
+
+      console.log('Existing task assignment activated:', data);
+      return { success: true, data };
+    }
+
+    // Otherwise, create a new assignment
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .insert([{
+        app_id: appId,
+        task_id: taskId,
+        is_active: true
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error assigning task to app:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Task assigned to app successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in assignTaskToApp:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function removeTaskFromApp(appId: string, taskId: string) {
+  try {
+    console.log('Removing task from app:', { appId, taskId });
+    
+    // Deactivate the specific task assignment
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .update({ is_active: false })
+      .eq('app_id', appId)
+      .eq('task_id', taskId)
+      .select();
+
+    if (error) {
+      console.error('Supabase error removing task from app:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Task removed from app successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in removeTaskFromApp:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function removeAllTasksFromApp(appId: string) {
+  try {
+    console.log('Removing all tasks from app:', appId);
+    
+    // Get all active tasks for this app
     const { data: existingTasks, error: checkError } = await supabase
       .from('app_download_tasks')
       .select('*')
@@ -626,54 +768,115 @@ export async function assignTaskToApp(appId: string, taskId: string) {
           return { success: false, error: updateError.message };
         }
       }
+      
+      return { success: true, message: `Removed ${existingTasks.length} tasks from app` };
+    } else {
+      return { success: true, message: 'No active tasks to remove' };
     }
-
-    // Now create the new assignment
-    const { data, error } = await supabase
-      .from('app_download_tasks')
-      .insert([{
-        app_id: appId,
-        task_id: taskId,
-        is_active: true
-      }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error assigning task to app:', error);
-      return { success: false, error: error.message };
-    }
-
-    console.log('Task assigned to app successfully:', data);
-    return { success: true, data };
   } catch (error) {
-    console.error('Error in assignTaskToApp:', error);
+    console.error('Error in removeAllTasksFromApp:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
 
-export async function unassignTaskFromApp(appId: string, taskId: string) {
+export async function getAppsWithTasks() {
   try {
-    console.log('Unassigning task from app:', { appId, taskId });
-    
-    const { data, error } = await supabase
-      .from('app_download_tasks')
-      .update({ is_active: false })
-      .eq('app_id', appId)
-      .eq('task_id', taskId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error unassigning task from app:', error);
-      return { success: false, error: error.message };
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
     }
 
-    console.log('Task unassigned from app successfully:', data);
-    return { success: true, data };
+    // Get all apps with active tasks
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .select(`
+        id,
+        app_id,
+        task_id,
+        is_active,
+        apps (id, name, slug),
+        download_tasks (id, name, task_type)
+      `)
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Supabase error fetching apps with tasks:', error);
+      return [];
+    }
+
+    // Group by app_id to show multiple tasks per app
+    const appsWithTasks = {};
+    data.forEach(item => {
+      const appId = item.app_id;
+      if (!appsWithTasks[appId]) {
+        appsWithTasks[appId] = {
+          app: item.apps,
+          tasks: []
+        };
+      }
+      appsWithTasks[appId].tasks.push({
+        id: item.id,
+        task: item.download_tasks,
+        is_active: item.is_active
+      });
+    });
+
+    return Object.values(appsWithTasks);
   } catch (error) {
-    console.error('Error in unassignTaskFromApp:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    console.error('Error in getAppsWithTasks:', error);
+    return [];
+  }
+}
+
+export async function getAppWithTasks(appId: string) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return null;
+    }
+
+    // Get app details
+    const { data: app, error: appError } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('id', appId)
+      .single();
+
+    if (appError) {
+      console.error('Supabase error fetching app:', appError);
+      return null;
+    }
+
+    // Get all active tasks for this app
+    const { data: tasks, error: tasksError } = await supabase
+      .from('app_download_tasks')
+      .select(`
+        id,
+        task_id,
+        is_active,
+        download_tasks (*)
+      `)
+      .eq('app_id', appId)
+      .eq('is_active', true);
+
+    if (tasksError) {
+      console.error('Supabase error fetching app tasks:', tasksError);
+      return null;
+    }
+    
+    return {
+      app,
+      tasks: tasks.map(t => ({
+        id: t.id,
+        task: t.download_tasks,
+        is_active: t.is_active
+      }))
+    };
+  } catch (error) {
+    console.error('Error in getAppWithTasks:', error);
+    return null;
   }
 }
 
@@ -697,7 +900,7 @@ export async function getAppsWithoutActiveTasks() {
     }
 
     // Get all apps with active tasks
-    const { data: appsWithTasks, error: tasksError } = await supabase
+    const { data: appTaskAssignments, error: tasksError } = await supabase
       .from('app_download_tasks')
       .select('app_id')
       .eq('is_active', true);
@@ -708,8 +911,8 @@ export async function getAppsWithoutActiveTasks() {
     }
 
     // Filter out apps that already have active tasks
-    const appIdsWithTasks = appsWithTasks.map(item => item.app_id);
-    const appsWithoutTasks = allApps.filter(app => !appIdsWithTasks.includes(app.id));
+    const appIdsWithTasks = [...new Set(appTaskAssignments.map(item => item.app_id))];
+    const appsWithoutTasks = allApps.filter(app => !appIdsWithTasks.includes(app.id) || true); // Show all apps for now
 
     return appsWithoutTasks || [];
   } catch (error) {
