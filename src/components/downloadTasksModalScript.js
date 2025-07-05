@@ -81,10 +81,19 @@ async function initializeDownloadButton() {
   originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
   console.log('Original download URL:', originalDownloadUrl);
   
-  // Always override the click behavior regardless of tasks
-  downloadBtn.addEventListener('click', handleDownloadClick);
-  downloadBtn.setAttribute('data-has-tasks', 'true');
-  console.log('Download button click handler attached');
+  // Check if the app has any download tasks before attaching the handler
+  const hasTasks = await checkForDownloadTasks(currentAppSlug);
+  
+  if (hasTasks) {
+    // Only override the click behavior if there are tasks
+    downloadBtn.addEventListener('click', handleDownloadClick);
+    downloadBtn.setAttribute('data-has-tasks', 'true');
+    console.log('Download button click handler attached - app has tasks');
+  } else {
+    // Don't override the default behavior if there are no tasks
+    downloadBtn.setAttribute('data-has-tasks', 'false');
+    console.log('No download tasks for this app - using direct download');
+  }
 }
 
 // Check if the app has any download tasks
@@ -111,9 +120,20 @@ async function checkForDownloadTasks(slug) {
 // Handle download button click
 function handleDownloadClick(e) {
   console.log('Download button clicked');
-  e.preventDefault();
-  e.stopPropagation();
-  openDownloadTasksModal();
+  
+  // First check if the app has any download tasks
+  checkForDownloadTasks(currentAppSlug).then(hasTasks => {
+    if (hasTasks) {
+      // Only prevent default and show modal if there are tasks
+      e.preventDefault();
+      e.stopPropagation();
+      openDownloadTasksModal();
+    } else {
+      // If no tasks, let the default download action happen
+      console.log('No tasks for this app, proceeding with direct download');
+      // Don't prevent default - allow normal link behavior
+    }
+  });
 }
 
 // Function to open the modal and load tasks

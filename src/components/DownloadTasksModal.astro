@@ -71,7 +71,8 @@ const { appSlug } = Astro.props;
 </div>
 
 <script>
-  import '../components/downloadTasksModalScript.js';
+  // Import the script with a version parameter to prevent caching issues
+  import '../components/downloadTasksModalScript.js?v=1.3';
 </script>
 
 <style>
