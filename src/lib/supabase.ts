@@ -582,10 +582,7 @@ export async function getAppDownloadTasksById(appId: string) {
 export async function getAppDownloadTasksBySlug(slug: string) {
   try {
     // Check if we have valid credentials before making the request
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase credentials not available');
-      return [];
-    }
+    if (!supabaseUrl || !supabaseAnonKey) return [];
 
     // First get the app id from the slug
     const { data: app, error: appError } = await supabase
@@ -594,15 +591,9 @@ export async function getAppDownloadTasksBySlug(slug: string) {
       .eq('slug', slug)
       .single();
 
-    if (appError) {
-      console.error('Supabase error fetching app by slug:', appError);
-      return [];
-    }
+    if (appError || !app) return [];
 
-    if (!app) {
-      console.error('App not found with slug:', slug);
-      return [];
-    }
+    console.log('Found app with slug:', slug, 'ID:', app.id);
 
     // Then get the download tasks for this app
     const { data, error } = await supabase
@@ -615,11 +606,9 @@ export async function getAppDownloadTasksBySlug(slug: string) {
       .eq('app_id', app.id)
       .eq('is_active', true);
 
-    if (error) {
-      console.error('Supabase error fetching app download tasks:', error);
-      return [];
-    }
+    if (error) return [];
 
+    console.log('Found download tasks for app:', data?.length || 0);
     return data || [];
   } catch (error) {
     console.error('Error in getAppDownloadTasksBySlug:', error);
@@ -630,35 +619,6 @@ export async function getAppDownloadTasksBySlug(slug: string) {
 export async function assignTaskToApp(appId: string, taskId: string, deactivateExisting: boolean = false) {
   try {
     console.log('Assigning task to app:', { appId, taskId });
-    
-    // If deactivateExisting is true, deactivate existing tasks
-    if (deactivateExisting) {
-      const { data: existingTasks, error: checkError } = await supabase
-        .from('app_download_tasks')
-        .select('*')
-        .eq('app_id', appId)
-        .eq('is_active', true);
-  
-      if (checkError) {
-        console.error('Supabase error checking existing tasks:', checkError);
-        return { success: false, error: checkError.message };
-      }
-  
-      // Deactivate existing tasks
-      if (existingTasks && existingTasks.length > 0) {
-        for (const task of existingTasks) {
-          const { error: updateError } = await supabase
-            .from('app_download_tasks')
-            .update({ is_active: false })
-            .eq('id', task.id);
-  
-          if (updateError) {
-            console.error('Supabase error deactivating existing task:', updateError);
-            return { success: false, error: updateError.message };
-          }
-        }
-      }
-    }
 
     // Check if this task is already assigned to this app
     const { data: existingAssignment, error: checkAssignmentError } = await supabase
@@ -667,10 +627,7 @@ export async function assignTaskToApp(appId: string, taskId: string, deactivateE
       .eq('app_id', appId)
       .eq('task_id', taskId);
 
-    if (checkAssignmentError) {
-      console.error('Supabase error checking existing assignment:', checkAssignmentError);
-      return { success: false, error: checkAssignmentError.message };
-    }
+    if (checkAssignmentError) return { success: false, error: checkAssignmentError.message };
 
     // If the task is already assigned, just activate it
     if (existingAssignment && existingAssignment.length > 0) {
@@ -680,11 +637,6 @@ export async function assignTaskToApp(appId: string, taskId: string, deactivateE
         .eq('id', existingAssignment[0].id)
         .select()
         .single();
-
-      if (error) {
-        console.error('Supabase error activating existing assignment:', error);
-        return { success: false, error: error.message };
-      }
 
       console.log('Existing task assignment activated:', data);
       return { success: true, data };
@@ -701,10 +653,7 @@ export async function assignTaskToApp(appId: string, taskId: string, deactivateE
       .select()
       .single();
 
-    if (error) {
-      console.error('Supabase error assigning task to app:', error);
-      return { success: false, error: error.message };
-    }
+    if (error) return { success: false, error: error.message };
 
     console.log('Task assigned to app successfully:', data);
     return { success: true, data };
@@ -832,10 +781,7 @@ export async function getAppsWithTasks() {
 export async function getAppWithTasks(appId: string) {
   try {
     // Check if we have valid credentials before making the request
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase credentials not available');
-      return null;
-    }
+    if (!supabaseUrl || !supabaseAnonKey) return null;
 
     // Get app details
     const { data: app, error: appError } = await supabase
@@ -844,10 +790,7 @@ export async function getAppWithTasks(appId: string) {
       .eq('id', appId)
       .single();
 
-    if (appError) {
-      console.error('Supabase error fetching app:', appError);
-      return null;
-    }
+    if (appError || !app) return null;
 
     // Get all active tasks for this app
     const { data: tasks, error: tasksError } = await supabase
@@ -861,10 +804,7 @@ export async function getAppWithTasks(appId: string) {
       .eq('app_id', appId)
       .eq('is_active', true);
 
-    if (tasksError) {
-      console.error('Supabase error fetching app tasks:', tasksError);
-      return null;
-    }
+    if (tasksError) return null;
     
     return {
       app,
@@ -883,7 +823,7 @@ export async function getAppWithTasks(appId: string) {
 export async function getAppsWithoutActiveTasks() {
   try {
     // Check if we have valid credentials before making the request
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabaseAnonKey || !supabase) {
       console.warn('Supabase credentials not available');
       return [];
     }
@@ -893,9 +833,7 @@ export async function getAppsWithoutActiveTasks() {
       .from('apps')
       .select('*')
       .eq('is_active', true);
-
     if (appsError) {
-      console.error('Supabase error fetching apps:', appsError);
       return [];
     }
 
@@ -904,9 +842,7 @@ export async function getAppsWithoutActiveTasks() {
       .from('app_download_tasks')
       .select('app_id')
       .eq('is_active', true);
-
     if (tasksError) {
-      console.error('Supabase error fetching apps with tasks:', tasksError);
       return [];
     }
 

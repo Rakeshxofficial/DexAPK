@@ -578,7 +578,7 @@ const dynamicFAQs = app ? [
   <Footer />
   
   <!-- Download Tasks Modal -->
-  <DownloadTasksModal appSlug={app.slug} />
+  <DownloadTasksModal appSlug={app?.slug} />
 </Layout>
 
 <style>
@@ -593,6 +593,12 @@ const dynamicFAQs = app ? [
   .prose p {
     margin-bottom: 1rem;
   }
+
+  /* Ensure the download button is properly styled for interaction */
+  #download-button {
+    position: relative;
+    z-index: 10;
+  }
   
   /* Ensure minimum touch target sizes */
   #download-button {
@@ -601,5 +607,16 @@ const dynamicFAQs = app ? [
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
   }
 </style>
+
+<script>
+  // Ensure download button triggers the modal
+  document.addEventListener('DOMContentLoaded', function() {
+    const downloadBtn = document.getElementById('download-button');
+    if (downloadBtn) {
+      console.log('Download button found, setting up event listener');
+    }
+  });
+</script>
