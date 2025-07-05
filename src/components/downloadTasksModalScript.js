@@ -4,7 +4,7 @@ import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
 // Global variables
 let tasks = [];
 let completedTasks = [];
-let originalDownloadUrl = '';
+let originalDownloadUrl = '#';
 let currentAppSlug = '';
 
 // DOM elements
@@ -80,25 +80,43 @@ async function initializeDownloadButton() {
   // Store the original download URL
   originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
   console.log('Original download URL:', originalDownloadUrl);
-  
-  // Check if the app has any download tasks before attaching the handler
-  const hasTasks = await checkForDownloadTasks(currentAppSlug);
-  
-  if (hasTasks) {
-    // Only override the click behavior if there are tasks
-    downloadBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      openDownloadTasksModal();
-    });
-    downloadBtn.setAttribute('data-has-tasks', 'true');
-    console.log('Download button click handler attached - app has tasks');
-  } else {
-    // Don't override the default behavior if there are no tasks
-    // Ensure the button opens in a new window
-    downloadBtn.setAttribute('target', '_blank');
-    downloadBtn.setAttribute('data-has-tasks', 'false'); 
-    console.log('No download tasks for this app - using direct download');
+
+  // We'll check for tasks and then decide how to handle the click
+  checkAndSetupDownloadButton(downloadBtn, currentAppSlug);
+}
+
+// Check for tasks and set up the download button accordingly
+async function checkAndSetupDownloadButton(downloadBtn, slug) {
+  try {
+    if (!downloadBtn || !slug) return;
+    
+    // Check if the app has any download tasks
+    const hasTasks = await checkForDownloadTasks(slug);
+    
+    if (hasTasks) {
+      // Only override the click behavior if there are tasks
+      downloadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openDownloadTasksModal();
+      });
+      downloadBtn.setAttribute('data-has-tasks', 'true');
+      console.log('Download button click handler attached - app has tasks');
+    } else {
+      // Don't override the default behavior if there are no tasks
+      // Ensure the button opens in a new window
+      downloadBtn.setAttribute('target', '_blank');
+      downloadBtn.setAttribute('rel', 'noopener noreferrer');
+      downloadBtn.setAttribute('data-has-tasks', 'false'); 
+      console.log('No download tasks for this app - using direct download');
+    }
+  } catch (error) {
+    console.error('Error setting up download button:', error);
+    // Fallback to direct download if there's an error
+    if (downloadBtn) {
+      downloadBtn.setAttribute('target', '_blank');
+      downloadBtn.setAttribute('rel', 'noopener noreferrer');
+    }
   }
 }
 
@@ -190,12 +208,7 @@ async function openDownloadTasksModal() {
     // If no tasks, enable direct download
     if (!appTasks || appTasks.length === 0) {
       console.log('No tasks found, enabling direct download');
-      if (downloadNowBtn) {
-        downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-        downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-        downloadNowBtn.disabled = false;
-        downloadNowBtn.addEventListener('click', directDownload);
-      }
+      enableDownload();
       
       // Update tasks list
       tasksList.innerHTML = `
@@ -354,27 +367,26 @@ function updateProgress(completed, total) {
 function enableDownload() {
   if (!downloadNowBtn) return;
 
-  // Enable the download button
   downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-  downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+  downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'transform', 'hover:-translate-y-1');
   downloadNowBtn.disabled = false;
   
   // Add click handler
   downloadNowBtn.addEventListener('click', directDownload, { once: true });
-  
-  // Announce to screen readers
-  announceToScreenReader('All tasks completed. Download now available.');
 }
 
 // Function to perform direct download
 function directDownload() {
   // Close the modal
-  closeDownloadTasksModal(); 
+  closeDownloadTasksModal();
 
   // Redirect to the original download URL
   if (originalDownloadUrl && originalDownloadUrl !== '#') {
-    // Open in a new tab
-    window.open(originalDownloadUrl, '_blank');
+    // Open in a new tab with proper attributes
+    window.open(originalDownloadUrl, '_blank', 'noopener,noreferrer');
+    console.log('Opening download URL in new tab:', originalDownloadUrl);
+  } else {
+    console.warn('No valid download URL found');
   }
 }
 
