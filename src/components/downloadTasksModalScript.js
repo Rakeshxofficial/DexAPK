@@ -4,7 +4,7 @@ import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
 // Global variables
 let tasks = [];
 let completedTasks = [];
-let originalDownloadUrl = '#';
+let originalDownloadUrl = '';
 let currentAppSlug = '';
 
 // DOM elements
@@ -80,6 +80,9 @@ async function initializeDownloadButton() {
   // Store the original download URL
   originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
   console.log('Original download URL:', originalDownloadUrl);
+  
+  // Remove the href attribute to prevent direct navigation
+  downloadBtn.removeAttribute('href');
 
   // We'll check for tasks and then decide how to handle the click
   checkAndSetupDownloadButton(downloadBtn, currentAppSlug);
@@ -98,12 +101,16 @@ async function checkAndSetupDownloadButton(downloadBtn, slug) {
       downloadBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
+        // Remove href to prevent screen readers from accessing it
+        downloadBtn.removeAttribute('href');
         openDownloadTasksModal();
       });
       downloadBtn.setAttribute('data-has-tasks', 'true');
       console.log('Download button click handler attached - app has tasks');
     } else {
       // Don't override the default behavior if there are no tasks
+      // Restore the href attribute for direct downloads
+      downloadBtn.setAttribute('href', originalDownloadUrl);
       // Ensure the button opens in a new window
       downloadBtn.setAttribute('target', '_blank');
       downloadBtn.setAttribute('rel', 'noopener noreferrer');
@@ -379,12 +386,27 @@ function enableDownload() {
 function directDownload() {
   // Close the modal
   closeDownloadTasksModal();
+  
+  // Get the download button
+  const downloadBtn = document.getElementById('download-button');
 
   // Redirect to the original download URL
   if (originalDownloadUrl && originalDownloadUrl !== '#') {
+    // Temporarily restore the href for the actual download
+    if (downloadBtn) {
+      downloadBtn.setAttribute('href', originalDownloadUrl);
+    }
+    
     // Open in a new tab with proper attributes
     window.open(originalDownloadUrl, '_blank', 'noopener,noreferrer');
     console.log('Opening download URL in new tab:', originalDownloadUrl);
+    
+    // Remove the href again after a short delay
+    setTimeout(() => {
+      if (downloadBtn) {
+        downloadBtn.removeAttribute('href');
+      }
+    }, 100);
   } else {
     console.warn('No valid download URL found');
   }
