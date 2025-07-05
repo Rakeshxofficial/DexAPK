@@ -355,7 +355,7 @@ const dynamicFAQs = app ? [
           <!-- Download Button -->
           <a
             href={app.download_url || '#'}
-            target="_blank"
+            target="_self"
             rel="noopener noreferrer"
             id="download-button"
             class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
@@ -603,10 +603,10 @@ const dynamicFAQs = app ? [
 
   /* Ensure the download button is properly styled for interaction */
   #download-button {
-    position: relative;
-    z-index: 20;
-    cursor: pointer;
-    user-select: none;
+    position: relative !important;
+    z-index: 20 !important;
+    cursor: pointer !important;
+    user-select: none !important;
   }
   
   /* Ensure minimum touch target sizes */
