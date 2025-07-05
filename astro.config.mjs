@@ -20,6 +20,11 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore'
+    trailingSlash: 'ignore',
+    ssr: {
+      optimizeDeps: {
+        timeout: 300000 // 5 minutes timeout for SSR optimization
+      }
+    }
   },
 });
