@@ -296,7 +296,8 @@ const dynamicFAQs = app ? [
                 alt={`${app.name} icon`}
                 class="w-full h-full object-cover rounded-3xl"
                 loading="eager"
-                fetchpriority="high" 
+                fetchpriority="high"
+                decoding="async"
                 width="128"
                 height="128"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"

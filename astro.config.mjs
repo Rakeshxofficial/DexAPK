@@ -13,8 +13,6 @@ export default defineConfig({
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',
-    assets: 'assets',
-    assetsPrefix: '/_astro'
   },
   vite: {
     define: {
