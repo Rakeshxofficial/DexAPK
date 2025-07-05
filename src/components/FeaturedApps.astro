@@ -104,9 +104,10 @@ try {
                 {app.icon ? (
                   <img 
                     src={app.icon} 
-                    alt={`${app.name} icon`}
+                    alt=""
                     class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
-                    loading="lazy"
+                    loading={index < 5 ? "eager" : "lazy"}
+                    fetchpriority={index < 5 ? "high" : "auto"}
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                   />
                   <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>

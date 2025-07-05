@@ -1,5 +1,5 @@
 // Import Supabase functions at the top
-import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
+import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase.js';
 
 // Global variables
 let tasks = [];
@@ -16,7 +16,7 @@ let progressText;
 let downloadNowBtn;
 
 // Initialize when the component is loaded
-function initializeModal() {
+async function initializeModal() {
   console.log('Initializing download tasks modal');
   
   // Get DOM elements
@@ -387,12 +387,21 @@ function closeDownloadTasksModal() {
 
 // Initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  initializeModal();
+  // Use requestIdleCallback to defer non-critical initialization
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(() => initializeModal());
+  } else {
+    setTimeout(initializeModal, 100);
+  }
   
   // Force re-initialization when the page is fully loaded
   window.addEventListener('load', function() {
     // Short delay to ensure everything is loaded
-    setTimeout(initializeModal, 100);
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => initializeModal());
+    } else {
+      setTimeout(initializeModal, 100);
+    }
   });
 });
 
@@ -401,8 +410,8 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeModal);
 } else {
   // Initialize now and again after a short delay
-  initializeModal();
-  setTimeout(initializeModal, 100);
+  // Defer initialization to not block rendering
+  setTimeout(initializeModal, 0);
 }
 
 // Helper functions for task type styling

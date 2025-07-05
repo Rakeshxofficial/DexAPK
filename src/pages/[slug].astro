@@ -244,7 +244,6 @@ const dynamicFAQs = app ? [
   <Header />
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    
     <!-- Breadcrumbs -->
     <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-hidden" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -288,8 +287,7 @@ const dynamicFAQs = app ? [
     <!-- App Header -->
     <section class="bg-white dark:bg-gray-800 py-8 sm:py-12">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          
+        <div class="text-center">  
           <!-- App Icon -->
           <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-white dark:bg-gray-700 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden" style="contain: layout paint;">
             {app.icon ? (
@@ -297,7 +295,8 @@ const dynamicFAQs = app ? [
                 src={app.icon} 
                 alt={`${app.name} icon`}
                 class="w-full h-full object-cover rounded-3xl"
-                loading="lazy"
+                loading="eager"
+                fetchpriority="high"
                 width="128"
                 height="128"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
@@ -357,7 +356,7 @@ const dynamicFAQs = app ? [
           <a
             href={app.download_url || '#'}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
             id="download-button"
             class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
             aria-label={`Download ${app.name} v${app.version} MOD APK (opens in new tab)`}
@@ -580,37 +579,37 @@ const dynamicFAQs = app ? [
 </Layout>
 
 <style>
-  details[open] summary svg {
-    transform: rotate(180deg) translate3d(0, 0, 0);
-  }
-  
-  .prose h1, .prose h2, .prose h3 {
-    color: inherit;
-  }
-  
-  .prose p {
-    margin-bottom: 1rem;
-  }
+details[open] summary svg {
+  transform: rotate(180deg) translate3d(0, 0, 0);
+}
 
-  /* Ensure the download button is properly styled for interaction */
-  #download-button {
-    position: relative;
-    z-index: 20;
-    cursor: pointer;
-  }
+.prose h1, .prose h2, .prose h3 {
+  color: inherit;
+}
 
-  /* Ensure the download button is properly styled for interaction */
-  #download-button {
-    position: relative !important;
-    z-index: 2;
-    cursor: pointer;
-    user-select: none;
-  }
-  
-  /* Ensure minimum touch target sizes */
-  #download-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center; 
-  }
+.prose p {
+  margin-bottom: 1rem;
+}
+
+/* Ensure the download button is properly styled for interaction */
+#download-button {
+  position: relative;
+  z-index: 20;
+  cursor: pointer;
+}
+
+/* Ensure the download button is properly styled for interaction */
+#download-button {
+  position: relative !important;
+  z-index: 2;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Ensure minimum touch target sizes */
+#download-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; 
+}
 </style>

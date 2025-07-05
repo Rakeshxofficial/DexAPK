@@ -1,9 +1,27 @@
 ---
 // Header component with sidebar menu integration
 import Logo from './Logo.astro';
+
+// Preload critical CSS
+const criticalCSS = `
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: colors 0.3s;
+    overflow: hidden;
+  }
+  
+  header > div {
+    position: relative;
+    overflow: hidden;
+  }
+`;
 ---
 
-<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300 overflow-hidden">
+<style set:html={criticalCSS}></style>
+
+<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
     <div class="relative flex items-center h-20 sm:h-24 overflow-hidden">
       
@@ -493,18 +511,6 @@ import Logo from './Logo.astro';
 </script>
 
 <style>
-  /* Ensure header container constrains all child elements */
-  header {
-    position: sticky;
-    contain: layout paint style;
-  }
-  
-  /* Prevent any overflow from extending clickable areas */
-  header > div {
-    position: relative;
-    overflow: hidden;
-  }
-  
   /* Constrain logo link to proper boundaries */
   header a[href="/"] {
     position: relative;
