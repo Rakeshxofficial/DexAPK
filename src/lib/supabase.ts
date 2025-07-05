@@ -583,6 +583,8 @@ export async function getAppDownloadTasksBySlug(slug: string) {
   try {
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) return [];
+    
+    console.log('Getting app download tasks by slug:', slug);
 
     // First get the app id from the slug
     const { data: app, error: appError } = await supabase
@@ -594,6 +596,12 @@ export async function getAppDownloadTasksBySlug(slug: string) {
     if (appError || !app) return [];
 
     console.log('Found app with slug:', slug, 'ID:', app.id);
+    
+    // Check if app ID is valid
+    if (!app.id) {
+      console.error('Invalid app ID for slug:', slug);
+      return [];
+    }
 
     // Then get the download tasks for this app
     const { data, error } = await supabase
@@ -606,9 +614,13 @@ export async function getAppDownloadTasksBySlug(slug: string) {
       .eq('app_id', app.id)
       .eq('is_active', true);
 
-    if (error) return [];
+    if (error) {
+      console.error('Error fetching download tasks:', error);
+      return [];
+    }
 
     console.log('Found download tasks for app:', data?.length || 0);
+    console.log('Download tasks data:', data);
     return data || [];
   } catch (error) {
     console.error('Error in getAppDownloadTasksBySlug:', error);

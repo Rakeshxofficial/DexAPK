@@ -578,7 +578,7 @@ const dynamicFAQs = app ? [
   <Footer />
   
   <!-- Download Tasks Modal -->
-  <DownloadTasksModal appSlug={app.slug} />
+  <DownloadTasksModal appSlug={app.slug} client:load />
 </Layout>
 
 <style>
@@ -605,6 +605,7 @@ const dynamicFAQs = app ? [
   #download-button {
     position: relative;
     z-index: 10;
+    cursor: pointer;
   }
   
   /* Ensure minimum touch target sizes */
