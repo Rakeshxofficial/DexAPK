@@ -95,7 +95,9 @@ async function initializeDownloadButton() {
     console.log('Download button click handler attached - app has tasks');
   } else {
     // Don't override the default behavior if there are no tasks
-    downloadBtn.setAttribute('data-has-tasks', 'false');
+    // Ensure the button opens in a new window
+    downloadBtn.setAttribute('target', '_blank');
+    downloadBtn.setAttribute('data-has-tasks', 'false'); 
     console.log('No download tasks for this app - using direct download');
   }
 }
