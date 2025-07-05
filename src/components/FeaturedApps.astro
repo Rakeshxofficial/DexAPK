@@ -201,7 +201,7 @@ try {
 </section>
 
 <!-- Toast Notification for Accessibility Feedback -->
-<div id="accessibility-toast" class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-full transition-transform duration-300 z-50" role="alert" aria-live="assertive" aria-atomic="true">
+<div id="accessibility-toast" class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-full opacity-0 pointer-events-none transition-all duration-300 z-50" role="alert" aria-live="assertive" aria-atomic="true">
   <div class="flex items-center gap-3">
     <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -315,8 +315,8 @@ try {
     function showToast(title, message) {
       toastTitle.textContent = title;
       toastMessage.textContent = message;
-      toast.classList.remove('translate-y-full');
-      toast.classList.add('translate-y-0');
+      toast.classList.remove('translate-y-full', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
       
       // Auto-hide after 5 seconds
       setTimeout(() => {
@@ -325,8 +325,8 @@ try {
     }
     
     window.hideToast = function() {
-      toast.classList.remove('translate-y-0');
-      toast.classList.add('translate-y-full');
+      toast.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+      toast.classList.add('translate-y-full', 'opacity-0', 'pointer-events-none');
     };
     
     // Screen reader announcements
@@ -460,15 +460,6 @@ try {
   
   .scale-95 {
     transform: scale(0.95);
-  }
-  
-  /* Toast animation */
-  .translate-y-0 {
-    transform: translateY(0);
-  }
-  
-  .translate-y-full {
-    transform: translateY(100%);
   }
   
   /* Screen reader only content */
