@@ -4,6 +4,7 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+// Lazy load non-critical components
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -125,6 +126,10 @@ const dynamicFAQs = app ? JSON.stringify([
 <Layout seoData={seoData}>
   {app && (
     <Fragment slot="head">
+      <!-- Preload critical assets -->
+      <link rel="preload" href="/critical.css" as="style" />
+      <link rel="stylesheet" href="/critical.css" />
+      
       <!-- FAQ Schema -->
       <script type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",

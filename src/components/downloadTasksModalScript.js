@@ -1,5 +1,13 @@
 // Import Supabase functions at the top
-import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
+// Lazy import to improve initial load performance
+let supabaseModule;
+
+async function getSupabaseModule() {
+  if (!supabaseModule) {
+    supabaseModule = await import('../lib/supabase');
+  }
+  return supabaseModule;
+}
 
 // Global variables
 let tasks = [];
@@ -90,6 +98,8 @@ async function initializeDownloadButton() {
 // Check if the app has any download tasks
 async function checkForDownloadTasks(slug) {
   try {
+    const { getAppDownloadTasksBySlug } = await getSupabaseModule();
+    
     // Check if the app has any download tasks
     if (!slug) return false;
     
@@ -118,6 +128,8 @@ function handleDownloadClick(e) {
 
 // Function to open the modal and load tasks
 async function openDownloadTasksModal() {
+  const { getAppDownloadTasksBySlug, getAppBySlug } = await getSupabaseModule();
+  
   if (!modal || !tasksList || !currentAppSlug) {
     console.error('Cannot open modal - missing elements:', { 
       modal: !!modal, 
