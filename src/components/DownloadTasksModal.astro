@@ -72,7 +72,16 @@ const { appSlug } = Astro.props;
 
 <script>
   // Import the script with defer to prevent render blocking
-  import '../components/downloadTasksModalScript.js';
+  const importScript = () => {
+    import('../components/downloadTasksModalScript.js');
+  };
+  
+  // Defer script loading until after critical content is rendered
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => setTimeout(importScript, 100));
+  } else {
+    setTimeout(importScript, 100);
+  }
 </script>
 
 <style>

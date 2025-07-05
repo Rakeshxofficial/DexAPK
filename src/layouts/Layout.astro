@@ -76,8 +76,10 @@ const websiteSchema = {
     <meta name="generator" content={Astro.generator} />
     
     <!-- Preconnect to critical domains -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     
     <!-- Primary Meta Tags -->
     <meta http-equiv="content-language" content="en-US" />
@@ -148,7 +150,7 @@ const websiteSchema = {
     <link rel="manifest" href="/manifest.json" />
 
     <!-- Font loading optimization -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="high" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     </noscript>
@@ -156,6 +158,9 @@ const websiteSchema = {
     <!-- DNS Prefetch for better performance -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+
+    <!-- Preload critical CSS -->
+    <link rel="preload" href="/_astro/_slug_.CQ5BuP9Z.css" as="style" />
 
     <!-- Base Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />

@@ -245,7 +245,7 @@ const dynamicFAQs = app ? [
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     <!-- Breadcrumbs -->
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-hidden" aria-label="Breadcrumb">
+    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="overflow-x-auto scrollbar-hide py-4">
           <ol class="flex items-center space-x-2 text-sm whitespace-nowrap" role="list">
@@ -296,7 +296,7 @@ const dynamicFAQs = app ? [
                 alt={`${app.name} icon`}
                 class="w-full h-full object-cover rounded-3xl"
                 loading="eager"
-                fetchpriority="high"
+                fetchpriority="high" 
                 width="128"
                 height="128"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
@@ -356,9 +356,9 @@ const dynamicFAQs = app ? [
           <a
             href={app.download_url || '#'}
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             id="download-button"
-            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
+            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 shadow-lg hover:shadow-xl cursor-pointer"
             aria-label={`Download ${app.name} v${app.version} MOD APK (opens in new tab)`}
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

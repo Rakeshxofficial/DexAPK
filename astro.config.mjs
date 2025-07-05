@@ -7,10 +7,14 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
-  adapter: netlify(),
+  adapter: netlify({
+    imageCDN: true
+  }),
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',
+    assets: 'assets',
+    assetsPrefix: '/_astro'
   },
   vite: {
     define: {
@@ -19,5 +23,8 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     trailingSlash: 'ignore'
+  },
+  experimental: {
+    optimizeHoistedScript: true
   },
 });
