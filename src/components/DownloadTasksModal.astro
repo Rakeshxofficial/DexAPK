@@ -70,14 +70,7 @@ const { appSlug } = Astro.props;
   </div>
 </div>
 
-<script is:inline>
-  // Inline script to avoid null byte issues during build
-  document.addEventListener('DOMContentLoaded', function() {
-    // Import the script dynamically to avoid build issues
-    import('../components/downloadTasksModalScript.js?v=1.2')
-      .catch(err => console.error('Error loading download tasks script:', err));
-  });
-</script>
+<script src="./downloadTasksModalScript.js" client:load></script>
 
 <style>
   /* Ensure the modal is accessible */

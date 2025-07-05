@@ -4,7 +4,7 @@ let supabaseLib;
 
 async function importDependencies() {
   try {
-    supabaseLib = await import('../lib/supabase.js');
+    supabaseLib = await import('../lib/supabase.ts');
     return true;
   } catch (error) {
     console.error('Error importing dependencies:', error);
