@@ -1,5 +1,16 @@
 // Import Supabase functions at the top
-import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase.js';
+// Use dynamic imports to avoid build issues
+let supabaseLib;
+
+async function importDependencies() {
+  try {
+    supabaseLib = await import('../lib/supabase.js');
+    return true;
+  } catch (error) {
+    console.error('Error importing dependencies:', error);
+    return false;
+  }
+}
 
 // Global variables
 let tasks = [];
@@ -91,9 +102,9 @@ async function initializeDownloadButton() {
 async function checkForDownloadTasks(slug) {
   try {
     // Check if the app has any download tasks
-    if (!slug) return false;
+    if (!slug || !supabaseLib) return false;
     
-    const appTasks = await getAppDownloadTasksBySlug(slug);
+    const appTasks = await supabaseLib.getAppDownloadTasksBySlug(slug);
     console.log('App tasks found:', appTasks);
     
     // Check if there are any active tasks
@@ -162,8 +173,17 @@ async function openDownloadTasksModal() {
   try {
     console.log('Fetching app details for slug:', currentAppSlug);
     
+    // Ensure dependencies are loaded
+    if (!supabaseLib) {
+      const loaded = await importDependencies();
+      if (!loaded) {
+        console.error('Failed to load dependencies');
+        return;
+      }
+    }
+    
     // Get app details
-    const app = await getAppBySlug(currentAppSlug);
+    const app = await supabaseLib.getAppBySlug(currentAppSlug);
     if (!app) {
       console.error('App not found:', currentAppSlug);
       tasksList.innerHTML = `
@@ -177,7 +197,7 @@ async function openDownloadTasksModal() {
     console.log('Fetching download tasks for app:', app.slug);
     
     // Get tasks for this app
-    const appTasks = await getAppDownloadTasksBySlug(app.slug);
+    const appTasks = await supabaseLib.getAppDownloadTasksBySlug(app.slug);
     console.log('Download tasks found:', appTasks);
     
     // If no tasks, enable direct download
@@ -382,6 +402,9 @@ function closeDownloadTasksModal() {
 // Initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   initializeModal();
+  
+  // Import dependencies
+  importDependencies();
   
   // Force re-initialization when the page is fully loaded
   window.addEventListener('load', function() {
