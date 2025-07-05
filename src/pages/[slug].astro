@@ -4,6 +4,7 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import DownloadTasksModal from '../components/DownloadTasksModal.astro';
 // Lazy load non-critical components
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
@@ -549,7 +550,7 @@ const dynamicFAQsArray = app ? [
   <Footer />
   
   <!-- Download Tasks Modal -->
-  <div id="download-tasks-modal-container"></div>
+  <DownloadTasksModal appSlug={app.slug} />
 </Layout>
 
 <!-- Deferred loading of non-critical components -->
@@ -576,11 +577,6 @@ const dynamicFAQsArray = app ? [
     if (appData.dynamicFAQs && appData.dynamicFAQs.length > 0) {
       loadDynamicFAQ(appData.dynamicFAQs);
     }
-    
-    // Load download tasks modal after a delay
-    setTimeout(() => {
-      loadDownloadTasksModal(appData.slug);
-    }, 1000);
   });
   
   // Function to load mod info
@@ -646,7 +642,7 @@ const dynamicFAQsArray = app ? [
     if (!container) return;
     
     // Dynamically import the markdown parser
-    import('../components/markdownParser.js').then(module => {
+    import('../lib/markdownParser.js').then(module => {
       const { parseMarkdown } = module;
       const { html, toc } = parseMarkdown(content, true);
       
@@ -775,20 +771,6 @@ const dynamicFAQsArray = app ? [
           svg.classList.remove('rotate-180');
         }
       });
-    });
-  }
-  
-  // Function to load download tasks modal
-  function loadDownloadTasksModal(slug) {
-    const container = document.getElementById('download-tasks-modal-container');
-    if (!container) return;
-    
-    // Dynamically import the modal component
-    import('../components/DownloadTasksModal.js').then(module => {
-      const { renderDownloadTasksModal } = module;
-      renderDownloadTasksModal(container, slug);
-    }).catch(error => {
-      console.error('Error loading download tasks modal:', error);
     });
   }
 </script>
