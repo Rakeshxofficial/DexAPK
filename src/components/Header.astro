@@ -495,8 +495,8 @@ import Logo from './Logo.astro';
 <style>
   /* Ensure header container constrains all child elements */
   header {
-    position: relative;
-    contain: layout style;
+    position: sticky;
+    contain: layout paint style;
   }
   
   /* Prevent any overflow from extending clickable areas */
@@ -524,10 +524,12 @@ import Logo from './Logo.astro';
   /* Sidebar animations */
   #sidebar-menu {
     will-change: transform;
+    contain: layout paint;
   }
   
   #sidebar-overlay {
     will-change: opacity;
+    contain: layout paint;
   }
   
   /* Enhanced focus styles for sidebar */

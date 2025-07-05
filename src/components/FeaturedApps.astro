@@ -111,7 +111,7 @@ try {
                   />
                   <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>
                 ) : (
-                  <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true"></div>
+                  <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true" style="contain: content;"></div>
                 )}
               </div>
               
@@ -409,6 +409,7 @@ try {
   /* Enhanced accessibility styles */
   .app-card {
     position: relative;
+    contain: layout style;
   }
   
   .app-card:focus-within {
@@ -436,7 +437,7 @@ try {
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
     .app-card,
-    .app-card * {
+    .app-card *:not(.loading-indicator) {
       transition: none !important;
       animation: none !important;
     }
@@ -451,6 +452,7 @@ try {
   /* Loading state styles */
   .loading-indicator {
     backdrop-filter: blur(4px);
+    will-change: opacity;
   }
   
   /* Touch feedback */
