@@ -1,7 +1,7 @@
 // Global variables
 let tasks = [];
 let completedTasks = [];
-let originalDownloadUrl = '';
+let originalDownloadUrl = '#';
 let currentAppSlug = '';
 
 // DOM elements
@@ -63,8 +63,10 @@ function setupEventListeners() {
 // Initialize the download button
 async function initializeDownloadButton() {
   const downloadBtn = document.getElementById('download-button');
+  const appSlugInput = document.getElementById('modal-app-slug');
+  currentAppSlug = appSlugInput ? appSlugInput.value : '';
   
-  if (!downloadBtn || !currentAppSlug) {
+  if (!downloadBtn) {
     console.error('Download button or app slug not found:', { 
       downloadBtn: !!downloadBtn, 
       appSlug: currentAppSlug 
@@ -72,50 +74,26 @@ async function initializeDownloadButton() {
     return;
   }
   
+  // Store the original download URL
+  originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
+  console.log('Original download URL:', originalDownloadUrl);
+  
+  // Always override the click behavior regardless of tasks
+  downloadBtn.addEventListener('click', handleDownloadClick);
+  downloadBtn.setAttribute('data-has-tasks', 'true');
+  console.log('Download button click handler attached');
+}
+
+// Check if the app has any download tasks
+async function checkForDownloadTasks(slug) {
   try {
-    // Store the original download URL
-    originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
-    console.log('Original download URL:', originalDownloadUrl);
-    
     // Import the necessary functions from supabase.js
     const { getAppDownloadTasksBySlug, getAppBySlug } = await import('../lib/supabase.js');
     
     // Check if the app has any download tasks
-    const hasTasks = await checkForDownloadTasks(currentAppSlug, getAppDownloadTasksBySlug);
-    console.log('App has download tasks:', hasTasks);
+    if (!slug) return false;
     
-    if (hasTasks) {
-      console.log('App has download tasks, overriding click behavior');
-      
-      // Add click event listener
-      downloadBtn.addEventListener('click', handleDownloadClick);
-      
-      // Add data attribute to indicate tasks are available
-      downloadBtn.setAttribute('data-has-tasks', 'true');
-      
-      console.log('Download button click handler attached');
-    } else {
-      console.log('App has no download tasks, using default behavior');
-    }
-  } catch (error) {
-    console.error('Error initializing download button:', error);
-  }
-}
-
-// Handle download button click
-function handleDownloadClick(e) {
-  console.log('Download button clicked');
-  e.preventDefault();
-  e.stopPropagation();
-  openDownloadTasksModal();
-}
-
-// Function to check if an app has download tasks
-async function checkForDownloadTasks(slug, getAppDownloadTasksBySlugFn) {
-  if (!slug) return false;
-  
-  try {
-    const appTasks = await getAppDownloadTasksBySlugFn(slug);
+    const appTasks = await getAppDownloadTasksBySlug(slug);
     console.log('App tasks found:', appTasks);
     
     // Check if there are any active tasks
@@ -128,6 +106,14 @@ async function checkForDownloadTasks(slug, getAppDownloadTasksBySlugFn) {
     console.error('Error checking for download tasks:', error);
     return false;
   }
+}
+
+// Handle download button click
+function handleDownloadClick(e) {
+  console.log('Download button clicked');
+  e.preventDefault();
+  e.stopPropagation();
+  openDownloadTasksModal();
 }
 
 // Function to open the modal and load tasks
@@ -154,6 +140,16 @@ async function openDownloadTasksModal() {
   // Reset tasks state
   tasks = [];
   completedTasks = [];
+  
+  // Reset download button state
+  if (downloadNowBtn) {
+    downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
+    downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    downloadNowBtn.disabled = true;
+    
+    // Remove any existing click handlers
+    downloadNowBtn.removeEventListener('click', directDownload);
+  }
   
   // Show loading state
   tasksList.innerHTML = `
@@ -365,19 +361,11 @@ function enableDownload() {
 // Function to perform direct download
 function directDownload() {
   // Close the modal
-  try {
-    closeDownloadTasksModal();
-  
-    // Redirect to the original download URL after a short delay
-    if (originalDownloadUrl && originalDownloadUrl !== '#') {
-      window.location.href = originalDownloadUrl;
-    }
-  } catch (error) {
-    console.error('Error during direct download:', error);
-    // Fallback - try to open the URL directly
-    if (originalDownloadUrl && originalDownloadUrl !== '#') {
-      window.location.href = originalDownloadUrl;
-    }
+  closeDownloadTasksModal();
+
+  // Redirect to the original download URL
+  if (originalDownloadUrl && originalDownloadUrl !== '#') {
+    window.location.href = originalDownloadUrl;
   }
 }
 
@@ -397,13 +385,21 @@ function closeDownloadTasksModal() {
 // Initialize when the DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   initializeModal();
+  
+  // Force re-initialization when the page is fully loaded
+  window.addEventListener('load', function() {
+    // Short delay to ensure everything is loaded
+    setTimeout(initializeModal, 100);
+  });
 });
 
 // Initialize immediately for client:load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeModal);
 } else {
+  // Initialize now and again after a short delay
   initializeModal();
+  setTimeout(initializeModal, 100);
 }
 
 // Helper functions for task type styling
