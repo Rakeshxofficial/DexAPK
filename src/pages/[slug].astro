@@ -6,6 +6,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MarkdownRenderer from '../components/MarkdownRenderer.astro';
 import DynamicFAQ from '../components/DynamicFAQ.astro';
+import DownloadTasksModal from '../components/DownloadTasksModal.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -352,11 +353,12 @@ const dynamicFAQs = app ? [
           </div>
 
           <!-- Download Button -->
-          <a 
+          <a
             href={app.download_url || '#'}
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            id="download-button"
+            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
             aria-label={`Download ${app.name} v${app.version} MOD APK (opens in new tab)`}
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -574,6 +576,9 @@ const dynamicFAQs = app ? [
   </main>
   
   <Footer />
+  
+  <!-- Download Tasks Modal -->
+  <DownloadTasksModal appSlug={app.slug} />
 </Layout>
 
 <style>
@@ -587,5 +592,14 @@ const dynamicFAQs = app ? [
   
   .prose p {
     margin-bottom: 1rem;
+  }
+  
+  /* Ensure minimum touch target sizes */
+  #download-button {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

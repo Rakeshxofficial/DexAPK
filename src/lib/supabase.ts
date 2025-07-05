@@ -333,3 +333,387 @@ export async function deleteApp(slug: string) {
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }
+
+// Download Tasks related functions
+export async function getAllDownloadTasks() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('download_tasks')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching download tasks:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAllDownloadTasks:', error);
+    return [];
+  }
+}
+
+export async function getActiveDownloadTasks() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('download_tasks')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching active download tasks:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getActiveDownloadTasks:', error);
+    return [];
+  }
+}
+
+export async function getDownloadTaskById(id: string) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('download_tasks')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Supabase error fetching download task by id:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getDownloadTaskById:', error);
+    return null;
+  }
+}
+
+export async function createDownloadTask(taskData: any) {
+  try {
+    console.log('Creating download task with data:', taskData);
+    
+    const { data, error } = await supabase
+      .from('download_tasks')
+      .insert([taskData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error creating download task:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Download task created successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in createDownloadTask:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function updateDownloadTask(id: string, updates: any) {
+  try {
+    console.log('Updating download task with id:', id);
+    console.log('Update data:', updates);
+    
+    const { data, error } = await supabase
+      .from('download_tasks')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error updating download task:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Download task updated successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in updateDownloadTask:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function deleteDownloadTask(id: string) {
+  try {
+    console.log('Attempting to delete download task with id:', id);
+
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return { success: false, error: 'Supabase credentials not available' };
+    }
+
+    // First, verify the task exists
+    const { data: existingTask, error: fetchError } = await supabase
+      .from('download_tasks')
+      .select('id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching task before deletion:', fetchError);
+      return { success: false, error: `Task not found: ${fetchError.message}` };
+    }
+
+    if (!existingTask) {
+      console.error('Task not found for deletion:', id);
+      return { success: false, error: 'Task not found' };
+    }
+
+    console.log('Found task to delete:', existingTask.id);
+
+    // Delete all app associations first
+    const { error: deleteAssociationsError } = await supabase
+      .from('app_download_tasks')
+      .delete()
+      .eq('task_id', id);
+
+    if (deleteAssociationsError) {
+      console.error('Error deleting task associations:', deleteAssociationsError);
+      return { success: false, error: `Failed to delete task associations: ${deleteAssociationsError.message}` };
+    }
+
+    // Perform the deletion
+    const { error } = await supabase
+      .from('download_tasks')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Supabase error deleting download task with id', id, ':', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Download task deleted successfully:', id);
+    return { success: true };
+  } catch (error) {
+    console.error('Error in deleteDownloadTask for id', id, ':', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function getAppDownloadTasks(appId: string) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .select(`
+        id,
+        is_active,
+        download_tasks (*)
+      `)
+      .eq('app_id', appId)
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Supabase error fetching app download tasks:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAppDownloadTasks:', error);
+    return [];
+  }
+}
+
+export async function getAppDownloadTasksBySlug(slug: string) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    // First get the app id from the slug
+    const { data: app, error: appError } = await supabase
+      .from('apps')
+      .select('id')
+      .eq('slug', slug)
+      .single();
+
+    if (appError) {
+      console.error('Supabase error fetching app by slug:', appError);
+      return [];
+    }
+
+    if (!app) {
+      console.error('App not found with slug:', slug);
+      return [];
+    }
+
+    // Then get the download tasks for this app
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .select(`
+        id,
+        is_active,
+        download_tasks (*)
+      `)
+      .eq('app_id', app.id)
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Supabase error fetching app download tasks:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAppDownloadTasksBySlug:', error);
+    return [];
+  }
+}
+
+export async function assignTaskToApp(appId: string, taskId: string) {
+  try {
+    console.log('Assigning task to app:', { appId, taskId });
+    
+    // First check if this app already has an active task
+    const { data: existingTasks, error: checkError } = await supabase
+      .from('app_download_tasks')
+      .select('*')
+      .eq('app_id', appId)
+      .eq('is_active', true);
+
+    if (checkError) {
+      console.error('Supabase error checking existing tasks:', checkError);
+      return { success: false, error: checkError.message };
+    }
+
+    // If there are existing active tasks, deactivate them
+    if (existingTasks && existingTasks.length > 0) {
+      for (const task of existingTasks) {
+        const { error: updateError } = await supabase
+          .from('app_download_tasks')
+          .update({ is_active: false })
+          .eq('id', task.id);
+
+        if (updateError) {
+          console.error('Supabase error deactivating existing task:', updateError);
+          return { success: false, error: updateError.message };
+        }
+      }
+    }
+
+    // Now create the new assignment
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .insert([{
+        app_id: appId,
+        task_id: taskId,
+        is_active: true
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error assigning task to app:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Task assigned to app successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in assignTaskToApp:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function unassignTaskFromApp(appId: string, taskId: string) {
+  try {
+    console.log('Unassigning task from app:', { appId, taskId });
+    
+    const { data, error } = await supabase
+      .from('app_download_tasks')
+      .update({ is_active: false })
+      .eq('app_id', appId)
+      .eq('task_id', taskId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error unassigning task from app:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Task unassigned from app successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in unassignTaskFromApp:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function getAppsWithoutActiveTasks() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    // Get all apps
+    const { data: allApps, error: appsError } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true);
+
+    if (appsError) {
+      console.error('Supabase error fetching apps:', appsError);
+      return [];
+    }
+
+    // Get all apps with active tasks
+    const { data: appsWithTasks, error: tasksError } = await supabase
+      .from('app_download_tasks')
+      .select('app_id')
+      .eq('is_active', true);
+
+    if (tasksError) {
+      console.error('Supabase error fetching apps with tasks:', tasksError);
+      return [];
+    }
+
+    // Filter out apps that already have active tasks
+    const appIdsWithTasks = appsWithTasks.map(item => item.app_id);
+    const appsWithoutTasks = allApps.filter(app => !appIdsWithTasks.includes(app.id));
+
+    return appsWithoutTasks || [];
+  } catch (error) {
+    console.error('Error in getAppsWithoutActiveTasks:', error);
+    return [];
+  }
+}

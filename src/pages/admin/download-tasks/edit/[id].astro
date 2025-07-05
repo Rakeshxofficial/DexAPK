@@ -1,0 +1,509 @@
+---
+export const prerender = false; // Enable server-side rendering for admin pages
+
+import Layout from '../../../../layouts/Layout.astro';
+import { getDownloadTaskById } from '../../../../lib/supabase.js';
+
+// Get task ID from URL parameters
+const { id } = Astro.params;
+
+// Fetch task data
+let task = null;
+if (id) {
+  task = await getDownloadTaskById(id);
+}
+
+// If task not found, redirect to tasks list
+if (!task) {
+  return Astro.redirect('/admin/download-tasks');
+}
+
+const title = `Edit ${task.name} - Admin Dashboard`;
+const description = `Edit download task in the admin dashboard`;
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
+    <!-- Admin Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- Breadcrumb -->
+          <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <a href="/admin" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+              Admin
+            </a>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <a href="/admin/download-tasks" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+              Download Tasks
+            </a>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-gray-900 dark:text-white font-medium">Edit</span>
+          </nav>
+
+          <!-- User Menu -->
+          <div class="flex items-center space-x-4">
+            <div class="text-right">
+              <p class="text-sm font-medium text-gray-900 dark:text-white" id="user-email">Loading...</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+            </div>
+            <button
+              id="logout-btn"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <!-- Page Header -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Edit Download Task</h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">Update "{task.name}" information</p>
+          </div>
+          <div class="flex items-center space-x-3">
+            <a
+              href={task.task_url}
+              target="_blank"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+              Open URL
+            </a>
+            <span class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              Editing Mode
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task Form -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+        <form id="task-form" class="space-y-6" data-task-id={task.id}>
+          
+          <!-- Task Name -->
+          <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Task Name *
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={task.name}
+              required
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="Join our Telegram channel"
+            />
+          </div>
+          
+          <!-- Task Description -->
+          <div>
+            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="3"
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="Join our Telegram channel for updates and support"
+            >{task.description || ''}</textarea>
+          </div>
+          
+          <!-- Task Type -->
+          <div>
+            <label for="task_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Task Type *
+            </label>
+            <select
+              id="task_type"
+              name="task_type"
+              required
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            >
+              <option value="">Select Task Type</option>
+              <option value="telegram" selected={task.task_type === 'telegram'}>Telegram</option>
+              <option value="instagram" selected={task.task_type === 'instagram'}>Instagram</option>
+              <option value="youtube" selected={task.task_type === 'youtube'}>YouTube</option>
+              <option value="twitter" selected={task.task_type === 'twitter'}>Twitter/X</option>
+              <option value="facebook" selected={task.task_type === 'facebook'}>Facebook</option>
+              <option value="other" selected={task.task_type === 'other'}>Other</option>
+            </select>
+          </div>
+          
+          <!-- Task URL -->
+          <div>
+            <label for="task_url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Task URL *
+            </label>
+            <input
+              type="url"
+              id="task_url"
+              name="task_url"
+              value={task.task_url}
+              required
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="https://t.me/dexapk_com"
+            />
+          </div>
+          
+          <!-- Task Icon (Optional) -->
+          <div>
+            <label for="task_icon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Custom Icon URL (Optional)
+            </label>
+            <input
+              type="url"
+              id="task_icon"
+              name="task_icon"
+              value={task.task_icon || ''}
+              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              placeholder="https://example.com/icon.png"
+            />
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Leave empty to use default icon for the selected task type
+            </p>
+          </div>
+          
+          <!-- Active Status -->
+          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+            <div>
+              <label for="is_active" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Active Status
+              </label>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                Enable this task for use
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="is_active"
+                name="is_active"
+                checked={task.is_active}
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            </label>
+          </div>
+          
+          <!-- Preview -->
+          <div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Task Preview</h3>
+            <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl">
+              <button
+                id="preview-task-button"
+                class={`w-full py-4 px-6 rounded-xl flex items-center justify-between bg-gradient-to-r ${getTaskTypeClass(task.task_type)}`}
+                type="button"
+              >
+                <div class="flex items-center">
+                  {getTaskTypeIcon(task.task_type)}
+                  <span class="ml-3 font-medium text-white" id="preview-task-name">{task.name}</span>
+                </div>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Form Actions -->
+          <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+            <a
+              href="/admin/download-tasks"
+              class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </a>
+            
+            <button
+              type="submit"
+              id="submit-btn"
+              class="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              Update Task
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm mx-4 text-center">
+      <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Updating Task...</h3>
+      <p class="text-gray-600 dark:text-gray-400">Please wait while we process your request.</p>
+    </div>
+  </div>
+
+  <!-- Success/Error Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+      </svg>
+      <span id="toast-message">Task updated successfully!</span>
+    </div>
+  </div>
+
+</Layout>
+
+<script define:vars={{ task }}>
+  import { getCurrentUser, signOut } from '../../../../lib/auth.js';
+  import { updateDownloadTask } from '../../../../lib/supabase.js';
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication
+    checkAuth();
+    
+    // Set up form
+    setupForm();
+    
+    // Set up logout functionality
+    setupLogout();
+  });
+
+  async function checkAuth() {
+    try {
+      const result = await getCurrentUser();
+      
+      if (!result.success || !result.user) {
+        window.location.href = '/admin/login';
+        return;
+      }
+      
+      // Display user email
+      document.getElementById('user-email').textContent = result.user.email;
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      window.location.href = '/admin/login';
+    }
+  }
+
+  function setupForm() {
+    const form = document.getElementById('task-form');
+    const nameInput = document.getElementById('name');
+    const taskTypeInput = document.getElementById('task_type');
+    const previewTaskName = document.getElementById('preview-task-name');
+    const previewTaskButton = document.getElementById('preview-task-button');
+    
+    // Update preview when inputs change
+    nameInput?.addEventListener('input', updatePreview);
+    taskTypeInput?.addEventListener('change', updatePreview);
+    
+    // Form submission
+    form?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      try {
+        showLoading();
+        
+        const formData = new FormData(form);
+        const taskId = form.dataset.taskId;
+        
+        if (!taskId) {
+          hideLoading();
+          showToast('Task ID not found', 'error');
+          return;
+        }
+        
+        const taskData = {
+          name: formData.get('name'),
+          description: formData.get('description') || null,
+          task_type: formData.get('task_type'),
+          task_url: formData.get('task_url'),
+          task_icon: formData.get('task_icon') || null,
+          is_active: formData.has('is_active')
+        };
+        
+        console.log('Updating task with data:', taskData);
+        
+        const result = await updateDownloadTask(taskId, taskData);
+        
+        if (result.success) {
+          showToast('Task updated successfully!');
+          
+          // Redirect after success
+          setTimeout(() => {
+            window.location.href = '/admin/download-tasks';
+          }, 1500);
+        } else {
+          hideLoading();
+          showToast(result.error || 'Failed to update task', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showToast('An unexpected error occurred', 'error');
+        console.error('Form submission error:', error);
+      }
+    });
+    
+    // Function to update preview
+    function updatePreview() {
+      if (!previewTaskName || !previewTaskButton) return;
+      
+      const name = nameInput?.value || 'Task Name';
+      const taskType = taskTypeInput?.value || 'telegram';
+      
+      previewTaskName.textContent = name;
+      
+      // Update button style based on task type
+      previewTaskButton.className = `w-full py-4 px-6 rounded-xl flex items-center justify-between bg-gradient-to-r ${getTaskTypeClass(taskType)}`;
+      
+      // Update button icon
+      const iconContainer = previewTaskButton.querySelector('div');
+      if (iconContainer) {
+        const icon = iconContainer.querySelector('svg');
+        if (icon) {
+          icon.outerHTML = getTaskTypeIcon(taskType);
+        }
+      }
+    }
+  }
+
+  function setupLogout() {
+    document.getElementById('logout-btn')?.addEventListener('click', async function() {
+      try {
+        await signOut();
+        window.location.href = '/admin/login';
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    });
+  }
+
+  function showLoading() {
+    document.getElementById('loading-overlay')?.classList.remove('hidden');
+    document.getElementById('loading-overlay')?.classList.add('flex');
+  }
+
+  function hideLoading() {
+    document.getElementById('loading-overlay')?.classList.add('hidden');
+    document.getElementById('loading-overlay')?.classList.remove('flex');
+  }
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    if (!toast || !toastMessage) return;
+    
+    toastMessage.textContent = message;
+    
+    // Update toast styling based on type
+    if (type === 'error') {
+      toast.className = toast.className.replace('bg-green-600', 'bg-red-600');
+    } else {
+      toast.className = toast.className.replace('bg-red-600', 'bg-green-600');
+    }
+    
+    toast.classList.remove('translate-y-full');
+    toast.classList.add('translate-y-0');
+    
+    setTimeout(() => {
+      toast.classList.remove('translate-y-0');
+      toast.classList.add('translate-y-full');
+    }, 3000);
+  }
+
+  // Helper functions for task type styling
+  function getTaskTypeClass(taskType) {
+    switch (taskType?.toLowerCase()) {
+      case 'telegram':
+        return 'from-blue-500 to-blue-600 text-white';
+      case 'instagram':
+        return 'from-purple-500 to-pink-600 text-white';
+      case 'youtube':
+        return 'from-red-500 to-red-600 text-white';
+      case 'twitter':
+      case 'x':
+        return 'from-gray-700 to-gray-900 text-white';
+      case 'facebook':
+        return 'from-blue-600 to-blue-800 text-white';
+      default:
+        return 'from-gray-500 to-gray-600 text-white';
+    }
+  }
+
+  function getTaskTypeIcon(taskType) {
+    switch (taskType?.toLowerCase()) {
+      case 'telegram':
+        return `<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.176-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.832z"/>
+        </svg>`;
+      case 'instagram':
+        return `<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>`;
+      case 'youtube':
+        return `<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>`;
+      case 'twitter':
+      case 'x':
+        return `<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>`;
+      case 'facebook':
+        return `<svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>`;
+      default:
+        return `<svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>`;
+    }
+  }
+</script>
+
+<style>
+  /* Ensure minimum touch target sizes */
+  button, a {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Improved focus styles */
+  button:focus, a:focus, input:focus, select:focus, textarea:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+</style>
