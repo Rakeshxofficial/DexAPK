@@ -24,7 +24,4 @@ export default defineConfig({
     envPrefix: 'VITE_',
     trailingSlash: 'ignore'
   },
-  experimental: {
-    optimizeHoistedScript: true
-  },
 });
