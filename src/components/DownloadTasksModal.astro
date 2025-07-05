@@ -70,7 +70,9 @@ const { appSlug } = Astro.props;
   </div>
 </div>
 
-<script src="./downloadTasksModalScript.js" client:load></script>
+<script>
+  import '../components/downloadTasksModalScript.js';
+</script>
 
 <style>
   /* Ensure the modal is accessible */
