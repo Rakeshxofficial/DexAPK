@@ -161,7 +161,7 @@ const { html, toc } = parseMarkdown(content);
 
 {generateToc && toc.length > 0 && (
   <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700" style="contain: content;">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
         <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
@@ -204,13 +204,18 @@ const { html, toc } = parseMarkdown(content);
   }
   
   .prose pre {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+    border-style: solid;
+    border-width: 1px;
+    contain: content;
   }
   
   .dark .prose pre {
-    background: #1f2937;
-    border: 1px solid #374151;
+    background-color: #1f2937;
+    border-color: #374151;
+    border-style: solid;
+    border-width: 1px;
   }
   
   .prose table {

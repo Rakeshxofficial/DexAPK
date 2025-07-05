@@ -9,8 +9,13 @@ export default defineConfig({
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
   adapter: netlify(),
   compressHTML: true,
+  experimental: {
+    optimizeHoistedScript: true,
+  },
   build: {
     inlineStylesheets: 'auto',
+    assets: 'assets',
+    assetsPrefix: '/_astro',
   },
   vite: {
     define: {
@@ -19,5 +24,15 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     trailingSlash: 'ignore'
+    build: {
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor': ['@supabase/supabase-js'],
+          }
+        }
+      }
+    }
   },
 });
