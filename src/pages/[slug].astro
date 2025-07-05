@@ -6,7 +6,6 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MarkdownRenderer from '../components/MarkdownRenderer.astro';
 import DynamicFAQ from '../components/DynamicFAQ.astro';
-import DownloadTasksModal from '../components/DownloadTasksModal.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -355,8 +354,6 @@ const dynamicFAQs = app ? [
           <!-- Download Button -->
           <a
             href={app.download_url || '#'}
-            target="_blank"
-            rel="noopener noreferrer" 
             id="download-button"
             class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
             aria-label={`Download ${app.name} v${app.version} MOD APK (opens in new tab)`}
@@ -576,9 +573,6 @@ const dynamicFAQs = app ? [
   </main>
   
   <Footer />
-  
-  <!-- Download Tasks Modal -->
-  <DownloadTasksModal appSlug={app.slug} />
 </Layout>
 
 <style>

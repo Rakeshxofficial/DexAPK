@@ -66,13 +66,10 @@ function setupEventListeners() {
 // Initialize the download button
 async function initializeDownloadButton() {
   const downloadBtn = document.getElementById('download-button');
-  const appSlugInput = document.getElementById('modal-app-slug');
-  currentAppSlug = appSlugInput ? appSlugInput.value : '';
   
   if (!downloadBtn) {
     console.error('Download button or app slug not found:', { 
-      downloadBtn: !!downloadBtn, 
-      appSlug: currentAppSlug 
+      downloadBtn: !!downloadBtn
     });
     return;
   }
@@ -81,35 +78,20 @@ async function initializeDownloadButton() {
   originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
   console.log('Original download URL:', originalDownloadUrl);
 
-  // We'll check for tasks and then decide how to handle the click
-  checkAndSetupDownloadButton(downloadBtn, currentAppSlug);
+  // Set up direct download
+  downloadBtn.setAttribute('target', '_blank');
+  downloadBtn.setAttribute('rel', 'noopener noreferrer');
 }
 
 // Check for tasks and set up the download button accordingly
 async function checkAndSetupDownloadButton(downloadBtn, slug) {
   try {
-    if (!downloadBtn || !slug) return;
+    if (!downloadBtn) return;
     
-    // Check if the app has any download tasks
-    const hasTasks = await checkForDownloadTasks(slug);
-    
-    if (hasTasks) {
-      // Only override the click behavior if there are tasks
-      downloadBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        openDownloadTasksModal();
-      });
-      downloadBtn.setAttribute('data-has-tasks', 'true');
-      console.log('Download button click handler attached - app has tasks');
-    } else {
-      // Don't override the default behavior if there are no tasks
-      // Ensure the button opens in a new window
-      downloadBtn.setAttribute('target', '_blank');
-      downloadBtn.setAttribute('rel', 'noopener noreferrer');
-      downloadBtn.setAttribute('data-has-tasks', 'false'); 
-      console.log('No download tasks for this app - using direct download');
-    }
+    // Ensure the button opens in a new window
+    downloadBtn.setAttribute('target', '_blank');
+    downloadBtn.setAttribute('rel', 'noopener noreferrer');
+    console.log('Using direct download');
   } catch (error) {
     console.error('Error setting up download button:', error);
     // Fallback to direct download if there's an error
