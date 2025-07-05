@@ -137,7 +137,7 @@ const { appSlug } = Astro.props;
   
   // Initialize the download button
   async function initializeDownloadButton() {
-    const downloadBtn = document.querySelector('a[href*="download"]');
+    const downloadBtn = document.getElementById('download-button');
     
     if (!downloadBtn || !currentAppSlug) {
       console.error('Download button or app slug not found:', { 
@@ -459,7 +459,7 @@ const { appSlug } = Astro.props;
     document.body.style.overflow = '';
     
     // Return focus to the download button
-    const downloadBtn = document.querySelector('a[href*="download"]');
+    const downloadBtn = document.getElementById('download-button');
     downloadBtn?.focus();
   }
   
@@ -528,7 +528,7 @@ const { appSlug } = Astro.props;
 <script>
   // This script runs in the global scope to handle the download button click
   document.addEventListener('DOMContentLoaded', function() {
-    const downloadBtn = document.querySelector('a[href*="download"]');
+    const downloadBtn = document.getElementById('download-button');
     
     if (downloadBtn) {
       console.log('Found download button, setting up click handler');
