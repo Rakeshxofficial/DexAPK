@@ -4,8 +4,9 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MarkdownRenderer from '../components/MarkdownRenderer.astro';
+import DynamicFAQ from '../components/DynamicFAQ.astro';
 import DownloadTasksModal from '../components/DownloadTasksModal.astro';
-// Lazy load non-critical components
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -100,7 +101,7 @@ ${app.name} MOD APK offers an exceptional experience with all premium features u
 const articleContent = app.article_content || defaultArticleContent;
 
 // Generate dynamic FAQs
-const dynamicFAQsArray = app ? [
+const dynamicFAQs = app ? [
   {
     question: `What is ${app.name} MOD APK?`,
     answer: `${app.name} MOD APK is a modified version of the original ${app.name} app that provides premium features unlocked for free. It offers enhanced functionality and removes limitations present in the standard version.`
@@ -127,15 +128,11 @@ const dynamicFAQsArray = app ? [
 <Layout seoData={seoData}>
   {app && (
     <Fragment slot="head">
-      <!-- Preload critical assets -->
-      <link rel="preload" href="/critical.css" as="style" />
-      <link rel="stylesheet" href="/critical.css" />
-      
       <!-- FAQ Schema -->
       <script type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": dynamicFAQsArray.map(faq => ({
+        "mainEntity": dynamicFAQs.map(faq => ({
           "@type": "Question",
           "name": faq.question,
           "acceptedAnswer": {
@@ -248,6 +245,7 @@ const dynamicFAQsArray = app ? [
   <Header />
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
     <!-- Breadcrumbs -->
     <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-hidden" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -374,7 +372,7 @@ const dynamicFAQsArray = app ? [
     </section>
 
     <!-- App Details -->
-    <section class="py-8 sm:py-12" id="app-details">
+    <section class="py-8 sm:py-12">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
@@ -496,13 +494,43 @@ const dynamicFAQsArray = app ? [
             )}
 
             <!-- MOD Info -->
-            <div id="mod-info-container"></div>
+            {app.mod_info && app.mod_info.length > 0 && (
+              <details class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                  <div class="flex items-center">
+                    <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mr-3">
+                      <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">MOD Info?</h3>
+                  </div>
+                  <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </summary>
+                <div class="px-6 pb-6">
+                  <ul class="space-y-2">
+                    {app.mod_info.map(info => (
+                      <li class="flex items-center text-gray-700 dark:text-gray-300">
+                        <svg class="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        {info}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </details>
+            )}
 
             <!-- Article Content -->
-            <div id="article-content-container" class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700"></div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
+              <MarkdownRenderer content={articleContent} generateToc={true} />
+            </div>
 
             <!-- Dynamic FAQ -->
-            <div id="dynamic-faq-container"></div>
+            <DynamicFAQ app={app} />
 
           </div>
 
@@ -553,227 +581,6 @@ const dynamicFAQsArray = app ? [
   <DownloadTasksModal appSlug={app.slug} />
 </Layout>
 
-<!-- Deferred loading of non-critical components -->
-<script define:vars={{ app, articleContent, dynamicFAQsArray }}>
-  // Store app data for client-side rendering
-  const appData = {
-    slug: app.slug,
-    modInfo: app.mod_info || [],
-    articleContent: articleContent,
-    dynamicFAQs: dynamicFAQsArray
-  };
-
-  // Load components after initial render
-  document.addEventListener('DOMContentLoaded', function() {
-    // Load mod info if available
-    if (appData.modInfo && appData.modInfo.length > 0) {
-      loadModInfo(appData.modInfo);
-      }
-    
-    // Load article content
-    loadArticleContent(appData.articleContent);
-    
-    // Load dynamic FAQ
-    if (appData.dynamicFAQs && appData.dynamicFAQs.length > 0) {
-      loadDynamicFAQ(appData.dynamicFAQs);
-    }
-  });
-  
-  // Function to load mod info
-  function loadModInfo(modInfo) {
-    const container = document.getElementById('mod-info-container');
-    if (!container) return;
-    
-    let html = `
-      <details class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <summary class="flex items-center justify-between p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-          <div class="flex items-center">
-            <div class="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center mr-3">
-              <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">MOD Info?</h3>
-          </div>
-          <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </summary>
-        <div class="px-6 pb-6">
-          <ul class="space-y-2">
-    `;
-    
-    modInfo.forEach(info => {
-      html += `
-        <li class="flex items-center text-gray-700 dark:text-gray-300">
-          <svg class="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-          </svg>
-          ${info}
-        </li>
-      `;
-    });
-    
-    html += `
-          </ul>
-        </div>
-      </details>
-    `;
-    
-    container.innerHTML = html;
-    
-    // Add event listener for details toggle
-    const details = container.querySelector('details');
-    const summary = container.querySelector('summary');
-    const svg = summary.querySelector('svg');
-    
-    details.addEventListener('toggle', function() {
-      if (this.open) {
-        svg.classList.add('rotate-180');
-      } else {
-        svg.classList.remove('rotate-180');
-      }
-    });
-  }
-  
-  // Function to load article content
-  function loadArticleContent(content) {
-    const container = document.getElementById('article-content-container');
-    if (!container) return;
-    
-    // Dynamically import the markdown parser
-    import('~/lib/markdownParser.js').then(module => {
-      const { parseMarkdown } = module;
-      const { html, toc } = parseMarkdown(content, true);
-      
-      // Render TOC if available
-      let tocHtml = '';
-      if (toc && toc.length > 0) {
-        tocHtml = `
-          <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
-            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                </svg>
-                Table of Contents
-              </h3>
-            </div>
-            <div class="px-6 py-4">
-              <nav class="space-y-2">
-        `;
-        
-        toc.forEach(item => {
-          const indentClass = item.level === 1 ? 'font-semibold' : 
-                             item.level === 2 ? 'ml-4' : 
-                             item.level === 3 ? 'ml-8' : 'ml-12';
-          
-          tocHtml += `
-            <a 
-              href="#${item.id}"
-              class="block text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200 ${indentClass}"
-            >
-              ${item.text}
-            </a>
-          `;
-        });
-        
-        tocHtml += `
-              </nav>
-            </div>
-          </div>
-        `;
-      }
-      
-      // Render content
-      container.innerHTML = tocHtml + `
-        <div class="prose prose-gray dark:prose-invert max-w-none">
-          <div>${html}</div>
-        </div>
-      `;
-      
-      // Add smooth scrolling for anchor links
-      const tocLinks = container.querySelectorAll('nav a[href^="#"]');
-      
-      tocLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          const targetId = this.getAttribute('href').slice(1);
-          const targetElement = document.getElementById(targetId);
-          
-          if (targetElement) {
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            
-            targetElement.scrollIntoView({
-              behavior: prefersReducedMotion ? 'auto' : 'smooth',
-              block: 'start'
-            });
-            
-            // Update URL without triggering page reload
-            history.pushState(null, null, `#${targetId}`);
-          }
-        });
-      });
-    });
-  }
-  
-  // Function to load dynamic FAQ
-  function loadDynamicFAQ(faqs) {
-    const container = document.getElementById('dynamic-faq-container');
-    if (!container) return;
-    
-    let html = `
-      <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-          <svg class="w-6 h-6 mr-3 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Frequently Asked Questions
-        </h2>
-        
-        <div class="space-y-6">
-    `;
-    
-    faqs.forEach((faq, index) => {
-      html += `
-        <details class="group border-l-4 border-blue-500 pl-4 transition-all duration-200 hover:border-blue-600">
-          <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors duration-200">
-            <span>${faq.question}</span>
-            <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </summary>
-          <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
-            ${faq.answer}
-          </div>
-        </details>
-      `;
-    });
-    
-    html += `
-        </div>
-      </div>
-    `;
-    
-    container.innerHTML = html;
-    
-    // Add event listeners for details toggle
-    const detailsElements = container.querySelectorAll('details');
-    
-    detailsElements.forEach(details => {
-      details.addEventListener('toggle', function() {
-        const summary = this.querySelector('summary');
-        const svg = summary.querySelector('svg');
-        
-        if (this.open) {
-          svg.classList.add('rotate-180');
-        } else {
-          svg.classList.remove('rotate-180');
-        }
-      });
-    });
-  }
-</script>
 <style>
   details[open] summary svg {
     transform: rotate(180deg);
