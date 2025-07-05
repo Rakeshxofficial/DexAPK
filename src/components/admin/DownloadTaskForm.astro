@@ -209,6 +209,9 @@ function getTaskTypeIcon(taskType: string) {
 </div>
 
 <script>
+  // Import Supabase functions at the top
+  import { createDownloadTask, updateDownloadTask } from '../../lib/supabase.js';
+
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('task-form');
     const nameInput = document.getElementById('name');
@@ -244,10 +247,8 @@ function getTaskTypeIcon(taskType: string) {
         
         let result;
         if (mode === 'edit') {
-          const { updateDownloadTask } = await import('../../lib/supabase.js');
           result = await updateDownloadTask(taskId, taskData);
         } else {
-          const { createDownloadTask } = await import('../../lib/supabase.js');
           result = await createDownloadTask(taskData);
         }
         

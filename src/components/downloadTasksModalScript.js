@@ -1,3 +1,6 @@
+// Import Supabase functions at the top
+import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase.js';
+
 // Global variables
 let tasks = [];
 let completedTasks = [];
@@ -87,9 +90,6 @@ async function initializeDownloadButton() {
 // Check if the app has any download tasks
 async function checkForDownloadTasks(slug) {
   try {
-    // Import the necessary functions from supabase.js
-    const { getAppDownloadTasksBySlug, getAppBySlug } = await import('../lib/supabase.js');
-    
     // Check if the app has any download tasks
     if (!slug) return false;
     
@@ -161,9 +161,6 @@ async function openDownloadTasksModal() {
   // Load tasks from the server
   try {
     console.log('Fetching app details for slug:', currentAppSlug);
-    
-    // Import the necessary functions from supabase.js
-    const { getAppDownloadTasksBySlug, getAppBySlug } = await import('../lib/supabase.js');
     
     // Get app details
     const app = await getAppBySlug(currentAppSlug);
