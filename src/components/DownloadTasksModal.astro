@@ -7,9 +7,9 @@ export interface Props {
 const { appSlug } = Astro.props;
 ---
 
-<div id="download-tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" aria-modal="true" role="dialog" aria-labelledby="download-tasks-title">
+<div id="download-tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4 overflow-y-auto" aria-modal="true" role="dialog" aria-labelledby="download-tasks-title">
   <input type="hidden" id="modal-app-slug" value={appSlug} />
-  <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full mx-4 relative overflow-hidden">
+  <div class="bg-white dark:bg-gray-800 rounded-3xl p-4 sm:p-6 md:p-8 max-w-md w-full mx-auto my-auto relative overflow-hidden">
     <!-- Close Button -->
     <button 
       id="close-download-tasks" 
@@ -24,44 +24,44 @@ const { appSlug } = Astro.props;
     <!-- Modal Content -->
     <div class="text-center">
       <!-- Celebration Icon -->
-      <div class="w-20 h-20 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-        <svg class="w-10 h-10 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
+      <div class="w-16 h-16 sm:w-20 sm:h-20 bg-green-50 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+        <svg class="w-8 h-8 sm:w-10 sm:h-10 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
         </svg>
       </div>
       
       <!-- Title -->
-      <h2 id="download-tasks-title" class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      <h2 id="download-tasks-title" class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
         Almost Done!
       </h2>
       
       <!-- Description -->
-      <p class="text-gray-700 dark:text-gray-300 mb-6">
+      <p class="text-sm sm:text-base text-gray-700 dark:text-gray-300 mb-4 sm:mb-6">
         Complete these quick tasks to unlock your download
       </p>
       
       <!-- Progress Bar -->
-      <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full mb-4 overflow-hidden">
+      <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full mb-3 sm:mb-4 overflow-hidden">
         <div id="tasks-progress-bar" class="h-full bg-green-500 rounded-full w-0 transition-all duration-300"></div>
       </div>
       
       <!-- Progress Text -->
-      <p id="tasks-progress-text" class="text-gray-600 dark:text-gray-400 mb-6">
+      <p id="tasks-progress-text" class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-6">
         0 of 0 tasks completed
       </p>
       
       <!-- Tasks List -->
-      <div id="download-tasks-list" class="space-y-4 mb-6">
+      <div id="download-tasks-list" class="space-y-3 sm:space-y-4 mb-4 sm:mb-6 max-h-[40vh] overflow-y-auto">
         <!-- Tasks will be loaded here dynamically -->
-        <div class="flex items-center justify-center py-8">
-          <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        <div class="flex items-center justify-center py-4 sm:py-6">
+          <div class="animate-spin w-6 h-6 sm:w-8 sm:h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
         </div>
       </div>
       
       <!-- Download Button -->
       <button
         id="download-now-btn"
-        class="w-full py-4 px-6 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-xl font-medium transition-all duration-200 cursor-not-allowed"
+        class="w-full py-3 sm:py-4 px-4 sm:px-6 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-xl font-medium transition-all duration-200 cursor-not-allowed text-sm sm:text-base"
         disabled
       >
         Download Now
@@ -77,8 +77,8 @@ const { appSlug } = Astro.props;
 
 <style>
   /* Ensure the modal is accessible */
-  #download-tasks-modal[aria-hidden="true"],
-  #download-tasks-modal.hidden {
+  #download-tasks-modal[aria-hidden="true"], 
+  #download-tasks-modal.hidden { 
     display: none;
   }
   
@@ -100,6 +100,21 @@ const { appSlug } = Astro.props;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    #download-tasks-modal {
+      align-items: flex-end;
+      padding-bottom: 0;
+    }
+    
+    #download-tasks-modal > div {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      max-height: 90vh;
+      margin-bottom: 0;
+    }
   }
   
   /* Reduced motion support */
