@@ -553,13 +553,13 @@ const dynamicFAQsArray = app ? [
 </Layout>
 
 <!-- Deferred loading of non-critical components -->
-<script>
+<script define:vars={{ app, articleContent, dynamicFAQsArray }}>
   // Store app data for client-side rendering
   const appData = {
-    slug: `${app.slug}`,
-    modInfo: JSON.parse(`${app.mod_info ? JSON.stringify(app.mod_info) : '[]'}`),
-    articleContent: `${articleContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}`,
-    dynamicFAQs: JSON.parse(`${JSON.stringify(dynamicFAQsArray)}`)
+    slug: app.slug,
+    modInfo: app.mod_info || [],
+    articleContent: articleContent,
+    dynamicFAQs: dynamicFAQsArray
   };
 
   // Load components after initial render
