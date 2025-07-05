@@ -93,11 +93,18 @@ async function checkAndSetupDownloadButton(downloadBtn, slug) {
   try {
     if (!downloadBtn || !slug) return;
     
+    // Store the original URL for later use
+    originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
+    console.log('Original download URL:', originalDownloadUrl);
+    
     // Check if the app has any download tasks
     const hasTasks = await checkForDownloadTasks(slug);
     
     if (hasTasks) {
       // Only override the click behavior if there are tasks
+      // Remove the href attribute to prevent direct navigation
+      downloadBtn.removeAttribute('href');
+      
       downloadBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -109,6 +116,7 @@ async function checkAndSetupDownloadButton(downloadBtn, slug) {
       console.log('Download button click handler attached - app has tasks');
     } else {
       // Don't override the default behavior if there are no tasks
+      // Keep the href attribute for direct downloads
       // Restore the href attribute for direct downloads
       downloadBtn.setAttribute('href', originalDownloadUrl);
       // Ensure the button opens in a new window
@@ -121,6 +129,7 @@ async function checkAndSetupDownloadButton(downloadBtn, slug) {
     console.error('Error setting up download button:', error);
     // Fallback to direct download if there's an error
     if (downloadBtn) {
+      // Ensure the href is preserved for direct downloads
       downloadBtn.setAttribute('target', '_blank');
       downloadBtn.setAttribute('rel', 'noopener noreferrer');
     }
@@ -389,9 +398,19 @@ function directDownload() {
   
   // Get the download button
   const downloadBtn = document.getElementById('download-button');
+  
+  // Get the download button
+  const downloadBtn = document.getElementById('download-button');
 
   // Redirect to the original download URL
   if (originalDownloadUrl && originalDownloadUrl !== '#') {
+    // Temporarily restore the href for the actual download
+    if (downloadBtn) {
+      downloadBtn.setAttribute('href', originalDownloadUrl);
+      downloadBtn.setAttribute('target', '_blank');
+      downloadBtn.setAttribute('rel', 'noopener noreferrer');
+    }
+    
     // Temporarily restore the href for the actual download
     if (downloadBtn) {
       downloadBtn.setAttribute('href', originalDownloadUrl);
@@ -400,6 +419,13 @@ function directDownload() {
     // Open in a new tab with proper attributes
     window.open(originalDownloadUrl, '_blank', 'noopener,noreferrer');
     console.log('Opening download URL in new tab:', originalDownloadUrl);
+    
+    // Remove the href again after a short delay for apps with tasks
+    setTimeout(() => {
+      if (downloadBtn && downloadBtn.getAttribute('data-has-tasks') === 'true') {
+        downloadBtn.removeAttribute('href');
+      }
+    }, 100);
     
     // Remove the href again after a short delay
     setTimeout(() => {
