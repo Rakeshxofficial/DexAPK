@@ -99,7 +99,7 @@ ${app.name} MOD APK offers an exceptional experience with all premium features u
 const articleContent = app.article_content || defaultArticleContent;
 
 // Generate dynamic FAQs
-const dynamicFAQs = app ? JSON.stringify([
+const dynamicFAQsArray = app ? [
   {
     question: `What is ${app.name} MOD APK?`,
     answer: `${app.name} MOD APK is a modified version of the original ${app.name} app that provides premium features unlocked for free. It offers enhanced functionality and removes limitations present in the standard version.`
@@ -120,7 +120,7 @@ const dynamicFAQs = app ? JSON.stringify([
     question: `Can I update ${app.name} MOD APK?`,
     answer: `You can update ${app.name} MOD APK by downloading the latest version from our website. Make sure to uninstall the previous version before installing the new one.`
   }
-]) : '[]';
+] : [];
 ---
 
 <Layout seoData={seoData}>
@@ -134,7 +134,7 @@ const dynamicFAQs = app ? JSON.stringify([
       <script type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        "mainEntity": dynamicFAQs.map(faq => ({
+        "mainEntity": dynamicFAQsArray.map(faq => ({
           "@type": "Question",
           "name": faq.question,
           "acceptedAnswer": {
@@ -556,28 +556,25 @@ const dynamicFAQs = app ? JSON.stringify([
 <script>
   // Store app data for client-side rendering
   const appData = {
-    slug: "{app.slug}",
-    modInfo: {app.mod_info ? JSON.stringify(app.mod_info) : '[]'},
-    articleContent: `{articleContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}`,
-    dynamicFAQs: {dynamicFAQs}
+    slug: `${app.slug}`,
+    modInfo: JSON.parse(`${app.mod_info ? JSON.stringify(app.mod_info) : '[]'}`),
+    articleContent: `${articleContent.replace(/`/g, '\\`').replace(/\$/g, '\\$')}`,
+    dynamicFAQs: JSON.parse(`${JSON.stringify(dynamicFAQsArray)}`)
   };
 
   // Load components after initial render
   document.addEventListener('DOMContentLoaded', function() {
     // Load mod info if available
-    if (appData.modInfo && appData.modInfo !== '[]') {
-      const modInfo = JSON.parse(appData.modInfo);
-      if (modInfo.length > 0) {
-        loadModInfo(modInfo);
+    if (appData.modInfo && appData.modInfo.length > 0) {
+      loadModInfo(appData.modInfo);
       }
-    }
     
     // Load article content
     loadArticleContent(appData.articleContent);
     
     // Load dynamic FAQ
-    if (appData.dynamicFAQs && appData.dynamicFAQs !== '[]') {
-      loadDynamicFAQ(JSON.parse(appData.dynamicFAQs));
+    if (appData.dynamicFAQs && appData.dynamicFAQs.length > 0) {
+      loadDynamicFAQ(appData.dynamicFAQs);
     }
     
     // Load download tasks modal after a delay
