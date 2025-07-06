@@ -81,9 +81,9 @@ try {
             aria-label={`Download ${app.name} v${app.version} MOD APK - ${app.category} app with premium features unlocked`}
             role="button"
             tabindex="0"
-            data-app-slug={app.slug}
+            data-app-slug={app.slug} 
           >
-            <div class={`relative h-32 sm:h-40 bg-gradient-to-br ${getGradientForCategory(app.category)} flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300`}>
+            <div class="relative h-32 sm:h-40 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
               <!-- Status Badges -->
               <div class="absolute top-2 left-2 flex gap-1.5 z-10">
                 <span class="bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
@@ -100,7 +100,7 @@ try {
               </div>
               
               <!-- App Icon - Much Larger -->
-              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center transition-colors duration-300 shadow-lg overflow-hidden">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-lg overflow-hidden">
                 {app.icon ? (
                   <img 
                     src={app.icon} 
@@ -111,12 +111,12 @@ try {
                   />
                   <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>
                 ) : (
-                  <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true" style="contain: content;"></div>
+                  <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true"></div>
                 )}
               </div>
               
               <!-- Hover Overlay -->
-              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                 <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
                   <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
