@@ -13,4 +13,18 @@
 +.scrollbar-hide {
 +  -ms-overflow-style: none;  /* IE and Edge */
 +  scrollbar-width: none;  /* Firefox */
+}
+
+/* Progressive image loading styles */
+.blur-sm {
+  filter: blur(8px);
+}
+
+.blur-up {
+  filter: blur(5px);
+  transition: filter 0.3s ease-in-out;
+}
+
+.blur-up.loaded {
+  filter: blur(0);
  }
