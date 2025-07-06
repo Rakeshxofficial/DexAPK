@@ -4,6 +4,7 @@ export const prerender = false; // Enable server-side rendering for search funct
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ProgressiveImage from '../components/ProgressiveImage.astro';
 import { getAllApps } from '../lib/supabase.js';
 
 // Get search query from URL parameters
@@ -375,19 +376,12 @@ const description = searchQuery ?
                                   </svg>
                                 </div>
                               ) : (
-                                <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                </svg>
-                              )}
-                            </div>
-                            
-                            <!-- Hover Overlay -->
-                            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                              <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-                                </svg>
-                              </div>
+                            {app.icon ? (                              
+                              <ProgressiveImage 
+                                src={app.icon}
+                                alt={`${app.name} icon`}
+                                class="w-full h-full rounded-2xl sm:rounded-3xl"
+                              />
                             </div>
                           </div>
                           

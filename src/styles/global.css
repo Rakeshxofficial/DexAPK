@@ -13,4 +13,45 @@
 +.scrollbar-hide {
 +  -ms-overflow-style: none;  /* IE and Edge */
 +  scrollbar-width: none;  /* Firefox */
+}
+
+/* Progressive image loading styles */
+.progressive-image-container {
+  position: relative;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  width: 100%;
+  height: 100%;
+}
+
+.progressive-image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(20px);
+  transform: scale(1.1);
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.progressive-image-main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
+/* Reduced motion preference support */
+@media (prefers-reduced-motion: reduce) {
+  .progressive-image-placeholder,
+  .progressive-image-main {
+    transition: none !important;
+  }
  }
