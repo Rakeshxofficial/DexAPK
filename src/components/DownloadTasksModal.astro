@@ -7,7 +7,7 @@ export interface Props {
 const { appSlug } = Astro.props;
 ---
 
-<div id="download-tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" aria-modal="true" role="dialog" aria-labelledby="download-tasks-title">
+<div id="download-tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" aria-modal="true" aria-labelledby="download-tasks-title">
   <input type="hidden" id="modal-app-slug" value={appSlug} />
   <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full mx-4 relative overflow-hidden">
     <!-- Close Button -->

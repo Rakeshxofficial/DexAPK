@@ -243,7 +243,7 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
         </div>
 
         <!-- Apps Container -->
-        <div id="category-apps-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+        <div id="category-apps-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" aria-label={`${category} MOD APKs collection`}>
           
           {apps.length > 0 ? apps.map((app, index) => (
             <article 
