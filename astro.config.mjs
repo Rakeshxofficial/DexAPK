@@ -9,8 +9,12 @@ export default defineConfig({
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
   adapter: netlify(),
   compressHTML: true,
+  experimental: {
+    optimizeImages: true,
+  },
   build: {
     inlineStylesheets: 'auto',
+    assets: 'assets',
   },
   vite: {
     define: {
@@ -19,5 +23,15 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     trailingSlash: 'ignore'
+    build: {
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'critical': ['./src/components/Header.astro', './src/components/Hero.astro'],
+          }
+        }
+      }
+    }
   },
 });

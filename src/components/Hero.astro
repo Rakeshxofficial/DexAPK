@@ -1,9 +1,12 @@
 ---
 // Modern hero section with vibrant design - Mobile optimized
+
+// Preload hero background image for better LCP
+const bgPattern = '/assets/hero-pattern.webp';
 ---
 
 <section class="relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 py-12 sm:py-16 lg:py-20">
-  <div class="absolute inset-0 bg-grid-pattern opacity-5 dark:opacity-10"></div>
+  <div class="absolute inset-0 bg-hero-pattern opacity-5 dark:opacity-10"></div>
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center">
       <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -34,8 +37,18 @@
 </section>
 
 <style>
-  .bg-grid-pattern {
-    background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0);
-    background-size: 20px 20px;
+  .bg-hero-pattern {
+    background-image: url('/assets/hero-pattern.webp');
+    background-size: 400px 400px;
+    background-repeat: repeat;
+    will-change: transform;
+  }
+  
+  /* Fallback for browsers that don't support webp */
+  @supports not (background-image: url('/assets/hero-pattern.webp')) {
+    .bg-hero-pattern {
+      background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.15) 1px, transparent 0);
+      background-size: 20px 20px;
+    }
   }
 </style>
