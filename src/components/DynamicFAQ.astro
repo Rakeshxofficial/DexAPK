@@ -12,63 +12,63 @@ function generateDynamicFAQ(app: any) {
   
   // Base FAQ questions that apply to all apps
   faqs.push({
-    question: `Is this ${app.name} MOD APK safe to use?`,
-    answer: `Yes, our ${app.name} MOD APK is thoroughly tested and scanned for malware. It's completely safe to install and use on your Android device.`
+    question: `Is this ${app.name} safe to use?`,
+    answer: `Yes, our ${app.name} is thoroughly tested and scanned for malware. It's completely safe to install and use on your Android device.`
   });
   
   faqs.push({
     question: "Do I need to root my device?",
-    answer: `No, this ${app.name} MOD APK works on both rooted and non-rooted devices. No root access is required for installation or usage.`
+    answer: `No, this ${app.name} works on both rooted and non-rooted devices. No root access is required for installation or usage.`
   });
   
   // Category-specific questions
   if (app.category === 'Games') {
     faqs.push({
       question: "Will I get unlimited resources?",
-      answer: `Yes, this MOD version of ${app.name} provides unlimited coins, gems, and other in-game resources to enhance your gaming experience.`
+      answer: `Yes, this version of ${app.name} provides unlimited coins, gems, and other in-game resources to enhance your gaming experience.`
     });
     
     faqs.push({
       question: "Are all levels unlocked?",
-      answer: `Absolutely! All levels, characters, and premium content are unlocked from the start in this ${app.name} MOD APK.`
+      answer: `Absolutely! All levels, characters, and premium content are unlocked from the start in this ${app.name}.`
     });
   }
   
   if (app.category === 'Music' || app.category === 'Video' || app.category === 'Entertainment') {
     faqs.push({
       question: "Is the premium subscription included?",
-      answer: `Yes, this ${app.name} MOD APK includes all premium subscription features unlocked, giving you access to ad-free content and exclusive features.`
+      answer: `Yes, this ${app.name} includes all premium subscription features unlocked, giving you access to ad-free content and exclusive features.`
     });
     
     faqs.push({
       question: "Can I download content for offline viewing?",
-      answer: `Yes, the MOD version allows you to download and save content for offline access, even without a premium subscription.`
+      answer: `Yes, this version allows you to download and save content for offline access, even without a premium subscription.`
     });
   }
   
   if (app.category === 'Productivity' || app.category === 'Photography') {
     faqs.push({
       question: "Are all premium features unlocked?",
-      answer: `Yes, all premium tools, filters, and advanced features are unlocked in this ${app.name} MOD APK without any subscription required.`
+      answer: `Yes, all premium tools, filters, and advanced features are unlocked in this ${app.name} without any subscription required.`
     });
     
     faqs.push({
       question: "Will there be watermarks on my work?",
-      answer: `No, this MOD version removes all watermarks, allowing you to create and export professional content without any branding.`
+      answer: `No, this version removes all watermarks, allowing you to create and export professional content without any branding.`
     });
   }
   
   if (app.category === 'Social') {
     faqs.push({
       question: "Can I access premium features for free?",
-      answer: `Yes, this ${app.name} MOD APK unlocks all premium social features, enhanced privacy options, and advanced customization tools.`
+      answer: `Yes, this ${app.name} unlocks all premium social features, enhanced privacy options, and advanced customization tools.`
     });
   }
   
   // Version-specific questions
   faqs.push({
     question: "Will I receive automatic updates?",
-    answer: `You'll need to manually download and install updates from our website when new versions of ${app.name} MOD APK are available.`
+    answer: `You'll need to manually download and install updates from our website when new versions of ${app.name} are available.`
   });
   
   faqs.push({
@@ -80,13 +80,13 @@ function generateDynamicFAQ(app: any) {
   if (parseInt(app.size) > 100) {
     faqs.push({
       question: "Why is the file size large?",
-      answer: `The ${app.size} size includes all premium features, high-quality assets, and additional content that's normally downloaded separately in the original app.`
+      answer: `The ${app.size} size includes all premium features, high-quality assets, and additional content that's normally downloaded separately in the original version.`
     });
   }
   
   faqs.push({
     question: `Is my device compatible with ${app.name}?`,
-    answer: `This MOD APK requires ${app.requirements}. Most modern Android devices should be compatible with this version.`
+    answer: `This app requires ${app.requirements}. Most modern Android devices should be compatible with this version.`
   });
   
   return faqs;
