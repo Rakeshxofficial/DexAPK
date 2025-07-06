@@ -19,11 +19,11 @@ const sizeClasses = {
 <div class="flex items-center">
   <!-- Original DexAPK SVG Logo -->
   <div class={`${sizeClasses[size]} flex items-center justify-center`}>
-    <svg 
+    <svg
+      width={size === 'sm' ? "32" : size === 'md' ? "48" : size === 'lg' ? "64" : size === 'xl' ? "80" : "128"}
+      height={size === 'sm' ? "32" : size === 'md' ? "48" : size === 'lg' ? "64" : size === 'xl' ? "80" : "128"}
       xmlns="http://www.w3.org/2000/svg" 
       version="1.0" 
-      width="1024.000000pt" 
-      height="1024.000000pt" 
       viewBox="0 0 1024.000000 1024.000000" 
       preserveAspectRatio="xMidYMid meet"
       class="w-full h-full text-gray-900 dark:text-white"

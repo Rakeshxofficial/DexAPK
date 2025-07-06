@@ -106,7 +106,7 @@ try {
                     width="64"
                     height="64"
                     alt={`${app.name} icon`}
-                    class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                    class="w-full h-full object-contain rounded-2xl sm:rounded-3xl"
                     loading={index < 2 ? "eager" : "lazy"}
                     fetchpriority={index < 2 ? "high" : "auto"}
                     decoding={index < 2 ? "sync" : "async"}
@@ -116,15 +116,6 @@ try {
                 ) : (
                   <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true"></div>
                 )}
-              </div>
-              
-              <!-- Hover Overlay -->
-              <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                  <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-                  </svg>
-                </div>
               </div>
             </div>
             
