@@ -1,5 +1,5 @@
 // Import Supabase functions at the top
-import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase.js';
+import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
 
 // Global variables
 let tasks = [];

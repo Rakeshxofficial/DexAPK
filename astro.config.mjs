@@ -7,14 +7,10 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
-  adapter: netlify({
-    imageService: true,
-  }),
+  adapter: netlify(),
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto',
-    assets: 'assets',
-    assetsPrefix: '/',
   },
   vite: {
     define: {
@@ -22,16 +18,6 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore',
-    build: {
-      cssCodeSplit: true,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            'critical': ['./src/components/Header.astro', './src/components/Hero.astro'],
-          }
-        }
-      }
-    }
+    trailingSlash: 'ignore'
   },
 });
