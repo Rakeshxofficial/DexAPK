@@ -1,0 +1,123 @@
+---
+// Progressive Image component with blur-up effect
+export interface Props {
+  src: string;
+  alt: string;
+  width?: string | number;
+  height?: string | number;
+  class?: string;
+  placeholderClass?: string;
+  aspectRatio?: string;
+  loading?: 'lazy' | 'eager';
+  decoding?: 'async' | 'sync' | 'auto';
+}
+
+const { 
+  src, 
+  alt, 
+  width = 'auto', 
+  height = 'auto', 
+  class: className = '', 
+  placeholderClass = '',
+  aspectRatio,
+  loading = 'lazy',
+  decoding = 'async'
+} = Astro.props;
+
+// Generate a low-quality placeholder URL (this is a simplified version)
+// In a real implementation, you might want to generate actual low-res versions of images
+const placeholderSrc = src;
+
+// Generate unique IDs for this component instance
+const uniqueId = `progressive-img-${Math.random().toString(36).substring(2, 11)}`;
+---
+
+<div 
+  class={`progressive-image-container relative overflow-hidden ${aspectRatio ? 'aspect-ratio-container' : ''}`}
+  style={aspectRatio ? `aspect-ratio: ${aspectRatio};` : ''}
+  aria-hidden="false"
+>
+  <!-- Placeholder image (blurred/low-res version) -->
+  <img
+    id={`${uniqueId}-placeholder`}
+    src={placeholderSrc}
+    alt=""
+    width={width}
+    height={height}
+    class={`placeholder-image absolute inset-0 w-full h-full object-cover transition-opacity duration-500 blur-sm scale-105 ${placeholderClass}`}
+    aria-hidden="true"
+    loading={loading}
+    decoding={decoding}
+  />
+  
+  <!-- Main image (hidden until loaded) -->
+  <img
+    id={`${uniqueId}-main`}
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    class={`main-image w-full h-full object-cover opacity-0 transition-opacity duration-500 ${className}`}
+    loading={loading}
+    decoding={decoding}
+    onload={`this.classList.add('opacity-100'); document.getElementById('${uniqueId}-placeholder').classList.add('opacity-0');`}
+  />
+  
+  <!-- Fallback for no-JS environments -->
+  <noscript>
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      class={`w-full h-full object-cover ${className}`}
+      loading={loading}
+      decoding={decoding}
+    />
+  </noscript>
+</div>
+
+<style>
+  .progressive-image-container {
+    position: relative;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    display: block;
+  }
+  
+  .aspect-ratio-container {
+    position: relative;
+    width: 100%;
+    height: 0;
+  }
+  
+  .placeholder-image,
+  .main-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition-property: opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Ensure proper styling for no-JS fallback */
+  noscript img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Reduced motion preference support */
+  @media (prefers-reduced-motion: reduce) {
+    .placeholder-image,
+    .main-image {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

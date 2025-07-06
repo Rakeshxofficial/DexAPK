@@ -1,5 +1,6 @@
 ---
 import { getFeaturedApps } from '../lib/supabase.js';
+import ProgressiveImage from './ProgressiveImage.astro';
 
 // Helper functions for dynamic styling
 function getGradientForCategory(category) {
@@ -105,9 +106,15 @@ try {
                   <img 
                     src={app.icon} 
                     alt={`${app.name} icon`}
-                    class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                    class="w-full h-full object-cover rounded-2xl sm:rounded-3xl hidden"
                     loading="lazy"
                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                  />
+                  <ProgressiveImage 
+                    src={app.icon} 
+                    alt={`${app.name} icon`}
+                    class="rounded-2xl sm:rounded-3xl"
+                    aspectRatio="1/1"
                   />
                   <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>
                 ) : (
