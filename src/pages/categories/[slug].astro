@@ -4,7 +4,6 @@ export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import ProgressiveImage from '../../components/ProgressiveImage.astro';
 import { getAllApps, getAppsByCategory } from '../../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -275,12 +274,19 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
                   
                   <!-- App Icon -->
                   <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center transition-colors duration-300 shadow-lg overflow-hidden">
-                    {app.icon ? (                      
-                      <ProgressiveImage 
-                        src={app.icon}
+                    {app.icon ? (
+                      <img 
+                        src={app.icon} 
                         alt={`${app.name} icon`}
-                        class="w-full h-full rounded-2xl sm:rounded-3xl"
+                        class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                        loading="lazy"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                       />
+                      <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden items-center justify-center">
+                        <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                      </div>
                     ) : (
                       <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
