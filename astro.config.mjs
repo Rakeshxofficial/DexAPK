@@ -7,7 +7,9 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
-  adapter: netlify(),
+  adapter: netlify({
+    imageService: true,
+  }),
   compressHTML: true,
   experimental: {
     optimizeImages: true,
@@ -15,6 +17,7 @@ export default defineConfig({
   build: {
     inlineStylesheets: 'auto',
     assets: 'assets',
+    assetsPrefix: '/',
   },
   vite: {
     define: {
@@ -22,7 +25,7 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore'
+    trailingSlash: 'ignore',
     build: {
       cssCodeSplit: true,
       rollupOptions: {
