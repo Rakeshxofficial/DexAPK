@@ -11,9 +11,6 @@ export default defineConfig({
     imageService: true,
   }),
   compressHTML: true,
-  experimental: {
-    optimizeImages: true,
-  },
   build: {
     inlineStylesheets: 'auto',
     assets: 'assets',
