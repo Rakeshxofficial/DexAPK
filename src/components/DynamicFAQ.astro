@@ -9,7 +9,7 @@ const { app } = Astro.props;
 // Generate dynamic FAQ based on app data
 function generateDynamicFAQ(app: any) {
   const faqs = [];
-  
+
   // Base FAQ questions that apply to all apps
   faqs.push({
     question: `Is this ${app.name} safe to use?`,
@@ -24,50 +24,50 @@ function generateDynamicFAQ(app: any) {
   // Category-specific questions
   if (app.category === 'Games') {
     faqs.push({
-      question: "Will I get unlimited resources?",
+      question: `Will I get unlimited resources?`,
       answer: `Yes, this version of ${app.name} provides unlimited coins, gems, and other in-game resources to enhance your gaming experience.`
     });
     
     faqs.push({
-      question: "Are all levels unlocked?",
+      question: `Are all levels unlocked?`,
       answer: `Absolutely! All levels, characters, and premium content are unlocked from the start in this ${app.name}.`
     });
   }
   
   if (app.category === 'Music' || app.category === 'Video' || app.category === 'Entertainment') {
     faqs.push({
-      question: "Is the premium subscription included?",
+      question: `Is the premium subscription included?`,
       answer: `Yes, this ${app.name} includes all premium subscription features unlocked, giving you access to ad-free content and exclusive features.`
     });
     
     faqs.push({
-      question: "Can I download content for offline viewing?",
+      question: `Can I download content for offline viewing?`,
       answer: `Yes, this version allows you to download and save content for offline access, even without a premium subscription.`
     });
   }
   
   if (app.category === 'Productivity' || app.category === 'Photography') {
     faqs.push({
-      question: "Are all premium features unlocked?",
+      question: `Are all premium features unlocked?`,
       answer: `Yes, all premium tools, filters, and advanced features are unlocked in this ${app.name} without any subscription required.`
     });
     
     faqs.push({
-      question: "Will there be watermarks on my work?",
+      question: `Will there be watermarks on my work?`,
       answer: `No, this version removes all watermarks, allowing you to create and export professional content without any branding.`
     });
   }
   
   if (app.category === 'Social') {
     faqs.push({
-      question: "Can I access premium features for free?",
+      question: `Can I access premium features for free?`,
       answer: `Yes, this ${app.name} unlocks all premium social features, enhanced privacy options, and advanced customization tools.`
     });
   }
   
   // Version-specific questions
   faqs.push({
-    question: "Will I receive automatic updates?",
+    question: `Will I receive automatic updates?`,
     answer: `You'll need to manually download and install updates from our website when new versions of ${app.name} are available.`
   });
   
@@ -79,7 +79,7 @@ function generateDynamicFAQ(app: any) {
   // Size and compatibility questions
   if (parseInt(app.size) > 100) {
     faqs.push({
-      question: "Why is the file size large?",
+      question: `Why is the file size large?`,
       answer: `The ${app.size} size includes all premium features, high-quality assets, and additional content that's normally downloaded separately in the original version.`
     });
   }
