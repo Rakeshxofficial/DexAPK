@@ -243,11 +243,10 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
         </div>
 
         <!-- Apps Container -->
-        <div id="category-apps-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" role="grid" aria-label={`${category} MOD APKs collection`}>
+        <div id="category-apps-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" aria-label={`${category} MOD APKs collection`}>
           
           {apps.length > 0 ? apps.map((app, index) => (
             <article 
-              role="gridcell"
               class="category-app-card group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
               data-app-name={app.name}
               data-app-rating={app.rating}

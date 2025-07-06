@@ -179,11 +179,10 @@ const description = "Download the best modified games with unlimited resources, 
         </div>
 
         <!-- Games Container -->
-        <div id="games-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" role="grid" aria-label="MOD Games collection">
+        <div id="games-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" aria-label="MOD Games collection">
           
           {games.length > 0 ? games.map((game, index) => (
             <article 
-              role="gridcell"
               class="game-card group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 focus-within:ring-2 focus-within:ring-green-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
               data-game-name={game.name}
               data-game-rating={game.rating}

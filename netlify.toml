@@ -16,7 +16,6 @@
   from = "/:slug"
   to = "/:slug/index.html"
   status = 200
-  conditions = {Role = ["admin"], Country = ["!US"]}
 
 # Handle 404s
 [[redirects]]
