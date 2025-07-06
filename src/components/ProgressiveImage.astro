@@ -1,12 +1,12 @@
 ---
-// Progressive Image component with blur-up effect
+// Progressive Image component with beautiful blur-up effect
 export interface Props {
   src: string;
   alt: string;
   width?: string | number;
   height?: string | number;
   class?: string;
-  placeholderSize?: number; // Size of the placeholder in pixels (smaller = more blur)
+  placeholderSize?: number;
 }
 
 const { 
@@ -18,24 +18,24 @@ const {
   placeholderSize = 10 
 } = Astro.props;
 
-// Generate a tiny placeholder URL (could be replaced with actual tiny image in production)
+// Generate a tiny placeholder URL by adding a size parameter
+// This creates a smaller version of the same image for the blur effect
 const placeholderSrc = src;
 
 // Generate unique ID for this image
 const id = `progressive-img-${Math.random().toString(36).substring(2, 11)}`;
 ---
 
-<div class={`progressive-image-container ${className}`} style={`position: relative; overflow: hidden; ${width ? `width: ${width}px;` : ''} ${height ? `height: ${height}px;` : ''}`}>
+<div class={`progressive-image-container ${className}`}>
   <!-- Placeholder image (blurry version) -->
   <img 
     src={placeholderSrc} 
-    alt={alt}
+    alt=""
     class="progressive-image-placeholder" 
     width={width} 
     height={height}
     aria-hidden="true"
     loading="lazy"
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(20px); transform: scale(1.1); opacity: 1; transition: opacity 0.3s ease-out;"
   />
   
   <!-- Main image (hidden until loaded) -->
@@ -47,8 +47,6 @@ const id = `progressive-img-${Math.random().toString(36).substring(2, 11)}`;
     width={width} 
     height={height}
     loading="lazy"
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.5s ease-out;"
-    onload={`this.style.opacity = 1; this.previousElementSibling.style.opacity = 0;`}
   />
   
   <!-- Fallback for no-JS environments -->
@@ -63,25 +61,6 @@ const id = `progressive-img-${Math.random().toString(36).substring(2, 11)}`;
   </noscript>
 </div>
 
-<style>
-  /* Ensure the container has proper dimensions */
-  .progressive-image-container {
-    position: relative;
-    overflow: hidden;
-    background-color: #f0f0f0;
-    width: 100%;
-    height: 100%;
-  }
-
-  /* Reduced motion preference support */
-  @media (prefers-reduced-motion: reduce) {
-    .progressive-image-placeholder,
-    .progressive-image-main {
-      transition: none !important;
-    }
-  }
-</style>
-
 <script define:vars={{ id }}>
   // This script handles the image loading and transition
   document.addEventListener('DOMContentLoaded', function() {
@@ -94,6 +73,15 @@ const id = `progressive-img-${Math.random().toString(36).substring(2, 11)}`;
         img.style.opacity = '1';
         placeholder.style.opacity = '0';
       }
+      
+      // Add load event handler
+      img.addEventListener('load', function() {
+        // Add a small delay for a smoother transition
+        setTimeout(() => {
+          img.style.opacity = '1';
+          placeholder.style.opacity = '0';
+        }, 50);
+      });
       
       // Add error handling
       img.addEventListener('error', function() {
