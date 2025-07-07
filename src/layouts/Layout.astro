@@ -61,8 +61,8 @@ const websiteSchema = {
 <html lang="en-US">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SBX87GMGRB"></script>
-    <script>
+    <script async defer src="https://www.googletagmanager.com/gtag/js?id=G-SBX87GMGRB"></script>
+    <script type="text/partytown">
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
@@ -126,8 +126,9 @@ const websiteSchema = {
     <meta name="format-detection" content="telephone=no" />
     
     <!-- Preconnect to external domains for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous" />
 
     <!-- App-specific Meta Tags -->
     {seoData?.appName && (
