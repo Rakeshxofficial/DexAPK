@@ -13,7 +13,7 @@ export default defineConfig({
         forward: ['dataLayer.push', 'gtag'],
       },
     }),
-  ],
+     trailingSlash: 'ignore',
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
   adapter: netlify(),
   compressHTML: true,
