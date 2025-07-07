@@ -231,12 +231,12 @@ const { html, toc } = parseMarkdown(content);
   
   /* Increase scroll margin to prevent headings from being hidden under the header */
   .prose h1, .prose h2, .prose h3 {
-    scroll-margin-top: 7rem;
+    scroll-margin-top: 10rem;
   }
   
   /* Add scroll margin to heading IDs for TOC links */
   h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
-    scroll-margin-top: 7rem;
+    scroll-margin-top: 10rem;
   }
   
   .prose pre {
@@ -283,11 +283,12 @@ const { html, toc } = parseMarkdown(content);
           // Get the header height to offset the scroll position
           const headerHeight = document.querySelector('header')?.offsetHeight || 100;
           const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+          const scrollOffset = headerHeight + 40; // Add extra padding
           
           // Scroll to element with offset for the header
-          targetElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start',
+          window.scrollTo({
+            top: targetPosition - scrollOffset,
+            behavior: 'smooth'
           });
           
           // Update URL without triggering page reload
