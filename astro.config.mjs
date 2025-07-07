@@ -13,8 +13,8 @@ export default defineConfig({
         forward: ['dataLayer.push', 'gtag'],
       },
     }),
-     trailingSlash: 'ignore',
-  ]
+  ],
+  trailingSlash: 'ignore',
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
   adapter: netlify(),
   compressHTML: true,
@@ -27,7 +27,7 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore'
+    trailingSlash: 'ignore',
     build: {
       cssCodeSplit: true,
       rollupOptions: {
