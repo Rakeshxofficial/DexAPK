@@ -4,7 +4,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname } from 'path'; 
+import fetch from 'node-fetch';
 
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
