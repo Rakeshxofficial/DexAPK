@@ -585,11 +585,12 @@ const dynamicFAQs = app ? [
 
 <style>
   details[open] summary svg {
-    transform: rotate(180deg) translate3d(0, 0, 0);
+    margin-bottom: 0.75rem;
   }
   
   .prose h1, .prose h2, .prose h3 {
-    color: inherit;
+    color: inherit; 
+    scroll-margin-top: 7rem;
   }
   
   .prose p {
@@ -607,8 +608,8 @@ const dynamicFAQs = app ? [
   #download-button {
     position: relative !important;
     z-index: 2;
-    cursor: pointer;
-    user-select: none;
+    cursor: pointer; 
+    user-select: none; 
   }
   
   /* Ensure minimum touch target sizes */
