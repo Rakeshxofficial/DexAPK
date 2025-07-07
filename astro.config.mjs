@@ -10,7 +10,7 @@ export default defineConfig({
   adapter: netlify(),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'auto',
+    inlineStylesheets: 'always',
   },
   vite: {
     define: {
@@ -19,5 +19,15 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     trailingSlash: 'ignore'
+    build: {
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'critical': ['./src/styles/global.css'],
+          }
+        }
+      }
+    }
   },
 });
