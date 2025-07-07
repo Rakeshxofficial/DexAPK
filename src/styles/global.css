@@ -2,6 +2,7 @@
  	text-align: left;
  	background: white;
  	word-wrap: break-word;
+	contain: style;
 +}
 +
 +/* Hide scrollbar for Chrome, Safari and Opera */

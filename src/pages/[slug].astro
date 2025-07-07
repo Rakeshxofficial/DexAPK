@@ -127,6 +127,10 @@ const dynamicFAQs = app ? [
 <Layout seoData={seoData}>
   {app && (
     <Fragment slot="head">
+      <!-- Preload critical resources -->
+      {app.icon && <link rel="preload" href={app.icon} as="image" />}
+      {app.screenshots && app.screenshots[0] && <link rel="preload" href={app.screenshots[0]} as="image" />}
+
       <!-- FAQ Schema -->
       <script type="application/ld+json" set:html={JSON.stringify({
         "@context": "https://schema.org",

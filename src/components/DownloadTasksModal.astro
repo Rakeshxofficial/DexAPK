@@ -71,8 +71,13 @@ const { appSlug } = Astro.props;
 </div>
 
 <script>
-  // Import the script with a version parameter to prevent caching issues
-  import '../components/downloadTasksModalScript.js?v=1.5';
+  // Defer loading of non-critical script
+  document.addEventListener('DOMContentLoaded', function() {
+    const script = document.createElement('script');
+    script.src = '../components/downloadTasksModalScript.js?v=1.5';
+    script.defer = true;
+    document.body.appendChild(script);
+  });
 </script>
 
 <style>
