@@ -92,7 +92,7 @@ function parseMarkdown(markdown: string) {
       if (cells.length > 1) {
         // Check if next line is table separator
         const nextLine = lines[i + 1];
-        if (nextLine && nextLine.includes('---')) {
+        if (nextLine && nextLine.includes('|') && nextLine.includes('---')) {
           // Table header
           html += '<div class="overflow-x-auto my-6"><table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"><thead class="bg-gray-50 dark:bg-gray-800"><tr>';
           cells.forEach(cell => {
@@ -100,15 +100,25 @@ function parseMarkdown(markdown: string) {
           });
           html += '</tr></thead><tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">';
           i++; // Skip separator line
-        } else {
-          // Table row
+          continue;
+        } else if (html.includes('<tbody') && !html.includes('</tbody>')) {
+          // Table row within an existing table
           html += '<tr>';
           cells.forEach(cell => {
             html += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatInlineMarkdown(cell)}</td>`;
           });
           html += '</tr>';
+          continue;
+        } else {
+          // This is a standalone table (not preceded by a separator line)
+          html += '<div class="overflow-x-auto my-6"><table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"><tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">';
+          html += '<tr>';
+          cells.forEach(cell => {
+            html += `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">${formatInlineMarkdown(cell)}</td>`;
+          });
+          html += '</tr>';
+          continue;
         }
-        continue;
       }
     }
     
@@ -126,7 +136,9 @@ function parseMarkdown(markdown: string) {
   }
   
   // Close any open tables
-  if (html.includes('<tbody') && !html.includes('</tbody>')) {
+  const openTableCount = (html.match(/<tbody/g) || []).length;
+  const closeTableCount = (html.match(/<\/tbody>/g) || []).length;
+  if (openTableCount > closeTableCount) {
     html += '</tbody></table></div>';
   }
   
