@@ -12,13 +12,13 @@ const sizeClasses = {
   md: 'w-12 h-12',
   lg: 'w-16 h-16',
   xl: 'w-20 h-20',
-  '2xl': 'w-32 h-32 sm:w-40 sm:h-40'
+  '2xl': 'w-28 h-28 sm:w-36 sm:h-36'
 };
 ---
 
-<div class="flex items-center">
+<div class="flex items-center overflow-visible">
   <!-- Original DexAPK SVG Logo -->
-  <div class={`${sizeClasses[size]} flex items-center justify-center`}>
+  <div class={`${sizeClasses[size]} flex items-center justify-center overflow-visible`}>
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
       version="1.0" 
@@ -27,6 +27,7 @@ const sizeClasses = {
       viewBox="0 0 1024.000000 1024.000000" 
       preserveAspectRatio="xMidYMid meet"
       class="w-full h-full text-gray-900 dark:text-white"
+      style="overflow: visible;"
       fill="currentColor"
       aria-label="DexAPK Logo"
     >
