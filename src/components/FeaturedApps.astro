@@ -269,7 +269,7 @@ try {
       }
       
       // Click event
-      link.addEventListener('click', handleCardActivation);
+      link.addEventListener('click', handleCardActivation, { passive: false });
       
       // Keyboard events
       link.addEventListener('keydown', function(event) {
@@ -277,13 +277,13 @@ try {
           event.preventDefault();
           handleCardActivation(event);
         }
-      });
+      }, { passive: false });
       
       // Focus events for better accessibility
       link.addEventListener('focus', function() {
         card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
         announceToScreenReader(`Focused on ${appName} app card. Press Enter or Space to open.`);
-      });
+      }, { passive: true });
       
       link.addEventListener('blur', function() {
         card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'scale-95', 'shadow-sm');
@@ -291,23 +291,23 @@ try {
           loadingIndicator.classList.add('hidden');
           loadingIndicator.classList.remove('flex');
         }
-      });
+      }, { passive: true });
       
       // Mouse events for enhanced feedback
       card.addEventListener('mouseenter', function() {
         if (!link.matches(':focus')) {
           announceToScreenReader(`${appName} - ${appCategory} app. Click to download.`);
         }
-      });
+      }, { passive: true });
       
       // Touch events for mobile
       card.addEventListener('touchstart', function() {
         card.classList.add('scale-98');
-      });
+      }, { passive: true });
       
       card.addEventListener('touchend', function() {
         card.classList.remove('scale-98');
-      });
+      }, { passive: true });
     });
     
     // Toast notification functions

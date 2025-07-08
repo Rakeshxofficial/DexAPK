@@ -89,9 +89,9 @@ const { appSlug } = Astro.props;
   
   /* Smooth transitions */
   .transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-    transition-duration: 300ms !important;
+    transition-property: transform, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
   }
   
   /* Screen reader only content */
@@ -111,7 +111,7 @@ const { appSlug } = Astro.props;
   @media (prefers-reduced-motion: reduce) {
     .transition-all,
     #tasks-progress-bar {
-      transition: none !important;
+      transition: none;
     }
   }
 </style>

@@ -222,7 +222,7 @@ const { html, toc } = parseMarkdown(content);
 <style>
   /* Enhanced prose styles */
   .prose {
-    line-height: 1.7;
+    line-height: 1.6;
   }
   
   .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
@@ -231,12 +231,12 @@ const { html, toc } = parseMarkdown(content);
   
   /* Increase scroll margin to prevent headings from being hidden under the header */
   .prose h1, .prose h2, .prose h3 {
-    scroll-margin-top: 10rem;
+    scroll-margin-top: 8rem;
   }
   
   /* Add scroll margin to heading IDs for TOC links */
   h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
-    scroll-margin-top: 10rem;
+    scroll-margin-top: 8rem;
   }
   
   .prose pre {
@@ -263,8 +263,10 @@ const { html, toc } = parseMarkdown(content);
   }
   
   /* Smooth scrolling for anchor links */
-  html {
-    scroll-behavior: smooth;
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 </style>
 
@@ -273,8 +275,8 @@ const { html, toc } = parseMarkdown(content);
   document.addEventListener('DOMContentLoaded', () => {
     const tocLinks = document.querySelectorAll('nav a[href^="#"]');
     
-    tocLinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
+    tocLinks.forEach(link => {
+      link.addEventListener('click', e => {
         e.preventDefault();
         const targetId = e.currentTarget.getAttribute('href').slice(1);
         const targetElement = document.getElementById(targetId);
@@ -282,7 +284,45 @@ const { html, toc } = parseMarkdown(content);
         if (targetElement) {
           // Get the header height to offset the scroll position
           const headerHeight = document.querySelector('header')?.offsetHeight || 100;
-          const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+          
+          // Use requestAnimationFrame to avoid forced reflow
+          requestAnimationFrame(() => {
+            const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+            const scrollOffset = headerHeight + 40; // Add extra padding
+            
+            // Scroll to element with offset for the header
+            window.scrollTo({
+              top: targetPosition - scrollOffset,
+              behavior: 'smooth'
+            });
+            
+            // Update URL without triggering page reload
+            history.pushState(null, null, `#${targetId}`);
+            
+            // Announce to screen readers
+            announceToScreenReader(`Navigated to ${targetId.replace(/-/g, ' ')} section`);
+          });
+        }
+      }, { passive: false });
+    });
+    
+    // Function for screen reader announcements
+    function announceToScreenReader(message) {
+      const announcement = document.createElement('div');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.setAttribute('aria-atomic', 'true');
+      announcement.className = 'sr-only';
+      announcement.textContent = message;
+      
+      document.body.appendChild(announcement);
+      
+      setTimeout(() => {
+        document.body.removeChild(announcement);
+      }, 1000);
+    }
+  });
+</script>
+
           const scrollOffset = headerHeight + 40; // Add extra padding
           
           // Scroll to element with offset for the header
