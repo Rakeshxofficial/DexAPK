@@ -310,7 +310,9 @@ function handleTaskClick(e) {
       button.setAttribute('disabled', 'true');
     
       // Add completed styles
-      button.classList.add('opacity-75');
+      requestAnimationFrame(() => {
+        button.classList.add('opacity-75');
+      });
       button.innerHTML = button.innerHTML.replace(/<\/div>(?!.*<\/div>)/s, '</div><svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>');
     
       // Update progress
@@ -331,7 +333,9 @@ function updateProgress(completed, total) {
   if (!progressBar || !progressText) return;
   
   const percentage = total > 0 ? (completed / total) * 100 : 0;
-  progressBar.style.width = `${Math.min(percentage, 100)}%`;
+  requestAnimationFrame(() => {
+    progressBar.style.width = `${Math.min(percentage, 100)}%`;
+  });
   progressText.textContent = `${completed} of ${total} tasks completed`;
   
   // Announce to screen readers
@@ -349,8 +353,10 @@ function updateProgress(completed, total) {
 function enableDownload() {
   if (!downloadNowBtn) return;
 
-  downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-  downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'transform', 'hover:-translate-y-1');
+  requestAnimationFrame(() => {
+    downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
+    downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'transform', 'hover:-translate-y-1');
+  });
   downloadNowBtn.disabled = false;
   
   // Add click handler
