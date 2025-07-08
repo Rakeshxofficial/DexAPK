@@ -75,6 +75,10 @@ const websiteSchema = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-96x96.png" />
     <meta name="generator" content={Astro.generator} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
     
     <!-- Primary Meta Tags -->
     <meta http-equiv="content-language" content="en-US" />
@@ -125,10 +129,6 @@ const websiteSchema = {
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="DexAPK" />
     <meta name="format-detection" content="telephone=no" />
-    
-    <!-- Preconnect to external domains for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <!-- App-specific Meta Tags -->
     {seoData?.appName && (
@@ -151,14 +151,10 @@ const websiteSchema = {
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" fetchpriority="low" />
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     </noscript>
-    
-    <!-- DNS Prefetch for better performance -->
-    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
 
     <!-- Base Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />

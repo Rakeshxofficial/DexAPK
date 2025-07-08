@@ -4,6 +4,10 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  NETLIFY_USE_PNPM = "true"
+
+[build.processing]
+  skip_processing = false
 
 # Redirect all admin routes to handle client-side routing
 [[redirects]]
@@ -40,6 +44,7 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
 
 # Cache CSS files
 [[headers]]
@@ -54,12 +59,13 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     X-Content-Type-Options = "nosniff"
-    Priority = "high"
+    Priority = "critical"
 
 [[headers]]
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
 
 # Cache images with long TTL
 [[headers]]
@@ -77,3 +83,13 @@
 # Environment variables (these will be set in Netlify dashboard)
 # VITE_SUPABASE_URL = "your_supabase_url"
 # VITE_SUPABASE_ANON_KEY = "your_supabase_anon_key"
+
+# Performance optimization
+[functions]
+  node_bundler = "esbuild"
+
+# HTTP/2 Server Push
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Link = "</assets/fonts/inter-var.woff2>; rel=preload; as=font; crossorigin"
