@@ -10,7 +10,7 @@ export default defineConfig({
   adapter: netlify(),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'auto',
+    inlineStylesheets: 'always',
   },
   vite: {
     define: {
@@ -20,23 +20,14 @@ export default defineConfig({
     envPrefix: 'VITE_',
     trailingSlash: 'ignore',
     build: {
-      cssCodeSplit: false,
+      cssCodeSplit: true,
       rollupOptions: {
         output: {
           manualChunks: {
-            'vendor': [
-              '@supabase/supabase-js',
-            ],
-            'critical': [
-              './src/styles/global.css'
-            ],
+            'critical': ['./src/styles/global.css'],
           }
         }
       }
-    },
-    optimizeDeps: {
-      exclude: [],
-      include: ['@supabase/supabase-js']
     }
   },
 });

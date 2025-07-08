@@ -407,7 +407,7 @@ try {
 <style>
   /* Add containment for better performance */
   .contain-content {
-    contain: layout paint style;
+    contain: content;
   }
   
   /* Enhanced accessibility styles */
@@ -456,7 +456,7 @@ try {
   /* Loading state styles */
   .loading-indicator {
     backdrop-filter: blur(4px);
-    opacity: 0;
+    will-change: opacity;
   }
   
   /* Touch feedback */
