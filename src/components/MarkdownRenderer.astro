@@ -286,7 +286,7 @@ const { html, toc } = parseMarkdown(content);
           const headerHeight = document.querySelector('header')?.offsetHeight || 100;
           
           // Use requestAnimationFrame to avoid forced reflow
-          requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
             const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY;
             const scrollOffset = headerHeight + 40; // Add extra padding
             

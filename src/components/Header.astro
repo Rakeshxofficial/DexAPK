@@ -299,12 +299,16 @@ import Logo from './Logo.astro';
       sidebarOverlay.setAttribute('aria-hidden', 'false');
       
       // Show overlay with blur effect
-      sidebarOverlay.classList.remove('opacity-0', 'invisible');
-      sidebarOverlay.classList.add('opacity-100', 'visible');
+      requestAnimationFrame(() => {
+        sidebarOverlay.classList.remove('opacity-0', 'invisible');
+        sidebarOverlay.classList.add('opacity-100', 'visible');
+      });
       
       // Slide in sidebar
-      sidebarMenu.classList.remove('-translate-x-full');
-      sidebarMenu.classList.add('translate-x-0');
+      requestAnimationFrame(() => {
+        sidebarMenu.classList.remove('-translate-x-full');
+        sidebarMenu.classList.add('translate-x-0');
+      });
       
       // Prevent body scroll
       document.body.style.overflow = 'hidden';
@@ -330,12 +334,16 @@ import Logo from './Logo.astro';
       sidebarOverlay.setAttribute('aria-hidden', 'true');
       
       // Hide overlay
-      sidebarOverlay.classList.remove('opacity-100', 'visible');
-      sidebarOverlay.classList.add('opacity-0', 'invisible');
+      requestAnimationFrame(() => {
+        sidebarOverlay.classList.remove('opacity-100', 'visible');
+        sidebarOverlay.classList.add('opacity-0', 'invisible');
+      });
       
       // Slide out sidebar
-      sidebarMenu.classList.remove('translate-x-0');
-      sidebarMenu.classList.add('-translate-x-full');
+      requestAnimationFrame(() => {
+        sidebarMenu.classList.remove('translate-x-0');
+        sidebarMenu.classList.add('-translate-x-full');
+      });
       
       // Restore body scroll
       document.body.style.overflow = '';
