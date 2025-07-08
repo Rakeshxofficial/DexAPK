@@ -269,6 +269,7 @@ import Logo from './Logo.astro';
 </aside>
 
 <script>
+  // Use passive event listeners to avoid forced reflow
   document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const sidebarMenu = document.getElementById('sidebar-menu');
@@ -356,9 +357,9 @@ import Logo from './Logo.astro';
     }
 
     // Event listeners
-    mobileMenuButton?.addEventListener('click', toggleSidebar);
-    sidebarClose?.addEventListener('click', closeSidebar);
-    sidebarOverlay?.addEventListener('click', closeSidebar);
+    mobileMenuButton?.addEventListener('click', toggleSidebar, { passive: true });
+    sidebarClose?.addEventListener('click', closeSidebar, { passive: true });
+    sidebarOverlay?.addEventListener('click', closeSidebar, { passive: true });
 
     // Theme toggle functionality
     function toggleTheme() {
@@ -369,8 +370,8 @@ import Logo from './Logo.astro';
       announceToScreenReader(`Switched to ${isDark ? 'dark' : 'light'} mode`);
     }
 
-    themeToggle?.addEventListener('click', toggleTheme);
-    sidebarThemeToggle?.addEventListener('click', toggleTheme);
+    themeToggle?.addEventListener('click', toggleTheme, { passive: true });
+    sidebarThemeToggle?.addEventListener('click', toggleTheme, { passive: true });
 
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {
@@ -454,7 +455,7 @@ import Logo from './Logo.astro';
       link.addEventListener('click', () => {
         // Small delay to allow navigation to start
         setTimeout(closeSidebar, 100);
-      });
+      }, { passive: true });
     });
 
     // Handle window resize
@@ -463,7 +464,7 @@ import Logo from './Logo.astro';
         // Close sidebar on desktop breakpoint
         closeSidebar();
       }
-    });
+    }, { passive: true });
 
     // Screen reader announcements
     function announceToScreenReader(message) {
@@ -488,19 +489,20 @@ import Logo from './Logo.astro';
 <style>
   /* Add containment for better performance */
   .contain-layout {
-    contain: layout style;
+    contain: content;
   }
   
   /* Ensure header container constrains all child elements */
   header {
     position: sticky;
-    contain: layout paint style;
+    contain: layout style;
   }
   
   /* Prevent any overflow from extending clickable areas */
   header > div {
     position: relative;
     overflow: hidden;
+    will-change: transform;
   }
   
   /* Constrain logo link to proper boundaries */
@@ -510,7 +512,7 @@ import Logo from './Logo.astro';
     max-width: 200px;
     max-height: 80px;
     overflow: visible;
-    contain: layout style;
+    contain: content;
   }
   
   /* Ensure no pseudo-elements extend beyond boundaries */
@@ -522,12 +524,12 @@ import Logo from './Logo.astro';
   /* Sidebar animations */
   #sidebar-menu {
     will-change: transform;
-    contain: layout paint;
+    contain: layout;
   }
   
   #sidebar-overlay {
     will-change: opacity;
-    contain: layout paint;
+    contain: layout;
   }
   
   /* Enhanced focus styles for sidebar */
