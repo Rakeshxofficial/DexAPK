@@ -61,7 +61,7 @@ export async function getFeaturedApps(limit = 10) {
       .select('*')
       .eq('is_active', true)
       .eq('is_featured', true)
-      .order('rating', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(limit);
 
     if (error) {
