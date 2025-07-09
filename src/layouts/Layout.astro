@@ -20,6 +20,29 @@ export interface Props {
   };
 }
 
+import TelegramHelpButton from '../components/TelegramHelpButton.astro';
+
+const { 
+  title?: string;
+  description?: string;
+  seoData?: {
+    title?: string;
+    description?: string;
+    keywords?: string;
+    canonicalUrl?: string;
+    featuredImage?: string;
+    appName?: string;
+    appVersion?: string;
+    appCategory?: string;
+    appRating?: number;
+    appVotes?: number;
+    appPublisher?: string;
+    appSize?: string;
+    lastUpdated?: string;
+    type?: 'website' | 'article' | 'product';
+  };
+}
+
 const { 
   title = "DexAPK - Fast & Secure APK Downloads", 
   description = "Download the latest Android APK files safely and quickly. DexAPK provides secure APK downloads with fast loading times.",
@@ -240,6 +263,7 @@ const websiteSchema = {
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <slot />
+    <TelegramHelpButton />
   </body>
 </html>
 
