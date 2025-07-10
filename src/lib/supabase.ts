@@ -759,6 +759,104 @@ export async function removeAllTasksFromApp(appId: string) {
   }
 }
 
+// Contact messages related functions
+export async function getAllContactMessages() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching contact messages:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAllContactMessages:', error);
+    return [];
+  }
+}
+
+export async function getUnreadContactMessages() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .select('*')
+      .eq('is_read', false)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching unread contact messages:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getUnreadContactMessages:', error);
+    return [];
+  }
+}
+
+export async function markMessageAsRead(messageId: string) {
+  try {
+    console.log('Marking message as read:', messageId);
+    
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .update({ is_read: true })
+      .eq('id', messageId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error marking message as read:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Message marked as read successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in markMessageAsRead:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function deleteContactMessage(messageId: string) {
+  try {
+    console.log('Deleting contact message:', messageId);
+    
+    const { error } = await supabase
+      .from('contact_messages')
+      .delete()
+      .eq('id', messageId);
+
+    if (error) {
+      console.error('Supabase error deleting contact message:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Contact message deleted successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('Error in deleteContactMessage:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
 export async function getAppsWithTasks() {
   try {
     // Check if we have valid credentials before making the request

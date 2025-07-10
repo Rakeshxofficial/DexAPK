@@ -393,25 +393,106 @@ const description = "Get in touch with the DexAPK team. Send us a message, repor
           formDataObj[key] = value;
         });
         
-        // Simulate form submission (in a real implementation, you would send this to your backend)
-        setTimeout(() => {
-          // Show success message
-          if (successMessage) {
-            successMessage.classList.remove('hidden');
-            
-            // Reset form
-            contactForm.reset();
-            
-            // Hide success message after 5 seconds
-            setTimeout(() => {
-              successMessage.classList.add('hidden');
-            }, 5000);
-            
-            // Announce to screen readers
-            announceToScreenReader('Your message has been sent successfully. We will get back to you soon.');
-          }
-        }, 1000);
+        // Submit the form data to Supabase
+        submitContactForm(formDataObj);
       });
+    }
+    
+    // Function to submit form data to Supabase
+    async function submitContactForm(formData) {
+      try {
+        // Show loading state
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = true;
+          submitButton.innerHTML = `
+            <svg class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Sending...
+          `;
+        }
+        
+        // Create Supabase client
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseAnonKey) {
+          throw new Error('Supabase credentials not available');
+        }
+        
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+        
+        // Insert the message into the contact_messages table
+        const { error } = await supabase
+          .from('contact_messages')
+          .insert([{
+            name: formData.name,
+            email: formData.email,
+            subject: formData.subject,
+            message: formData.message
+          }]);
+        
+        // Reset button state
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.innerHTML = `
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            Send Message
+          `;
+        }
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Show success message
+        if (successMessage) {
+          successMessage.classList.remove('hidden');
+          
+          // Reset form
+          contactForm.reset();
+          
+          // Hide success message after 5 seconds
+          setTimeout(() => {
+            successMessage.classList.add('hidden');
+          }, 5000);
+          
+          // Announce to screen readers
+          announceToScreenReader('Your message has been sent successfully. We will get back to you soon.');
+        }
+      } catch (error) {
+        console.error('Error submitting contact form:', error);
+        
+        // Show error message
+        if (errorMessage) {
+          errorMessage.classList.remove('hidden');
+          
+          // Hide error message after 5 seconds
+          setTimeout(() => {
+            errorMessage.classList.add('hidden');
+          }, 5000);
+          
+          // Announce to screen readers
+          announceToScreenReader('There was an error sending your message. Please try again later.');
+        }
+        
+        // Reset button state
+        const submitButton = contactForm.querySelector('button[type="submit"]');
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.innerHTML = `
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+            Send Message
+          `;
+          }
+      }
     }
     
     // Function to announce messages to screen readers
