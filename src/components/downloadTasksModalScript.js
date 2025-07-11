@@ -1,6 +1,9 @@
 // Import Supabase functions at the top
 import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
 
+// Performance optimization: Use a module-level cache
+const taskCache = new Map();
+
 // Global variables
 let tasks = [];
 let completedTasks = [];
@@ -18,25 +21,28 @@ let downloadNowBtn;
 // Initialize when the component is loaded
 function initializeModal() {
   console.log('Initializing download tasks modal');
-  
-  // Get DOM elements
-  modal = document.getElementById('download-tasks-modal');
-  closeBtn = document.getElementById('close-download-tasks');
-  tasksList = document.getElementById('download-tasks-list');
-  progressBar = document.getElementById('tasks-progress-bar');
-  progressText = document.getElementById('tasks-progress-text');
-  downloadNowBtn = document.getElementById('download-now-btn');
-  
-  // Get app slug from hidden input
-  const slugInput = document.getElementById('modal-app-slug');
-  currentAppSlug = slugInput ? slugInput.value : '';
-  console.log('Modal initialized with app slug:', currentAppSlug);
-  
-  // Set up event listeners
-  setupEventListeners();
-  
-  // Initialize download button
-  initializeDownloadButton();
+
+  // Batch DOM reads to avoid forced reflow
+  requestAnimationFrame(() => {
+    // Get DOM elements
+    modal = document.getElementById('download-tasks-modal');
+    closeBtn = document.getElementById('close-download-tasks');
+    tasksList = document.getElementById('download-tasks-list');
+    progressBar = document.getElementById('tasks-progress-bar');
+    progressText = document.getElementById('tasks-progress-text');
+    downloadNowBtn = document.getElementById('download-now-btn');
+    
+    // Get app slug from hidden input
+    const slugInput = document.getElementById('modal-app-slug');
+    currentAppSlug = slugInput ? slugInput.value : '';
+    console.log('Modal initialized with app slug:', currentAppSlug);
+    
+    // Set up event listeners
+    setupEventListeners();
+    
+    // Initialize download button
+    initializeDownloadButton();
+  });
 }
 
 // Set up event listeners
@@ -126,58 +132,73 @@ async function checkForDownloadTasks(slug) {
 // Function to open the modal and load tasks
 async function openDownloadTasksModal() {
   if (!modal || !tasksList || !currentAppSlug) {
-    console.error('Cannot open modal - missing elements:', { 
-      modal: !!modal, 
-      tasksList: !!tasksList, 
-      appSlug: currentAppSlug 
-    });
+    console.error('Cannot open modal - missing elements');
     return;
   }
 
   console.log('Opening download tasks modal for app:', currentAppSlug);
   
-  // Show the modal
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
-  document.body.style.overflow = 'hidden';
-  
-  // Focus the close button for accessibility
-  closeBtn?.focus();
-  
-  // Reset tasks state
-  tasks = [];
-  completedTasks = [];
-  
-  // Reset download button state
-  if (downloadNowBtn) {
-    downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-    downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-    downloadNowBtn.disabled = true;
+  // Batch DOM writes
+  requestAnimationFrame(() => {
+    // Show the modal
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
     
-    // Remove any existing click handlers
-    downloadNowBtn.removeEventListener('click', directDownload);
-  }
-  
-  // Show loading state
-  tasksList.innerHTML = `
-    <div class="flex items-center justify-center py-8">
-      <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-    </div>
-  `;
+    // Focus the close button for accessibility
+    closeBtn?.focus();
+    
+    // Reset tasks state
+    tasks = [];
+    completedTasks = [];
+    
+    // Reset download button state
+    if (downloadNowBtn) {
+      downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
+      downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+      downloadNowBtn.disabled = true;
+      
+      // Remove any existing click handlers
+      downloadNowBtn.removeEventListener('click', directDownload);
+    }
+    
+    // Show loading state
+    tasksList.innerHTML = `
+      <div class="flex items-center justify-center py-8">
+        <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+      </div>
+    `;
+  });
   
   // Load tasks from the server
   try {
     console.log('Fetching app details for slug:', currentAppSlug);
     
-    // Get app details
-    const app = await getAppBySlug(currentAppSlug);
+    // Check cache first
+    let app;
+    if (taskCache.has(currentAppSlug)) {
+      app = taskCache.get(currentAppSlug);
+      console.log('Using cached app data');
+    } else {
+      // Get app details
+      app = await getAppBySlug(currentAppSlug);
+      // Cache the result
+      if (app) {
+        taskCache.set(currentAppSlug, app);
+      }
+    }
+    
     if (!app) {
       console.error('App not found:', currentAppSlug);
-      tasksList.innerHTML = `
-        <p class="text-red-600 dark:text-red-400 py-4">
-          Error: App not found
-        </p>
-      `;
+      
+      // Batch DOM writes
+      requestAnimationFrame(() => {
+        tasksList.innerHTML = `
+          <p class="text-red-600 dark:text-red-400 py-4">
+            Error: App not found
+          </p>
+        `;
+      });
       return;
     }
     
@@ -331,33 +352,40 @@ function handleTaskClick(e) {
 // Function to update progress
 function updateProgress(completed, total) {
   if (!progressBar || !progressText) return;
-  
-  const percentage = total > 0 ? (completed / total) * 100 : 0;
+
+  // Batch DOM reads and writes to avoid forced reflow
   requestAnimationFrame(() => {
+    // Calculate percentage
+    const percentage = total > 0 ? (completed / total) * 100 : 0;
+    
+    // Update progress bar width
     progressBar.style.width = `${Math.min(percentage, 100)}%`;
+    
+    // Update text
+    progressText.textContent = `${completed} of ${total} tasks completed`;
+    
+    // Announce to screen readers
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = `${completed} of ${total} tasks completed. ${completed === total ? 'All tasks completed. Download now available.' : ''}`;
+    
+    document.body.appendChild(announcement);
+    setTimeout(() => document.body.removeChild(announcement), 1000);
   });
-  progressText.textContent = `${completed} of ${total} tasks completed`;
-  
-  // Announce to screen readers
-  const announcement = document.createElement('div');
-  announcement.setAttribute('aria-live', 'polite');
-  announcement.setAttribute('aria-atomic', 'true');
-  announcement.className = 'sr-only';
-  announcement.textContent = `${completed} of ${total} tasks completed. ${completed === total ? 'All tasks completed. Download now available.' : ''}`;
-  
-  document.body.appendChild(announcement);
-  setTimeout(() => document.body.removeChild(announcement), 1000);
 }
 
 // Function to enable download
 function enableDownload() {
   if (!downloadNowBtn) return;
 
+  // Batch DOM writes
   requestAnimationFrame(() => {
     downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
     downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'transform', 'hover:-translate-y-1');
+    downloadNowBtn.disabled = false;
   });
-  downloadNowBtn.disabled = false;
   
   // Add click handler
   downloadNowBtn.addEventListener('click', directDownload, { once: true });

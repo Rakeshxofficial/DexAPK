@@ -40,6 +40,7 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
 
 # Cache CSS files
 [[headers]]
@@ -47,6 +48,7 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     X-Content-Type-Options = "nosniff"
+    Priority = "high"
 
 # Cache critical CSS separately with longer TTL
 [[headers]]
@@ -60,12 +62,14 @@
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    X-Content-Type-Options = "nosniff"
 
 # Cache images with long TTL
 [[headers]]
   for = "/*.{jpg,jpeg,png,gif,webp,svg,ico}"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+    Priority = "low"
 
 # Cache fonts with long TTL
 [[headers]]
@@ -73,6 +77,7 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
     Access-Control-Allow-Origin = "*"
+    X-Content-Type-Options = "nosniff"
 
 # Environment variables (these will be set in Netlify dashboard)
 # VITE_SUPABASE_URL = "your_supabase_url"

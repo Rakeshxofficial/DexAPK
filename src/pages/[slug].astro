@@ -128,8 +128,77 @@ const dynamicFAQs = app ? [
   {app && (
     <Fragment slot="head">
       <!-- Preload critical resources -->
-      {app.icon && <link rel="preload" href={app.icon} as="image" />}
+      <!-- App icon preload - critical for LCP -->
+      {app.icon && <link rel="preload" href={app.icon} as="image" fetchpriority="high" />}
+      <!-- App hero image preload -->
       {app.screenshots && app.screenshots[0] && <link rel="preload" href={app.screenshots[0]} as="image" />}
+      <!-- Preload critical fonts -->
+      <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
+      
+      <!-- Critical CSS for above-the-fold content -->
+      <style>
+        .app-header {
+          background-color: white;
+          padding: 2rem 0;
+        }
+        .dark .app-header {
+          background-color: #1f2937;
+        }
+        .app-icon {
+          width: 8rem;
+          height: 8rem;
+          margin: 0 auto 1.5rem;
+          border-radius: 1.5rem;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          contain: strict;
+        }
+        .app-title {
+          font-size: 2.25rem;
+          font-weight: 700;
+          margin-bottom: 1rem;
+          color: #111827;
+        }
+        .dark .app-title {
+          color: #ffffff;
+        }
+        .app-subtitle {
+          font-size: 1.25rem;
+          color: #6b7280;
+          margin-bottom: 1.5rem;
+        }
+        .dark .app-subtitle {
+          color: #9ca3af;
+        }
+        .download-button {
+          display: inline-flex;
+          align-items: center;
+          padding: 1rem 2rem;
+          background-color: #000000;
+          color: #ffffff;
+          font-size: 1.125rem;
+          font-weight: 600;
+          border-radius: 1rem;
+          transition: transform 0.2s, box-shadow 0.2s;
+          cursor: pointer;
+        }
+        .dark .download-button {
+          background-color: #ffffff;
+          color: #000000;
+        }
+        .download-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .download-button {
+            transition: none;
+          }
+        }
+      </style>
 
       <!-- FAQ Schema -->
       <script type="application/ld+json" set:html={JSON.stringify({
@@ -248,7 +317,6 @@ const dynamicFAQs = app ? [
   <Header />
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
-    
     <!-- Breadcrumbs -->
     <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-hidden" aria-label="Breadcrumb">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -290,18 +358,18 @@ const dynamicFAQs = app ? [
     </nav>
 
     <!-- App Header -->
-    <section class="bg-white dark:bg-gray-800 py-8 sm:py-12">
+    <section class="app-header py-8 sm:py-12">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
           
           <!-- App Icon -->
-          <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-white dark:bg-gray-700 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden" style="contain: layout paint;">
+          <div class="app-icon">
             {app.icon ? (
               <img 
                 src={app.icon} 
                 alt={`${app.name} icon`}
                 class="w-full h-full object-cover rounded-3xl"
-                loading="lazy"
+                loading="eager"
                 width="128"
                 height="128"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
@@ -319,10 +387,10 @@ const dynamicFAQs = app ? [
           </div>
 
           <!-- App Title -->
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 class="app-title">
             {app.custom_h1_title || `${app.name} v${app.version} MOD APK`}
           </h1>
-          <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+          <p class="app-subtitle">
             [Premium Unlocked] for Android
           </p>
 
@@ -360,10 +428,10 @@ const dynamicFAQs = app ? [
           <!-- Download Button -->
           <a
             href={app.download_url || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
+            target="_blank" 
+            rel="noopener noreferrer" 
             id="download-button"
-            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
+            class="download-button"
             aria-label={`Download ${app.name} v${app.version} MOD APK (opens in new tab)`}
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -584,38 +652,88 @@ const dynamicFAQs = app ? [
 </Layout>
 
 <style>
-  details[open] summary svg {
-    margin-bottom: 0.75rem;
-  }
-  
-  .prose h1, .prose h2, .prose h3 {
-    color: inherit; 
-    scroll-margin-top: 10rem;
-  }
-  
-  .prose p {
-    margin-bottom: 1rem;
+  /* Move non-critical styles here */
+  details[open] summary { margin-bottom: 0.75rem; }
+  .prose h1, .prose h2, .prose h3 { color: inherit; scroll-margin-top: 10rem; }
+  .prose p { margin-bottom: 1rem; }
+
+  /* Semantic element styles */
+  section { display: block; }
+  article { display: block; }
+  nav { display: block; }
+
+  /* Optimized download button styles */
+  #download-button { position: relative; z-index: 2; }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
-  /* Ensure the download button is properly styled for interaction */
-  #download-button {
-    position: relative;
-    z-index: 20;
-    cursor: pointer;
-  }
-
-  /* Ensure the download button is properly styled for interaction */
-  #download-button {
-    position: relative !important;
-    z-index: 2;
-    cursor: pointer; 
-    user-select: none; 
-  }
-  
-  /* Ensure minimum touch target sizes */
-  #download-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center; 
-  }
+  /* Contain layout for better performance */
+  .contain-layout { contain: layout; }
+  .contain-paint { contain: paint; }
+  .contain-strict { contain: strict; }
 </style>
+
+<script>
+  // Optimize JavaScript execution by using requestAnimationFrame and batching operations
+  document.addEventListener('DOMContentLoaded', function() {
+    // Cache DOM elements to avoid repeated queries
+    const downloadButton = document.getElementById('download-button');
+    
+    // Batch DOM reads
+    function batchDomReads() {
+      // Cache all measurements in a single read phase
+      const measurements = {};
+      
+      if (downloadButton) {
+        measurements.buttonRect = downloadButton.getBoundingClientRect();
+      }
+      
+      return measurements;
+    }
+    
+    // Batch DOM writes
+    function batchDomWrites(measurements) {
+      // Perform all DOM updates in a single write phase
+      requestAnimationFrame(() => {
+        if (downloadButton) {
+          // Apply any necessary style updates without causing reflows
+          // Instead of directly manipulating style properties that trigger reflow
+        }
+      });
+    }
+    
+    // Initialize optimized event handlers
+    function initEventHandlers() {
+      if (downloadButton) {
+        downloadButton.addEventListener('click', function(e) {
+          // Prevent default only if needed for custom handling
+          // e.preventDefault();
+          
+          // Use requestAnimationFrame for any visual updates
+          requestAnimationFrame(() => {
+            // Visual feedback without causing reflow
+            downloadButton.classList.add('active');
+            
+            // Remove class after animation completes
+            setTimeout(() => {
+              downloadButton.classList.remove('active');
+            }, 200);
+          });
+        });
+      }
+    }
+    
+    // Initialize
+    const measurements = batchDomReads();
+    batchDomWrites(measurements);
+    initEventHandlers();
+  });
+</script>

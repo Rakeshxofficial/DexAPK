@@ -10,7 +10,7 @@ export default defineConfig({
   adapter: netlify(),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'always',
+    inlineStylesheets: 'auto',
   },
   vite: {
     define: {
@@ -21,10 +21,18 @@ export default defineConfig({
     trailingSlash: 'ignore',
     build: {
       cssCodeSplit: true,
+      minify: true,
       rollupOptions: {
         output: {
           manualChunks: {
             'critical': ['./src/styles/global.css'],
+            'vendor': [
+              '@supabase/supabase-js',
+            ],
+            'app': [
+              './src/lib/supabase.ts',
+              './src/lib/auth.js',
+            ]
           }
         }
       }
