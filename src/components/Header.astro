@@ -2,9 +2,10 @@
 // Header component with sidebar menu integration
 import Logo from './Logo.astro';
 ---
-<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 contain-layout">
-  <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-    <div class="relative flex items-center h-24 sm:h-28">
+
+<header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 contain-layout">
+    <div class="relative flex items-center h-24 sm:h-28 overflow-hidden">
       
       <!-- Mobile Menu Button - Positioned absolutely to left -->
       <div class="absolute left-0 md:hidden z-10">
@@ -24,12 +25,22 @@ import Logo from './Logo.astro';
       </div>
 
       <!-- Logo Container - Properly Constrained -->
-      <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 py-2 contain-content">
+      <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 py-2">
         <a 
           href="/" 
-          class="flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-lg p-2 min-w-[44px] min-h-[44px] max-w-[200px] max-h-[80px]"
+          class="flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 rounded-lg p-2 min-w-[44px] min-h-[44px] max-w-[200px] max-h-[80px] overflow-visible"
+          style="
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: auto;
+            max-width: 200px;
+            max-height: 80px;
+          "
         >
-          <div class="relative w-auto h-auto max-w-full max-h-full">
+          <div class="relative w-auto h-auto max-w-full max-h-full overflow-visible">
             <Logo size="2xl" showText={false} />
           </div>
         </a>
@@ -259,7 +270,7 @@ import Logo from './Logo.astro';
 
 <script>
   // Use passive event listeners to avoid forced reflow
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const sidebarMenu = document.getElementById('sidebar-menu');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -281,71 +292,67 @@ import Logo from './Logo.astro';
     // Open sidebar
     function openSidebar() {
       isOpen = true;
-
-      // Batch DOM reads
-      const focusableElementsArray = Array.from(sidebarMenu.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      ));
-
-      // Batch DOM writes
+      
+      // Update ARIA attributes
+      mobileMenuButton.setAttribute('aria-expanded', 'true');
+      sidebarMenu.setAttribute('aria-hidden', 'false');
+      sidebarOverlay.setAttribute('aria-hidden', 'false');
+      
+      // Show overlay with blur effect
       requestAnimationFrame(() => {
-        // Update ARIA attributes
-        mobileMenuButton.setAttribute('aria-expanded', 'true');
-        sidebarMenu.setAttribute('aria-hidden', 'false');
-        sidebarOverlay.setAttribute('aria-hidden', 'false');
-        
-        // Show overlay with blur effect
         sidebarOverlay.classList.remove('opacity-0', 'invisible');
         sidebarOverlay.classList.add('opacity-100', 'visible');
-        
-        // Slide in sidebar
+      });
+      
+      // Slide in sidebar
+      requestAnimationFrame(() => {
         sidebarMenu.classList.remove('-translate-x-full');
         sidebarMenu.classList.add('translate-x-0');
-        
-        // Prevent body scroll
-        document.body.style.overflow = 'hidden';
-        
-        // Update focusable elements
-        focusableElements = focusableElementsArray;
-        
-        // Focus the close button for better UX
-        if (focusableElements.length > 0) {
-          sidebarClose.focus();
-        }
-        
-        // Announce to screen readers
-        announceToScreenReader('Navigation menu opened');
       });
+      
+      // Prevent body scroll
+      document.body.style.overflow = 'hidden';
+      
+      // Update focusable elements and focus first link
+      updateFocusableElements();
+      if (focusableElements.length > 0) {
+        // Focus the close button first for better UX
+        sidebarClose.focus();
+      }
+      
+      // Announce to screen readers
+      announceToScreenReader('Navigation menu opened');
     }
 
     // Close sidebar
     function closeSidebar() {
       isOpen = false;
-
-      // Batch all DOM writes
+      
+      // Update ARIA attributes
+      mobileMenuButton.setAttribute('aria-expanded', 'false');
+      sidebarMenu.setAttribute('aria-hidden', 'false');
+      sidebarOverlay.setAttribute('aria-hidden', 'true');
+      
+      // Hide overlay
       requestAnimationFrame(() => {
-        // Update ARIA attributes
-        mobileMenuButton.setAttribute('aria-expanded', 'false');
-        sidebarMenu.setAttribute('aria-hidden', 'true');
-        sidebarOverlay.setAttribute('aria-hidden', 'true');
-        
-        // Hide overlay
         sidebarOverlay.classList.remove('opacity-100', 'visible');
         sidebarOverlay.classList.add('opacity-0', 'invisible');
-        
-        // Slide out sidebar
+      });
+      
+      // Slide out sidebar
+      requestAnimationFrame(() => {
         sidebarMenu.classList.remove('translate-x-0');
         sidebarMenu.classList.add('-translate-x-full');
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-        
-        // Return focus to menu button
-        mobileMenuButton.focus();
-        
-        // Announce to screen readers
-        announceToScreenReader('Navigation menu closed');
       });
+      
+      // Restore body scroll
+      document.body.style.overflow = '';
+      
+      // Return focus to menu button
+      mobileMenuButton.focus();
+      
+      // Announce to screen readers
+      announceToScreenReader('Navigation menu closed');
     }
 
     // Toggle sidebar
@@ -489,24 +496,48 @@ import Logo from './Logo.astro';
 
 <style>
   /* Add containment for better performance */
-  .contain-layout { contain: layout; }
-  .contain-content { contain: content; }
+  .contain-layout {
+    contain: content;
+  }
   
   /* Ensure header container constrains all child elements */
   header {
     position: sticky;
-    contain: layout;
+    contain: layout style;
+  }
+  
+  /* Prevent any overflow from extending clickable areas */
+  header > div {
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+  }
+  
+  /* Constrain logo link to proper boundaries */
+  header a[href="/"] {
+    position: relative;
+    display: inline-flex;
+    max-width: 200px;
+    max-height: 80px;
+    overflow: visible;
+    contain: content;
+  }
+  
+  /* Ensure no pseudo-elements extend beyond boundaries */
+  header a[href="/"]::before,
+  header a[href="/"]::after {
+    display: none;
   }
   
   /* Sidebar animations */
   #sidebar-menu {
     will-change: transform;
-    contain: layout style;
+    contain: layout;
   }
   
   #sidebar-overlay {
     will-change: opacity;
-    contain: layout style;
+    contain: layout;
   }
   
   /* Enhanced focus styles for sidebar */
@@ -517,7 +548,7 @@ import Logo from './Logo.astro';
   
   /* Smooth transitions */
   .sidebar-link {
-    transition: background-color 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   /* Screen reader only content */
@@ -535,9 +566,37 @@ import Logo from './Logo.astro';
   
   /* Reduced motion support */
   @media (prefers-reduced-motion: reduce) {
-    #sidebar-menu, #sidebar-overlay, .sidebar-link {
+    #sidebar-menu,
+    #sidebar-overlay,
+    .sidebar-link {
       transition: none !important;
       animation: none !important;
+    }
+  }
+  
+  /* Additional containment for mobile */
+  @media (max-width: 768px) {
+    header a[href="/"] {
+      max-width: 150px;
+      max-height: 50px;
+    }
+    
+    #sidebar-menu {
+      width: 100vw;
+      max-width: 320px;
+    }
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .sidebar-link {
+      border: 1px solid currentColor;
+    }
+    
+    .sidebar-link:hover,
+    .sidebar-link:focus {
+      background-color: highlight;
+      color: highlighttext;
     }
   }
 </style>
