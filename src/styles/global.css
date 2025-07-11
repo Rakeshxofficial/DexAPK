@@ -2,7 +2,7 @@
  	text-align: left;
  	background: white;
  	word-wrap: break-word;
-	contain: content;
+	contain: style;
 +}
 +
 +/* Hide scrollbar for Chrome, Safari and Opera */
@@ -15,53 +15,3 @@
 +  -ms-overflow-style: none;  /* IE and Edge */
 +  scrollbar-width: none;  /* Firefox */
  }
-
-/* Font display swap for better performance */
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2) format('woff2');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2) format('woff2');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuGKYAZ9hiA.woff2) format('woff2');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hiA.woff2) format('woff2');
-}
-
-/* Optimize content visibility */
-.content-visibility-auto {
-  content-visibility: auto;
-}
-
-/* Optimize image rendering */
-img {
-  image-rendering: auto;
-}
-
-/* Optimize animations */
-@media (prefers-reduced-motion: no-preference) {
-  .animate-optimized {
-    will-change: transform, opacity;
-  }
-}
