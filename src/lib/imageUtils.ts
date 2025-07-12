@@ -1,6 +1,54 @@
 /**
  * Utility functions for image optimization
  */
+import sharp from 'sharp';
+import { encode } from 'blurhash';
+
+/**
+ * Generate a BlurHash for an image
+ * @param imageUrl URL of the image
+ * @returns Promise resolving to the BlurHash string
+ */
+export async function generateBlurHash(imageBuffer: Buffer): Promise<string> {
+  try {
+    const { data, info } = await sharp(imageBuffer)
+      .raw()
+      .ensureAlpha()
+      .resize(32, 32, { fit: 'inside' })
+      .toBuffer({ resolveWithObject: true });
+    
+    const hash = encode(
+      new Uint8ClampedArray(data),
+      info.width,
+      info.height,
+      4,
+      4
+    );
+    
+    return hash;
+  } catch (error) {
+    console.error('Error generating BlurHash:', error);
+    return '';
+  }
+}
+
+/**
+ * Generate a dominant color for an image
+ * @param imageBuffer Buffer containing the image data
+ * @returns Promise resolving to the dominant color as a hex string
+ */
+export async function getDominantColor(imageBuffer: Buffer): Promise<string> {
+  try {
+    const { dominant } = await sharp(imageBuffer)
+      .stats();
+    
+    const { r, g, b } = dominant;
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+  } catch (error) {
+    console.error('Error getting dominant color:', error);
+    return '#f0f0f0';
+  }
+}
 
 /**
  * Generate SEO-friendly image filename from a title
@@ -67,6 +115,29 @@ export function generateAltText(appName: string, imageType: 'icon' | 'screenshot
 export function isExternalImage(url: string): boolean {
   if (!url) return false;
   return url.startsWith('http') && !url.includes('dexapk.com');
+}
+
+/**
+ * Optimize image URL for CDN delivery
+ * @param url The original image URL
+ * @param options Options for optimization
+ * @returns Optimized image URL
+ */
+export function optimizeImageUrl(url: string, options: {
+  width?: number;
+  height?: number;
+  quality?: number;
+  format?: 'auto' | 'webp' | 'avif' | 'original';
+}): string {
+  if (!url || !url.includes('cdn.dexapk.com')) {
+    return url; // Only process our CDN images
+  }
+  
+  // Start with the original URL
+  let optimizedUrl = url;
+  
+  // Don't add any parameters - use the original URL as is
+  return optimizedUrl;
 }
 
 /**

@@ -89,6 +89,10 @@
     Cache-Control = "public, max-age=31536000, immutable"
     Content-Disposition = "inline"
     X-Content-Type-Options = "nosniff"
+    Accept-CH = "DPR, Width, Viewport-Width"
+    Content-DPR = "1.0"
+    Timing-Allow-Origin = "*"
+    Priority = "high"
 
 # Environment variables (these will be set in Netlify dashboard)
 # VITE_SUPABASE_URL = "your_supabase_url"

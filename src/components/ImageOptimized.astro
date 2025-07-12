@@ -11,6 +11,8 @@ export interface Props {
   decoding?: 'async' | 'sync' | 'auto';
   fetchpriority?: 'high' | 'low' | 'auto';
   addStructuredData?: boolean;
+  placeholder?: 'blur' | 'dominant-color' | 'none';
+  quality?: number;
 }
 
 const {
@@ -24,6 +26,8 @@ const {
   decoding = 'async',
   fetchpriority = 'auto',
   addStructuredData = false,
+  placeholder = 'blur',
+  quality = 80,
   ...rest
 } = Astro.props;
 
@@ -38,13 +42,33 @@ const aspectRatio = width && height ? width / height : undefined;
 
 // Determine if this is a stock photo from Pexels
 const isPexels = src.includes('pexels.com');
+
+// Generate blurhash placeholder
+const generatePlaceholder = (src: string) => {
+  // For production, you would pre-compute these values
+  // This is a lightweight placeholder for demo purposes
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width || 800} ${height || 600}'%3E%3Cfilter id='b' color-interpolation-filters='sRGB'%3E%3CfeGaussianBlur stdDeviation='20'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%23f0f0f0'/%3E%3C/svg%3E`;
+};
+
+// Get placeholder based on strategy
+const placeholderUrl = placeholder !== 'none' ? generatePlaceholder(src) : '';
+
+// Format quality parameter for CDN
+const qualityParam = src.includes('?') ? `&q=${quality}` : `?q=${quality}`;
+
+// Add auto format parameter for CDN
+const formatParam = src.includes('?') ? '&auto=format' : '?auto=format';
+
+// Prepare optimized URL
+const optimizedSrc = isExternalImage(src) ? src : `${src}${qualityParam}`;
 ---
 
 <!-- Image with proper attributes -->
 <img 
-  src={src}
+  src={optimizedSrc}
   alt={alt}
   class={`image-optimized ${className || ''}`}
+  style={placeholder !== 'none' ? `background-image: url(${placeholderUrl}); background-size: cover;` : ''}
   loading={loading}
   fetchpriority={fetchpriority}
   width={width}
@@ -56,7 +80,7 @@ const isPexels = src.includes('pexels.com');
 
 <!-- Preload critical images -->
 {fetchpriority === 'high' && (
-  <link rel="preload" as="image" href={src} />
+  <link rel="preload" as="image" href={optimizedSrc} />
 )}
 
 <!-- Add structured data for images -->
@@ -64,7 +88,7 @@ const isPexels = src.includes('pexels.com');
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "ImageObject",
-    "url": src,
+    "url": optimizedSrc,
     "name": alt,
     "width": width,
     "height": height,
@@ -78,7 +102,9 @@ const isPexels = src.includes('pexels.com');
 .image-optimized {
   max-width: 100%;
   height: auto;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .image-optimized[loading="lazy"] {

@@ -31,6 +31,7 @@ export default defineConfig({
           drop_debugger: true
         }
       },
+      assetsInlineLimit: 4096, // Inline small images as data URLs
       rollupOptions: {
         output: {
           manualChunks: (id) => {
