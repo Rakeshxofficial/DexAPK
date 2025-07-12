@@ -4,6 +4,8 @@ export const prerender = false; // Server-side rendering for dynamic download pa
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import InternalLinkModule from '../../components/InternalLinkModule.astro';
 import { getAppBySlug, getRelatedApps, getAppDownloadTasksBySlug, getAppVersionsBySlug } from '../../lib/supabase.js';
 
 // Get app slug from URL parameters
@@ -145,37 +147,15 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
-    <!-- Breadcrumbs -->
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-hidden" aria-label="Breadcrumb">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="overflow-x-auto scrollbar-hide py-4">
-          <ol class="flex items-center space-x-2 text-sm whitespace-nowrap" role="list">
-            <li>
-              <a href="/" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" aria-label="Go to homepage">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                </svg>
-                <span class="sr-only">Home</span>
-              </a>
-            </li>
-            <li class="flex items-center">
-              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <a href={`/${app.slug}`} class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] ml-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                {app.name}
-              </a>
-            </li>
-            <li class="flex items-center">
-              <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span class="ml-2 font-medium text-gray-900 dark:text-white" aria-current="page">Download</span>
-            </li>
-          </ol>
-        </div>
-      </div>
-    </nav>
+    <!-- Enhanced Breadcrumbs with Schema.org markup -->
+    <BreadcrumbNav 
+      items={[
+        { label: 'Home', href: '/' },
+        { label: app.category, href: `/categories/${app.category.toLowerCase()}` },
+        { label: app.name, href: `/${app.slug}` },
+        { label: 'Download', href: `/${app.slug}/download`, current: true }
+      ]}
+    />
 
     <!-- Download Header -->
     <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-12">
@@ -460,11 +440,11 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
     <!-- Related Posts Section -->
     <section class="py-12 bg-white dark:bg-gray-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-10">
           Related Apps
         </h2>
         
-        <div class="relative px-12">
+        <div class="relative px-16">
           <!-- Scrollable Container -->
           <div class="overflow-x-auto pb-4 scrollbar-hide">
             <div class="flex space-x-4 min-w-max">
@@ -517,7 +497,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
           
           <!-- Scroll Indicators -->
           <div class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
-            <button 
+            <button
               id="scroll-left" 
               class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
               aria-label="Scroll left"
@@ -527,7 +507,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
               </svg>
             </button>
           </div>
-          <div class="absolute right-0 top-1/2 transform -translate-y-1/2 z-10">
+          <div class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20">
             <button 
               id="scroll-right" 
               class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
@@ -538,6 +518,14 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
               </svg>
             </button>
           </div>
+        </div>
+        
+        <!-- Additional internal links for SEO -->
+        <div class="mt-8">
+          <InternalLinkModule 
+            currentSlug={app.slug}
+            headingText="More Apps You Might Like" 
+          />
         </div>
       </div>
     </section>
@@ -666,29 +654,41 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
 
 <style is:global>
   /* Ensure scroll buttons don't overlap content */
-  #scroll-left, #scroll-right {
+  #scroll-left {
     width: 40px;
     height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 20;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 30;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    left: 0;
+  }
+  
+  #scroll-right {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-center;
+    z-index: 30;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    right: 0;
   }
   
   /* Add a semi-transparent background to ensure button visibility */
   #scroll-left {
-    background-color: rgba(255, 255, 255, 0.9);
-    left: -4px;
+    background-color: rgba(255, 255, 255, 0.95);
   }
-  
+
   #scroll-right {
-    background-color: rgba(255, 255, 255, 0.9);
-    right: -4px;
+    background-color: rgba(255, 255, 255, 0.95);
   }
   
   /* Dark mode support */
   .dark #scroll-left, .dark #scroll-right {
-    background-color: rgba(31, 41, 55, 0.9);
+    background-color: rgba(31, 41, 55, 0.95);
   }
 </style>

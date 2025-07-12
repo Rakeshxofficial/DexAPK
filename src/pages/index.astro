@@ -5,6 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import FeaturedApps from '../components/FeaturedApps.astro';
+import InternalLinkModule from '../components/InternalLinkModule.astro';
 import Footer from '../components/Footer.astro';
 ---
 
@@ -13,6 +14,32 @@ import Footer from '../components/Footer.astro';
   <main>
     <Hero />
     <FeaturedApps />
+    
+    <!-- Popular Categories Section with Internal Links -->
+    <section class="py-8 bg-gray-50 dark:bg-gray-900">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Popular Categories</h2>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {['Games', 'Productivity', 'Music', 'Video', 'Entertainment', 'Social', 'Photography', 'Media'].map(category => (
+            <a 
+              href={`/categories/${category.toLowerCase()}`} 
+              class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 text-center"
+            >
+              <h3 class="font-medium text-gray-900 dark:text-white">{category}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">MOD APKs</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+    
+    <!-- Additional Internal Links -->
+    <section class="py-8 bg-white dark:bg-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <InternalLinkModule maxLinks={10} headingText="Popular Downloads" />
+      </div>
+    </section>
   </main>
   <Footer />
 </Layout>

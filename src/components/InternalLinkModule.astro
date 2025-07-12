@@ -1,0 +1,81 @@
+---
+// Internal Link Module Component
+// This component displays contextual internal links based on the current page
+import { getAllApps, getAppsByCategory } from '../lib/supabase.js';
+
+export interface Props {
+  currentSlug?: string;
+  currentCategory?: string;
+  maxLinks?: number;
+  showHeading?: boolean;
+  headingText?: string;
+}
+
+const { 
+  currentSlug = '', 
+  currentCategory = '', 
+  maxLinks = 5,
+  showHeading = true,
+  headingText = 'You May Also Like'
+} = Astro.props;
+
+// Get relevant apps for linking
+let relatedApps = [];
+try {
+  if (currentCategory) {
+    // Get apps from the same category, excluding current app
+    relatedApps = await getAppsByCategory(currentCategory, 10);
+    if (currentSlug) {
+      relatedApps = relatedApps.filter(app => app.slug !== currentSlug);
+    }
+  } else {
+    // Get random selection of apps
+    const allApps = await getAllApps();
+    // Shuffle array to get random selection
+    relatedApps = allApps
+      .sort(() => 0.5 - Math.random())
+      .slice(0, maxLinks * 2); // Get more than needed in case we need to filter
+  }
+  
+  // Limit to maxLinks
+  relatedApps = relatedApps.slice(0, maxLinks);
+} catch (error) {
+  console.error('Error loading related apps for internal linking:', error);
+  relatedApps = [];
+}
+
+// Generate descriptive anchor text variations
+function generateAnchorText(app) {
+  const variations = [
+    `Download ${app.name} MOD APK`,
+    `${app.name} Premium Unlocked`,
+    `${app.name} v${app.version} MOD`,
+    `${app.category}: ${app.name}`
+  ];
+  
+  // Return a random variation
+  return variations[Math.floor(Math.random() * variations.length)];
+}
+---
+
+{relatedApps.length > 0 && (
+  <div class="bg-white dark:bg-gray-800 rounded-xl p-4 my-6 border border-gray-200 dark:border-gray-700">
+    {showHeading && (
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{headingText}</h3>
+    )}
+    <ul class="space-y-2">
+      {relatedApps.map(app => (
+        <li>
+          <a 
+            href={`/${app.slug}`} 
+            class="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+            rel="prefetch"
+          >
+            <span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+            {generateAnchorText(app)}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}

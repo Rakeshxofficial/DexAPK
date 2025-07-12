@@ -4,6 +4,8 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import BreadcrumbNav from '../components/BreadcrumbNav.astro';
+import InternalLinkModule from '../components/InternalLinkModule.astro';
 import MarkdownRenderer from '../components/MarkdownRenderer.astro';
 import DynamicFAQ from '../components/DynamicFAQ.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
@@ -249,45 +251,15 @@ const dynamicFAQs = app ? [
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
-    <!-- Breadcrumbs -->
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 overflow-hidden" aria-label="Breadcrumb">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="overflow-x-auto scrollbar-hide py-4">
-          <ol class="flex items-center space-x-2 text-sm whitespace-nowrap" role="list">
-          <li>
-            <a href="/" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" aria-label="Go to homepage">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-              <span class="sr-only">Home</span>
-            </a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <a href="/apps" class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] ml-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-              Apps
-            </a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <a href={`/categories/${app.category.toLowerCase()}`} class="inline-flex items-center justify-center min-w-[44px] min-h-[44px] ml-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-              {app.category}
-            </a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <span class="ml-2 font-medium text-gray-900 dark:text-white" aria-current="page">{app.name}</span>
-          </li>
-          </ol>
-        </div>
-      </div>
-    </nav>
+    <!-- Enhanced Breadcrumbs with Schema.org markup -->
+    <BreadcrumbNav 
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Apps', href: '/apps' },
+        { label: app.category, href: `/categories/${app.category.toLowerCase()}` },
+        { label: app.name, href: `/${app.slug}`, current: true }
+      ]}
+    />
 
     <!-- App Header -->
     <section class="bg-white dark:bg-gray-800 py-8 sm:py-12">
@@ -530,6 +502,14 @@ const dynamicFAQs = app ? [
             <!-- Article Content -->
             <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
               <MarkdownRenderer content={articleContent} generateToc={true} />
+              
+              <!-- Internal linking module -->
+              <InternalLinkModule 
+                currentSlug={app.slug} 
+                currentCategory={app.category} 
+                maxLinks={5} 
+                headingText="Similar Apps You Might Like"
+              />
             </div>
 
             <!-- Dynamic FAQ -->
@@ -563,6 +543,15 @@ const dynamicFAQs = app ? [
                         </div>
                       </a>
                     ))}
+                    
+                    <!-- Additional internal links for SEO -->
+                    <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                      <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Popular Categories</h4>
+                      <div class="flex flex-wrap gap-2">
+                        {['Games', 'Productivity', 'Music', 'Social', 'Photography'].map(cat => 
+                          <a href={`/categories/${cat.toLowerCase()}`} class="text-xs text-blue-600 dark:text-blue-400 hover:underline px-2 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full">{cat} Apps</a>)}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <p class="text-gray-500 dark:text-gray-400 text-center py-4">No related apps found</p>

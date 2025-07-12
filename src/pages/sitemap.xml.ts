@@ -132,8 +132,40 @@ export async function GET() {
   <url>
     <loc>${baseUrl}/categories/apps</loc>
     <lastmod>${now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Help and Support Pages -->
+  <url>
+    <loc>${baseUrl}/help</loc>
+    <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/about</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/contact</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/privacy</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/terms</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   
   <!-- App Detail Pages -->
@@ -141,8 +173,16 @@ export async function GET() {
   <url>
     <loc>${baseUrl}/${app.slug}</loc>
     <lastmod>${app.updated_at || now}</lastmod>
-    <changefreq>daily</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/${app.slug}"/>
+  </url>
+  <url>
+    <loc>${baseUrl}/${app.slug}/download</loc>
+    <lastmod>${app.updated_at || now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/${app.slug}/download"/>
   </url>`).join('')}
 </urlset>`;
 
