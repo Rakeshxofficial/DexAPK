@@ -359,11 +359,10 @@ const dynamicFAQs = app ? [
 
           <!-- Download Button -->
           <a
-            href={app.disable_download_page === true ? (app.download_url || '#') : `/${app.slug}/download`}
-            target="_self"
+            href={`/${app.slug}/download`}
             id="download-button"
             class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
-            aria-label={`Download ${app.name} v${app.version} MOD APK (opens in new tab)`}
+            aria-label={`Download ${app.name} v${app.version} MOD APK`}
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
