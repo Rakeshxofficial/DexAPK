@@ -8,7 +8,6 @@ import ImageOptimized from '../components/ImageOptimized.astro';
 import BreadcrumbNav from '../components/BreadcrumbNav.astro';
 import InternalLinkModule from '../components/InternalLinkModule.astro';
 import MarkdownRenderer from '../components/MarkdownRenderer.astro';
-import AmpLevelImage from '../components/AmpLevelImage.astro';
 import DynamicFAQ from '../components/DynamicFAQ.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
@@ -49,7 +48,7 @@ const seoTitle = app.seo_title || `${app.name} v${app.version} MOD APK - Premium
 const seoDescription = app.seo_description || `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 100)}...`;
 const seoKeywords = app.seo_keywords || `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
 const seoFeaturedImage = app.seo_featured_image || app.icon || '/favicon.svg';
-const canonicalUrl = app.seo_canonical_url || `https://dexapk.com/${app.slug}`;
+const canonicalUrl = app.seo_canonical_url || `https://${Astro.request.headers.get('host') || 'dexapk.com'}/${app.slug}`;
 
 // Prepare SEO data for Layout
 const seoData = {
@@ -273,16 +272,22 @@ const dynamicFAQs = app ? [
           <!-- App Icon -->
           <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-white dark:bg-gray-700 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden" style="contain: layout paint;">
             {app.icon ? (
-              <AmpLevelImage 
-                src={app.icon} 
-                alt={`${app.name} icon`}
-                class="w-full h-full object-cover rounded-3xl"
-                width={128}
-                height={128}
-                loading="eager"
-                fetchpriority="high"
-                lqip={true}
-              />
+              <>
+                <ImageOptimized 
+                  src={app.icon} 
+                  alt={`${app.name} icon`}
+                  class="w-full h-full object-cover rounded-3xl"
+                  width={128}
+                  height={128}
+                  loading="eager"
+                  fetchpriority="high"
+                />
+                <div class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-500 hidden items-center justify-center">
+                  <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                  </svg>
+                </div>
+              </>
             ) : (
               <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
