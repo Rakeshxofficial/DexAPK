@@ -1,0 +1,697 @@
+---
+// Accessible Data Table Component
+export interface Props {
+  id: string;
+  caption: string;
+  columns: {
+    key: string;
+    header: string;
+    sortable?: boolean;
+    align?: 'left' | 'center' | 'right';
+    width?: string;
+    accessibleLabel?: string;
+  }[];
+  data: any[];
+  sortable?: boolean;
+  pagination?: boolean;
+  itemsPerPage?: number;
+  currentPage?: number;
+  totalItems?: number;
+  emptyMessage?: string;
+  loading?: boolean;
+  onRowClick?: boolean;
+  rowIdField?: string;
+  highlightedRow?: string;
+  ariaLabel?: string;
+  ariaDescribedBy?: string;
+}
+
+const {
+  id,
+  caption,
+  columns,
+  data = [],
+  sortable = false,
+  pagination = false,
+  itemsPerPage = 10,
+  currentPage = 1,
+  totalItems = 0,
+  emptyMessage = "No data available",
+  loading = false,
+  onRowClick = false,
+  rowIdField = "id",
+  highlightedRow = "",
+  ariaLabel,
+  ariaDescribedBy
+} = Astro.props;
+
+// Calculate pagination info
+const totalPages = pagination ? Math.ceil(totalItems / itemsPerPage) : 1;
+const startItem = pagination ? (currentPage - 1) * itemsPerPage + 1 : 1;
+const endItem = pagination ? Math.min(startItem + itemsPerPage - 1, totalItems) : data.length;
+
+// Generate unique ID for table elements
+const tableId = id || `data-table-${Math.random().toString(36).substring(2, 9)}`;
+const captionId = `${tableId}-caption`;
+const descriptionId = `${tableId}-description`;
+---
+
+<div class="data-table-container">
+  <!-- Table description for screen readers -->
+  {ariaDescribedBy && (
+    <div id={descriptionId} class="sr-only">
+      <slot name="description">
+        This table can be navigated using arrow keys. Press up and down arrows to navigate rows, and left and right arrows to navigate columns.
+        {sortable && "Press Enter on column headers to sort the table."}
+      </slot>
+    </div>
+  )}
+
+  <!-- Loading state -->
+  {loading && (
+    <div class="data-table-loading" aria-live="polite">
+      <div class="spinner"></div>
+      <span>Loading data...</span>
+    </div>
+  )}
+
+  <div class="table-responsive">
+    <table 
+      id={tableId}
+      class="data-table"
+      aria-label={ariaLabel || caption}
+      aria-describedby={ariaDescribedBy ? descriptionId : undefined}
+      aria-busy={loading ? "true" : "false"}
+    >
+      <caption id={captionId} class={caption.length > 50 ? "caption-top" : undefined}>
+        {caption}
+      </caption>
+      
+      <thead>
+        <tr>
+          {columns.map((column) => (
+            <th 
+              scope="col" 
+              class={`${column.align ? `text-${column.align}` : 'text-left'} ${column.sortable ? 'sortable' : ''}`}
+              style={column.width ? `width: ${column.width}` : undefined}
+              aria-sort={column.sortable ? "none" : undefined}
+              tabindex={column.sortable ? "0" : undefined}
+              role={column.sortable ? "button" : undefined}
+              data-column-key={column.key}
+              aria-label={column.accessibleLabel || column.header}
+            >
+              <div class="th-content">
+                <span>{column.header}</span>
+                {column.sortable && (
+                  <span class="sort-icon" aria-hidden="true">
+                    <span class="sort-arrow sort-arrow-up">▲</span>
+                    <span class="sort-arrow sort-arrow-down">▼</span>
+                  </span>
+                )}
+              </div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      
+      <tbody>
+        {data.length > 0 ? (
+          data.map((row, rowIndex) => (
+            <tr 
+              class={`${highlightedRow && row[rowIdField] === highlightedRow ? 'highlighted-row' : ''} ${onRowClick ? 'clickable-row' : ''}`}
+              tabindex={onRowClick ? "0" : undefined}
+              aria-selected={highlightedRow && row[rowIdField] === highlightedRow ? "true" : undefined}
+              data-row-id={row[rowIdField]}
+            >
+              {columns.map((column, colIndex) => (
+                colIndex === 0 ? (
+                  <th scope="row" class={column.align ? `text-${column.align}` : 'text-left'}>
+                    {row[column.key]}
+                  </th>
+                ) : (
+                  <td class={column.align ? `text-${column.align}` : 'text-left'}>
+                    {row[column.key]}
+                  </td>
+                )
+              ))}
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colspan={columns.length} class="empty-message">
+              {emptyMessage}
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination controls -->
+  {pagination && totalPages > 1 && (
+    <div class="pagination-controls" role="navigation" aria-label="Pagination">
+      <div class="pagination-info" aria-live="polite">
+        Showing {startItem} to {endItem} of {totalItems} items
+      </div>
+      
+      <div class="pagination-buttons">
+        <button 
+          class="pagination-button" 
+          data-action="first-page" 
+          aria-label="Go to first page"
+          disabled={currentPage === 1}
+        >
+          ⟪
+        </button>
+        <button 
+          class="pagination-button" 
+          data-action="previous-page" 
+          aria-label="Go to previous page"
+          disabled={currentPage === 1}
+        >
+          ⟨
+        </button>
+        
+        <span class="pagination-current" aria-live="polite">
+          Page {currentPage} of {totalPages}
+        </span>
+        
+        <button 
+          class="pagination-button" 
+          data-action="next-page" 
+          aria-label="Go to next page"
+          disabled={currentPage === totalPages}
+        >
+          ⟩
+        </button>
+        <button 
+          class="pagination-button" 
+          data-action="last-page" 
+          aria-label="Go to last page"
+          disabled={currentPage === totalPages}
+        >
+          ⟫
+        </button>
+      </div>
+    </div>
+  )}
+</div>
+
+<style>
+  .data-table-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--table-border-color, #e5e7eb);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+  
+  .data-table caption {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--caption-color, #111827);
+  }
+  
+  .caption-top {
+    caption-side: top;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--table-border-color, #e5e7eb);
+    text-align: left;
+  }
+  
+  .data-table thead th {
+    background-color: var(--header-bg-color, #f9fafb);
+    font-weight: 600;
+    color: var(--header-text-color, #374151);
+    position: relative;
+  }
+  
+  .data-table tbody tr:last-child td,
+  .data-table tbody tr:last-child th {
+    border-bottom: none;
+  }
+  
+  .data-table tbody tr:hover {
+    background-color: var(--row-hover-color, rgba(243, 244, 246, 0.5));
+  }
+  
+  .highlighted-row {
+    background-color: var(--highlighted-row-color, rgba(59, 130, 246, 0.1)) !important;
+  }
+  
+  .clickable-row {
+    cursor: pointer;
+  }
+  
+  .clickable-row:focus {
+    outline: 2px solid var(--focus-ring-color, #3b82f6);
+    outline-offset: -2px;
+  }
+  
+  .empty-message {
+    text-align: center;
+    padding: 2rem !important;
+    color: var(--empty-message-color, #6b7280);
+  }
+  
+  .th-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .sortable {
+    cursor: pointer;
+  }
+  
+  .sortable:hover {
+    background-color: var(--sortable-hover-color, rgba(243, 244, 246, 0.8));
+  }
+  
+  .sortable:focus {
+    outline: 2px solid var(--focus-ring-color, #3b82f6);
+    outline-offset: -2px;
+  }
+  
+  .sort-icon {
+    display: inline-flex;
+    flex-direction: column;
+    margin-left: 0.5rem;
+    font-size: 0.6rem;
+    line-height: 0.5;
+  }
+  
+  .sort-arrow {
+    opacity: 0.3;
+  }
+  
+  .sort-arrow-up.active,
+  .sort-arrow-down.active {
+    opacity: 1;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .pagination-info {
+    color: var(--pagination-info-color, #6b7280);
+    font-size: 0.875rem;
+  }
+  
+  .pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .pagination-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--pagination-button-border, #d1d5db);
+    border-radius: 0.375rem;
+    background-color: var(--pagination-button-bg, white);
+    color: var(--pagination-button-color, #374151);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .pagination-button:hover:not(:disabled) {
+    background-color: var(--pagination-button-hover-bg, #f3f4f6);
+  }
+  
+  .pagination-button:focus {
+    outline: 2px solid var(--focus-ring-color, #3b82f6);
+    outline-offset: 2px;
+  }
+  
+  .pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .pagination-current {
+    padding: 0 0.75rem;
+    font-size: 0.875rem;
+    color: var(--pagination-current-color, #374151);
+  }
+  
+  .data-table-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  .spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid rgba(59, 130, 246, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--spinner-color, #3b82f6);
+    animation: spin 1s linear infinite;
+    margin-bottom: 0.5rem;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --table-border-color: #374151;
+      --header-bg-color: #1f2937;
+      --header-text-color: #e5e7eb;
+      --caption-color: #f9fafb;
+      --row-hover-color: rgba(31, 41, 55, 0.5);
+      --highlighted-row-color: rgba(59, 130, 246, 0.2);
+      --empty-message-color: #9ca3af;
+      --pagination-info-color: #9ca3af;
+      --pagination-button-border: #4b5563;
+      --pagination-button-bg: #1f2937;
+      --pagination-button-color: #e5e7eb;
+      --pagination-button-hover-bg: #374151;
+      --pagination-current-color: #e5e7eb;
+      --focus-ring-color: #60a5fa;
+      --sortable-hover-color: rgba(31, 41, 55, 0.8);
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .spinner {
+      animation-duration: 1.5s;
+    }
+  }
+</style>
+
+<script>
+  // Initialize tables when the DOM is loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeTables();
+  });
+  
+  function initializeTables() {
+    const tables = document.querySelectorAll('.data-table');
+    
+    tables.forEach(table => {
+      const tableId = table.id;
+      
+      // Set up sortable columns
+      const sortableHeaders = table.querySelectorAll('th.sortable');
+      sortableHeaders.forEach(header => {
+        // Add click handler
+        header.addEventListener('click', () => handleSort(header, tableId));
+        
+        // Add keyboard handler
+        header.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSort(header, tableId);
+          }
+        });
+      });
+      
+      // Set up clickable rows
+      const clickableRows = table.querySelectorAll('tr.clickable-row');
+      clickableRows.forEach(row => {
+        // Add click handler
+        row.addEventListener('click', () => handleRowClick(row, tableId));
+        
+        // Add keyboard handler
+        row.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleRowClick(row, tableId);
+          }
+        });
+      });
+      
+      // Set up keyboard navigation
+      table.addEventListener('keydown', (e) => handleKeyboardNavigation(e, table));
+    });
+    
+    // Set up pagination buttons
+    const paginationButtons = document.querySelectorAll('.pagination-button');
+    paginationButtons.forEach(button => {
+      button.addEventListener('click', () => handlePagination(button));
+    });
+  }
+  
+  function handleSort(header, tableId) {
+    const columnKey = header.dataset.columnKey;
+    const currentSort = header.getAttribute('aria-sort');
+    const table = document.getElementById(tableId);
+    
+    // Reset all headers
+    const allHeaders = table.querySelectorAll('th.sortable');
+    allHeaders.forEach(th => {
+      th.setAttribute('aria-sort', 'none');
+      th.querySelector('.sort-arrow-up')?.classList.remove('active');
+      th.querySelector('.sort-arrow-down')?.classList.remove('active');
+    });
+    
+    // Set new sort direction
+    let newSort = 'ascending';
+    if (currentSort === 'ascending') {
+      newSort = 'descending';
+    }
+    
+    // Update header state
+    header.setAttribute('aria-sort', newSort);
+    
+    // Update sort icons
+    if (newSort === 'ascending') {
+      header.querySelector('.sort-arrow-up')?.classList.add('active');
+      header.querySelector('.sort-arrow-down')?.classList.remove('active');
+    } else {
+      header.querySelector('.sort-arrow-up')?.classList.remove('active');
+      header.querySelector('.sort-arrow-down')?.classList.add('active');
+    }
+    
+    // Announce to screen readers
+    announceToScreenReader(`Table sorted by ${header.textContent.trim()} in ${newSort} order`);
+    
+    // Dispatch custom event for sorting
+    const sortEvent = new CustomEvent('table:sort', {
+      bubbles: true,
+      detail: {
+        tableId,
+        columnKey,
+        direction: newSort
+      }
+    });
+    
+    table.dispatchEvent(sortEvent);
+  }
+  
+  function handleRowClick(row, tableId) {
+    const rowId = row.dataset.rowId;
+    const table = document.getElementById(tableId);
+    
+    // Toggle selected state
+    const wasSelected = row.getAttribute('aria-selected') === 'true';
+    
+    // Reset all rows
+    const allRows = table.querySelectorAll('tbody tr');
+    allRows.forEach(r => {
+      r.setAttribute('aria-selected', 'false');
+      r.classList.remove('highlighted-row');
+    });
+    
+    // Select this row if it wasn't already selected
+    if (!wasSelected) {
+      row.setAttribute('aria-selected', 'true');
+      row.classList.add('highlighted-row');
+    }
+    
+    // Announce to screen readers
+    if (!wasSelected) {
+      announceToScreenReader(`Row ${row.rowIndex} selected`);
+    } else {
+      announceToScreenReader(`Row ${row.rowIndex} deselected`);
+    }
+    
+    // Dispatch custom event for row selection
+    const rowEvent = new CustomEvent('table:rowSelect', {
+      bubbles: true,
+      detail: {
+        tableId,
+        rowId,
+        selected: !wasSelected
+      }
+    });
+    
+    table.dispatchEvent(rowEvent);
+  }
+  
+  function handleKeyboardNavigation(e, table) {
+    const activeElement = document.activeElement;
+    
+    // Only handle navigation if we're inside the table
+    if (!table.contains(activeElement)) return;
+    
+    // Get all focusable elements in the table
+    const focusableHeaders = Array.from(table.querySelectorAll('th[tabindex="0"]'));
+    const focusableRows = Array.from(table.querySelectorAll('tr[tabindex="0"]'));
+    const allFocusable = [...focusableHeaders, ...focusableRows];
+    
+    // If no focusable elements, exit
+    if (allFocusable.length === 0) return;
+    
+    // Handle arrow key navigation
+    switch (e.key) {
+      case 'ArrowRight':
+        e.preventDefault();
+        if (focusableHeaders.includes(activeElement)) {
+          const currentIndex = focusableHeaders.indexOf(activeElement);
+          const nextIndex = (currentIndex + 1) % focusableHeaders.length;
+          focusableHeaders[nextIndex].focus();
+        }
+        break;
+        
+      case 'ArrowLeft':
+        e.preventDefault();
+        if (focusableHeaders.includes(activeElement)) {
+          const currentIndex = focusableHeaders.indexOf(activeElement);
+          const prevIndex = (currentIndex - 1 + focusableHeaders.length) % focusableHeaders.length;
+          focusableHeaders[prevIndex].focus();
+        }
+        break;
+        
+      case 'ArrowDown':
+        e.preventDefault();
+        if (focusableHeaders.includes(activeElement)) {
+          // Move from header to first row
+          if (focusableRows.length > 0) {
+            focusableRows[0].focus();
+          }
+        } else if (focusableRows.includes(activeElement)) {
+          // Move to next row
+          const currentIndex = focusableRows.indexOf(activeElement);
+          const nextIndex = (currentIndex + 1) % focusableRows.length;
+          focusableRows[nextIndex].focus();
+        }
+        break;
+        
+      case 'ArrowUp':
+        e.preventDefault();
+        if (focusableRows.includes(activeElement)) {
+          const currentIndex = focusableRows.indexOf(activeElement);
+          if (currentIndex === 0) {
+            // Move to headers if at first row
+            if (focusableHeaders.length > 0) {
+              focusableHeaders[0].focus();
+            }
+          } else {
+            // Move to previous row
+            const prevIndex = (currentIndex - 1) % focusableRows.length;
+            focusableRows[prevIndex].focus();
+          }
+        }
+        break;
+        
+      case 'Home':
+        e.preventDefault();
+        if (focusableHeaders.includes(activeElement)) {
+          focusableHeaders[0].focus();
+        } else if (focusableRows.includes(activeElement)) {
+          focusableRows[0].focus();
+        }
+        break;
+        
+      case 'End':
+        e.preventDefault();
+        if (focusableHeaders.includes(activeElement)) {
+          focusableHeaders[focusableHeaders.length - 1].focus();
+        } else if (focusableRows.includes(activeElement)) {
+          focusableRows[focusableRows.length - 1].focus();
+        }
+        break;
+    }
+  }
+  
+  function handlePagination(button) {
+    const action = button.dataset.action;
+    
+    // Dispatch custom event for pagination
+    const paginationEvent = new CustomEvent('table:paginate', {
+      bubbles: true,
+      detail: {
+        action
+      }
+    });
+    
+    button.dispatchEvent(paginationEvent);
+  }
+  
+  function announceToScreenReader(message) {
+    // Create an aria-live region for announcements
+    let announcer = document.getElementById('table-announcer');
+    
+    if (!announcer) {
+      announcer = document.createElement('div');
+      announcer.id = 'table-announcer';
+      announcer.setAttribute('aria-live', 'polite');
+      announcer.setAttribute('aria-atomic', 'true');
+      announcer.classList.add('sr-only');
+      document.body.appendChild(announcer);
+    }
+    
+    // Set the message
+    announcer.textContent = message;
+    
+    // Clear after a delay
+    setTimeout(() => {
+      announcer.textContent = '';
+    }, 3000);
+  }
+</script>

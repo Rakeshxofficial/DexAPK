@@ -149,25 +149,35 @@ const description = "View and manage contact form submissions in the admin dashb
       </div>
 
       <!-- Messages List -->
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <table 
+        id="messages-table" 
+        class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
+        aria-label="Contact messages"
+        aria-describedby="messages-table-desc"
+      >
+        <caption id="messages-table-caption" class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 text-left">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <span class="text-lg font-semibold text-gray-900 dark:text-white">
               All Messages (<span id="messages-count">{contactMessages.length}</span>)
-            </h3>
-            <div class="flex items-center space-x-2">
-              <span class="text-sm text-gray-500 dark:text-gray-400">
-                <span id="unread-count">0</span> unread
-              </span>
-            </div>
+            </span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+              <span id="unread-count">0</span> unread
+            </span>
           </div>
-        </div>
+        </caption>
         
-        <div id="messages-container" class="divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="sr-only">
+          <tr>
+            <th scope="col" id="col-message">Message</th>
+            <th scope="col" id="col-actions">Actions</th>
+          </tr>
+        </thead>
+        
+        <tbody id="messages-container" class="divide-y divide-gray-200 dark:divide-gray-700">
           {contactMessages.length > 0 ? (
             contactMessages.map((message) => (
-              <div 
-                class={`message-item p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${!message.is_read ? 'bg-blue-50 dark:bg-blue-900/10' : ''}`}
+              <tr 
+                class={`message-item hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${!message.is_read ? 'bg-blue-50 dark:bg-blue-900/10' : ''}`}
                 data-id={message.id}
                 data-name={message.name}
                 data-email={message.email}
@@ -175,12 +185,14 @@ const description = "View and manage contact form submissions in the admin dashb
                 data-message={message.message}
                 data-created={message.created_at}
                 data-read={message.is_read}
+                tabindex="0"
+                aria-selected="false"
               >
-                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <th scope="row" class="p-6">
                   <div class="flex-1">
                     <div class="flex items-center gap-3 mb-2">
                       {!message.is_read && (
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" aria-label="New message">
                           New
                         </span>
                       )}
@@ -190,26 +202,31 @@ const description = "View and manage contact form submissions in the admin dashb
                     </div>
                     <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
                       <span class="font-medium text-gray-900 dark:text-white">{message.name}</span>
-                      <span class="mx-2">•</span>
+                      <span class="mx-2" aria-hidden="true">•</span>
                       <a href={`mailto:${message.email}`} class="text-blue-600 dark:text-blue-400 hover:underline">
                         {message.email}
                       </a>
-                      <span class="mx-2">•</span>
+                      <span class="mx-2" aria-hidden="true">•</span>
                       <span title={new Date(message.created_at).toLocaleString()}>
-                        {new Date(message.created_at).toLocaleDateString()} at {new Date(message.created_at).toLocaleTimeString()}
+                        <time datetime={message.created_at}>
+                          {new Date(message.created_at).toLocaleDateString()} at {new Date(message.created_at).toLocaleTimeString()}
+                        </time>
                       </span>
                     </div>
                     <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                       {message.message}
                     </p>
                   </div>
+                </th>
+                <td class="p-6">
                   <div class="flex flex-row md:flex-col items-center md:items-end gap-3 mt-4 md:mt-0">
                     <button
                       class="mark-read-btn inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
                       data-id={message.id}
                       style={message.is_read ? 'display: none;' : ''}
+                      aria-label="Mark as read"
                     >
-                      <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                       </svg>
                       Mark as Read
@@ -217,8 +234,9 @@ const description = "View and manage contact form submissions in the admin dashb
                     <button
                       class="reply-btn inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
                       data-email={message.email}
+                      aria-label={`Reply to ${message.name}`}
                     >
-                      <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                       </svg>
                       Reply
@@ -226,26 +244,35 @@ const description = "View and manage contact form submissions in the admin dashb
                     <button
                       class="delete-btn inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
                       data-id={message.id}
+                      aria-label="Delete message"
                     >
-                      <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                       </svg>
                       Delete
                     </button>
                   </div>
-                </div>
-              </div>
+                </td>
+              </tr>
             ))
           ) : (
-            <div class="text-center py-12">
-              <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No messages yet</h3>
-              <p class="text-gray-500 dark:text-gray-400">When users submit the contact form, their messages will appear here.</p>
-            </div>
+            <tr>
+              <td colspan="2" class="text-center py-12">
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No messages yet</h3>
+                <p class="text-gray-500 dark:text-gray-400">When users submit the contact form, their messages will appear here.</p>
+              </td>
+            </tr>
           )}
-        </div>
+        </tbody>
+      </table>
+      
+      <!-- Table description for screen readers -->
+      <div id="messages-table-desc" class="sr-only">
+        This table displays contact messages from users. You can mark messages as read, reply to them, or delete them. 
+        Use arrow keys to navigate between messages and press Enter to view message details.
       </div>
 
     </main>
@@ -433,27 +460,29 @@ const description = "View and manage contact form submissions in the admin dashb
   function renderMessages() {
     const messagesContainer = document.getElementById('messages-container');
     
-    if (!messagesContainer) {
-      console.error('Messages container element not found!');
+    if (!messagesContainer || !filteredMessages) {
+      console.error('Messages container element not found or no messages!');
       return;
     }
     
     if (!filteredMessages || filteredMessages.length === 0) {
       messagesContainer.innerHTML = `
-        <div class="text-center py-12">
-          <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-          </svg>
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No messages found</h3>
-          <p class="text-gray-500 dark:text-gray-400">When users submit the contact form, their messages will appear here.</p>
-        </div>
+        <tr>
+          <td colspan="2" class="text-center py-12">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No messages found</h3>
+            <p class="text-gray-500 dark:text-gray-400">When users submit the contact form, their messages will appear here.</p>
+          </td>
+        </tr>
       `;
       return;
     }
     
     messagesContainer.innerHTML = filteredMessages.map(message => `
-      <div 
-        class="message-item p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${!message.is_read ? 'bg-blue-50 dark:bg-blue-900/10' : ''}"
+      <tr 
+        class="message-item hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${!message.is_read ? 'bg-blue-50 dark:bg-blue-900/10' : ''}"
         data-id="${message.id}"
         data-name="${message.name}"
         data-email="${message.email}"
@@ -461,12 +490,14 @@ const description = "View and manage contact form submissions in the admin dashb
         data-message="${message.message.replace(/"/g, '&quot;')}"
         data-created="${message.created_at}"
         data-read="${message.is_read}"
+        tabindex="0"
+        aria-selected="false"
       >
-        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <th scope="row" class="p-6">
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-2">
               ${!message.is_read ? `
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" aria-label="New message">
                   New
                 </span>
               ` : ''}
@@ -476,26 +507,31 @@ const description = "View and manage contact form submissions in the admin dashb
             </div>
             <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
               <span class="font-medium text-gray-900 dark:text-white">${message.name}</span>
-              <span class="mx-2">•</span>
+              <span class="mx-2" aria-hidden="true">•</span>
               <a href="mailto:${message.email}" class="text-blue-600 dark:text-blue-400 hover:underline">
                 ${message.email}
               </a>
-              <span class="mx-2">•</span>
+              <span class="mx-2" aria-hidden="true">•</span>
               <span title="${new Date(message.created_at).toLocaleString()}">
-                ${new Date(message.created_at).toLocaleDateString()} at ${new Date(message.created_at).toLocaleTimeString()}
+                <time datetime="${message.created_at}">
+                  ${new Date(message.created_at).toLocaleDateString()} at ${new Date(message.created_at).toLocaleTimeString()}
+                </time>
               </span>
             </div>
             <p class="text-gray-700 dark:text-gray-300 line-clamp-2">
               ${message.message}
             </p>
           </div>
+        </th>
+        <td class="p-6">
           <div class="flex flex-row md:flex-col items-center md:items-end gap-3 mt-4 md:mt-0">
             <button
               class="mark-read-btn inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
               data-id="${message.id}"
               ${message.is_read ? 'style="display: none;"' : ''}
+              aria-label="Mark as read"
             >
-              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
               </svg>
               Mark as Read
@@ -503,8 +539,9 @@ const description = "View and manage contact form submissions in the admin dashb
             <button
               class="reply-btn inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
               data-email="${message.email}"
+              aria-label="Reply to ${message.name}"
             >
-              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
               </svg>
               Reply
@@ -512,15 +549,16 @@ const description = "View and manage contact form submissions in the admin dashb
             <button
               class="delete-btn inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
               data-id="${message.id}"
+              aria-label="Delete message"
             >
-              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
               </svg>
               Delete
             </button>
           </div>
-        </div>
-      </div>
+        </td>
+      </tr>
     `).join('');
 
     // Add event listeners to the newly created elements
@@ -530,15 +568,26 @@ const description = "View and manage contact form submissions in the admin dashb
   function updateMessageCounts() {
     const messagesCount = document.getElementById('messages-count');
     const unreadCount = document.getElementById('unread-count');
+    const caption = document.querySelector('#messages-table-caption');
     
     if (messagesCount) {
       messagesCount.textContent = filteredMessages.length;
+    }
+    
+    if (caption) {
+      const countSpan = caption.querySelector('span:first-child');
+      if (countSpan) {
+        countSpan.textContent = `All Messages (${filteredMessages.length})`;
+      }
     }
     
     if (unreadCount) {
       const unreadMessages = filteredMessages.filter(message => !message.is_read);
       unreadCount.textContent = unreadMessages.length;
     }
+    
+    // Announce to screen readers
+    announceToScreenReader(`Showing ${filteredMessages.length} messages, ${filteredMessages.filter(message => !message.is_read).length} unread`);
   }
 
   function setupEventListeners() {
@@ -643,7 +692,9 @@ const description = "View and manage contact form submissions in the admin dashb
 
   function setupMessageItemListeners() {
     // Message item click
-    document.querySelectorAll('.message-item').forEach(item => {
+    const messageItems = document.querySelectorAll('.message-item');
+    messageItems.forEach(item => {
+      // Click handler
       item.addEventListener('click', function(e) {
         // Ignore clicks on buttons
         if (e.target.closest('button')) return;
@@ -657,6 +708,42 @@ const description = "View and manage contact form submissions in the admin dashb
         const isRead = this.getAttribute('data-read') === 'true';
         
         showMessageDetailModal(messageId, name, email, subject, message, created, isRead);
+      });
+      
+      // Keyboard handler
+      item.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          
+          // Ignore if focus is on a button
+          if (e.target.closest('button')) return;
+          
+          const messageId = this.getAttribute('data-id');
+          const name = this.getAttribute('data-name');
+          const email = this.getAttribute('data-email');
+          const subject = this.getAttribute('data-subject');
+          const message = this.getAttribute('data-message');
+          const created = this.getAttribute('data-created');
+          const isRead = this.getAttribute('data-read') === 'true';
+          
+          showMessageDetailModal(messageId, name, email, subject, message, created, isRead);
+        }
+        
+        // Arrow key navigation
+        if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+          e.preventDefault();
+          
+          const currentIndex = Array.from(messageItems).indexOf(this);
+          let targetIndex;
+          
+          if (e.key === 'ArrowUp') {
+            targetIndex = currentIndex > 0 ? currentIndex - 1 : messageItems.length - 1;
+          } else {
+            targetIndex = currentIndex < messageItems.length - 1 ? currentIndex + 1 : 0;
+          }
+          
+          messageItems[targetIndex].focus();
+        }
       });
     });
 
