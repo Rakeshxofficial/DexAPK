@@ -415,12 +415,12 @@ const { app } = Astro.props;
       if (versionIdInput) versionIdInput.value = versionData.id;
       
       // Fill form with version data
-      document.getElementById('version').value = versionData.version;
-      document.getElementById('size').value = versionData.size;
-      document.getElementById('mod_info').value = versionData.modInfo;
-      document.getElementById('download_url').value = versionData.downloadUrl;
-      document.getElementById('release_date').value = versionData.releaseDate;
-      document.getElementById('is_active').checked = versionData.isActive === 'true';
+     if (document.getElementById('version')) document.getElementById('version').value = versionData.version || '';
+     if (document.getElementById('size')) document.getElementById('size').value = versionData.size || '';
+     if (document.getElementById('mod_info')) document.getElementById('mod_info').value = versionData.modInfo || '';
+     if (document.getElementById('download_url')) document.getElementById('download_url').value = versionData.downloadUrl || '';
+     if (document.getElementById('release_date')) document.getElementById('release_date').value = versionData.releaseDate || new Date().toISOString().split('T')[0];
+     if (document.getElementById('is_active')) document.getElementById('is_active').checked = versionData.isActive === 'true';
     } else {
       // Create mode
       if (modalTitle) modalTitle.textContent = 'Add New Version';
@@ -491,7 +491,7 @@ const { app } = Astro.props;
     const versionId = button.getAttribute('data-id');
     
     // Validate version ID
-    if (!versionId || versionId === 'null' || versionId === 'undefined') {
+   if (!versionId || versionId === 'null' || versionId === 'undefined' || versionId === null) {
       console.error('Invalid version ID for edit:', versionId);
       showToast('Invalid version ID. Cannot edit this version.', 'error');
       return;
@@ -499,12 +499,12 @@ const { app } = Astro.props;
     
     const versionData = {
       id: versionId,
-      version: button.getAttribute('data-version'),
-      size: button.getAttribute('data-size'),
-      modInfo: button.getAttribute('data-mod-info'),
-      downloadUrl: button.getAttribute('data-download-url'),
-      releaseDate: button.getAttribute('data-release-date'),
-      isActive: button.getAttribute('data-is-active')
+     version: button.getAttribute('data-version') || '',
+     size: button.getAttribute('data-size') || '',
+     modInfo: button.getAttribute('data-mod-info') || '',
+     downloadUrl: button.getAttribute('data-download-url') || '',
+     releaseDate: button.getAttribute('data-release-date') || new Date().toISOString().split('T')[0],
+     isActive: button.getAttribute('data-is-active') || 'true'
     };
     
     openVersionModal(versionData);
@@ -515,7 +515,7 @@ const { app } = Astro.props;
     const versionId = button.getAttribute('data-id');
     
     // Validate version ID
-    if (!versionId || versionId === 'null' || versionId === 'undefined') {
+   if (!versionId || versionId === 'null' || versionId === 'undefined' || versionId === null) {
       console.error('Invalid version ID for delete:', versionId);
       showToast('Invalid version ID. Cannot delete this version.', 'error');
       return;
@@ -553,7 +553,7 @@ const { app } = Astro.props;
     if (!versionToDelete) return;
     
     // Double-check version ID before deletion
-    if (versionToDelete === 'null' || versionToDelete === 'undefined') {
+   if (!versionToDelete || versionToDelete === 'null' || versionToDelete === 'undefined' || versionToDelete === null) {
       console.error('Attempted to delete with invalid ID:', versionToDelete);
       showToast('Invalid version ID. Cannot delete this version.', 'error');
       hideDeleteModal();

@@ -751,7 +751,13 @@ export async function removeAllTasksFromApp(appId: string) {
           console.error('Supabase error deactivating existing task:', updateError);
           return { success: false, error: updateError.message };
         }
-      }
+     // Validate ID
+     if (!id || id === 'null' || id === 'undefined') {
+       console.error('Invalid app version ID for deletion:', id);
+       return { success: false, error: 'Invalid version ID' };
+     }
+     
+     console.log('Deleting app version with id:', id);
       
       return { success: true, message: `Removed ${existingTasks.length} tasks from app` };
     } else {
