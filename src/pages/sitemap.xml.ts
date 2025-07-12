@@ -18,6 +18,11 @@ export async function GET() {
     <lastmod>${now}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>${baseUrl}/web-app-manifest-512x512.png</image:loc>
+      <image:title>DexAPK Logo</image:title>
+      <image:caption>DexAPK - MOD APK Downloads</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>${baseUrl}/apps</loc>
@@ -176,6 +181,18 @@ export async function GET() {
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/${app.slug}"/>
+    ${app.icon ? `
+    <image:image>
+      <image:loc>${app.icon}</image:loc>
+      <image:title>${app.name} icon</image:title>
+      <image:caption>Icon for ${app.name} MOD APK</image:caption>
+    </image:image>` : ''}
+    ${app.screenshots && Array.isArray(app.screenshots) ? app.screenshots.map((screenshot, index) => `
+    <image:image>
+      <image:loc>${screenshot}</image:loc>
+      <image:title>${app.name} screenshot ${index + 1}</image:title>
+      <image:caption>Screenshot of ${app.name} MOD APK</image:caption>
+    </image:image>`).join('') : ''}
   </url>
   <url>
     <loc>${baseUrl}/${app.slug}/download</loc>

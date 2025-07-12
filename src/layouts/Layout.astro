@@ -132,10 +132,13 @@ const websiteSchema = {
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="DexAPK" />
     <meta name="format-detection" content="telephone=no" />
+    <meta name="image-rendering" content="optimizeQuality" />
     
     <!-- Preconnect to external domains for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.pexels.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
     <!-- App-specific Meta Tags -->
     {seoData?.appName && (
@@ -152,8 +155,8 @@ const websiteSchema = {
     <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512×512-new.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="mask-icon" href="/favicon-96x96.png" color="#3b82f6" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="any" />
-    <link rel="icon" type="image/svg+xml" href="/favicon copy.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="16x16 32x32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
