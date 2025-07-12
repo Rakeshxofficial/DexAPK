@@ -70,7 +70,20 @@ const { appSlug } = Astro.props;
   </div>
 </div>
 
-<script src="/downloadTasksModalScript.js" defer type="module"></script>
+<script>
+  // Defer loading of non-critical script
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load the script only once
+    if (!window.downloadTasksScriptLoaded) {
+      window.downloadTasksScriptLoaded = true;
+      const script = document.createElement('script');
+      script.src = '/downloadTasksModalScript.js?v=1.6';
+      script.defer = true;
+      script.type = 'module';
+      document.body.appendChild(script);
+    }
+  });
+</script>
 
 <style>
   /* Ensure the modal is accessible */
@@ -98,7 +111,6 @@ const { appSlug } = Astro.props;
     white-space: nowrap;
     border: 0;
   }
-  
   @media (prefers-reduced-motion: reduce) {
     .transition-all,
     #tasks-progress-bar {
