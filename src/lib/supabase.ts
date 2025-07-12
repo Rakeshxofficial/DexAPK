@@ -108,36 +108,7 @@ export async function getAppBySlug(slug: string) {
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
-      // Return fallback data for development if no credentials
-      if (process.env.NODE_ENV === 'development') {
-        return {
-          id: 'fallback-id',
-          slug: slug,
-          name: `${slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ')}`,
-          version: '1.0.0',
-          size: '25 MB',
-          category: 'Apps',
-          publisher: 'Unknown',
-          requirements: 'Android 5.0+',
-          price: 'Free',
-          platform: 'Google Play',
-          last_updated: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-          rating: 4.5,
-          votes: 1000,
-          description: `This is a fallback description for ${slug}. Connect to Supabase to see real data.`,
-          icon: 'https://via.placeholder.com/192',
-          screenshots: ['https://via.placeholder.com/1080x1920', 'https://via.placeholder.com/1080x1920'],
-          download_url: '#',
-          features: ['Premium Unlocked', 'No Ads', 'All Features Available'],
-          mod_info: ['Premium Version Unlocked', 'No Root Required'],
-          is_featured: false,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-      } else {
-        return null;
-      }
+      return null;
     }
 
     const { data, error } = await supabase
@@ -149,36 +120,7 @@ export async function getAppBySlug(slug: string) {
 
     if (error) {
       console.error('Supabase error fetching app by slug:', error);
-      // Return fallback data for development if query fails
-      if (process.env.NODE_ENV === 'development') {
-        return {
-          id: 'fallback-id',
-          slug: slug,
-          name: `${slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ')}`,
-          version: '1.0.0',
-          size: '25 MB',
-          category: 'Apps',
-          publisher: 'Unknown',
-          requirements: 'Android 5.0+',
-          price: 'Free',
-          platform: 'Google Play',
-          last_updated: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-          rating: 4.5,
-          votes: 1000,
-          description: `This is a fallback description for ${slug}. Connect to Supabase to see real data.`,
-          icon: 'https://via.placeholder.com/192',
-          screenshots: ['https://via.placeholder.com/1080x1920', 'https://via.placeholder.com/1080x1920'],
-          download_url: '#',
-          features: ['Premium Unlocked', 'No Ads', 'All Features Available'],
-          mod_info: ['Premium Version Unlocked', 'No Root Required'],
-          is_featured: false,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-      } else {
-        return null;
-      }
+      return null;
     }
 
     // Cache the results
@@ -188,36 +130,7 @@ export async function getAppBySlug(slug: string) {
     return data;
   } catch (error) {
     console.error('Error in getAppBySlug:', error);
-    // Return fallback data for development if function fails
-    if (process.env.NODE_ENV === 'development') {
-      return {
-        id: 'fallback-id',
-        slug: slug,
-        name: `${slug.charAt(0).toUpperCase() + slug.slice(1).replace(/-/g, ' ')}`,
-        version: '1.0.0',
-        size: '25 MB',
-        category: 'Apps',
-        publisher: 'Unknown',
-        requirements: 'Android 5.0+',
-        price: 'Free',
-        platform: 'Google Play',
-        last_updated: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-        rating: 4.5,
-        votes: 1000,
-        description: `This is a fallback description for ${slug}. Connect to Supabase to see real data.`,
-        icon: 'https://via.placeholder.com/192',
-        screenshots: ['https://via.placeholder.com/1080x1920', 'https://via.placeholder.com/1080x1920'],
-        download_url: '#',
-        features: ['Premium Unlocked', 'No Ads', 'All Features Available'],
-        mod_info: ['Premium Version Unlocked', 'No Root Required'],
-        is_featured: false,
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-    } else {
-      return null;
-    }
+    return null;
   }
 }
 
