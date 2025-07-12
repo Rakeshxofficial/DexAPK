@@ -10,6 +10,7 @@ export interface Props {
   loading?: 'lazy' | 'eager';
   decoding?: 'async' | 'sync' | 'auto';
   fetchpriority?: 'high' | 'low' | 'auto';
+  addStructuredData?: boolean;
 }
 
 const {
@@ -21,7 +22,9 @@ const {
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
   loading = 'lazy',
   decoding = 'async',
-  fetchpriority = 'auto'
+  fetchpriority = 'auto',
+  addStructuredData = false,
+  ...rest
 } = Astro.props;
 
 // Function to generate srcset for responsive images
@@ -39,55 +42,99 @@ function generateSrcSet(src: string): string {
   return widths.map(w => `${basePath}-${w}.${extension} ${w}w`).join(', ');
 }
 
+// Generate optimized src and srcset
+const optimizedSrc = src;
+const srcset = generateSrcSet(src);
+
 // Generate image dimensions for proper aspect ratio
 const aspectRatio = width && height ? width / height : undefined;
-const imgClass = `${className} ${aspectRatio ? 'object-cover' : ''}`.trim();
-
-// Generate a unique ID for the image
-const imageId = `img-${Math.random().toString(36).substring(2, 9)}`;
 
 // Determine if this is a stock photo from Pexels
 const isPexels = src.includes('pexels.com');
-</script>
+---
 
+<!-- Image with responsive srcset and lazy loading -->
 <img 
-<>
-  <!-- Image with responsive srcset and lazy loading -->
-  <img 
-    src={optimizedSrc}
-    alt={alt}
-    class={`image-optimized ${class || ''}`}
-    loading={loading}
-    fetchpriority={fetchpriority}
-    width={width}
-    height={height}
-    sizes={sizes}
-    srcset={srcset}
-    decoding="async"
-    {...rest}
-  />
+  src={optimizedSrc}
+  alt={alt}
+  class={`image-optimized ${className || ''}`}
+  loading={loading}
+  fetchpriority={fetchpriority}
+  width={width}
+  height={height}
+  sizes={sizes}
+  srcset={srcset}
+  decoding={decoding}
+  {...rest}
+/>
 
-  <!-- Preload critical images -->
-  {fetchpriority === 'high' && (
-    <link rel="preload" as="image" href={optimizedSrc} />
-  )}
+<!-- Preload critical images -->
+{fetchpriority === 'high' && (
+  <link rel="preload" as="image" href={optimizedSrc} />
+)}
 
-  <!-- Add structured data for images -->
-  {addStructuredData && (
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "ImageObject",
-      "url": optimizedSrc,
-      "name": alt,
-      "width": width,
-      "height": height,
-      "encodingFormat": "image/webp"
-    })} />
-  )}
-</>
+<!-- Add structured data for images -->
+{addStructuredData && (
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    "url": optimizedSrc,
+    "name": alt,
+    "width": width,
+    "height": height,
+    "encodingFormat": "image/webp"
+  })} />
+)}
+
+<style>
+.image-optimized {
+  max-width: 100%;
+  height: auto;
+  transition: opacity 0.3s ease;
+}
+
+.image-optimized[loading="lazy"] {
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .image-optimized {
+    animation: none;
+    transition: none;
+  }
+}
+</style>
+
+<script>
+// Enhanced lazy loading with intersection observer for analytics
+document.addEventListener('DOMContentLoaded', () => {
+  const images = document.querySelectorAll('.image-optimized[loading="lazy"]');
+  
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target as HTMLImageElement;
+        img.style.opacity = '1';
+        
+        // Track image load for analytics
+        img.addEventListener('load', () => {
+          // You can add analytics tracking here
+          console.log('Image loaded:', img.src);
+        });
+        
+        imageObserver.unobserve(img);
+      }
     });
   }, { threshold: 0.1 });
   
-  observer.observe(img);
+  images.forEach(img => imageObserver.observe(img));
 });
 </script>
