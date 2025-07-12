@@ -46,11 +46,11 @@ try {
 }
 
 // SEO data with fallbacks
-const seoTitle = `Download ${app.name} v${app.version} MOD APK - DexAPK`;
+const seoTitle = `Download ${app.name} v${app.version} MOD APK`;
 const seoDescription = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. Fast and secure download.`;
 const seoKeywords = `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
 const seoFeaturedImage = app.seo_featured_image || app.icon || '/favicon.svg';
-const canonicalUrl = `https://dexapk.com/${app.slug}/download`;
+const canonicalUrl = `https://${Astro.request.headers.get('host') || 'dexapk.com'}/${app.slug}/download`;
 
 // Prepare SEO data for Layout
 const seoData = {

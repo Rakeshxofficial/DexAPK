@@ -29,7 +29,12 @@ const {
 } = Astro.props;
 
 // Use SEO data if provided, otherwise use default props
-const finalTitle = seoData?.title || title;
+// Remove "- DexAPK" suffix if it exists
+const cleanTitle = (titleText) => {
+  return titleText.replace(/\s*-\s*DexAPK\s*$/, '');
+};
+
+const finalTitle = cleanTitle(seoData?.title || title);
 const finalDescription = seoData?.description || description;
 
 // Organization schema
