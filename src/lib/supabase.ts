@@ -752,18 +752,11 @@ export async function removeAllTasksFromApp(appId: string) {
           return { success: false, error: updateError.message };
         }
       }
-     // Validate ID
-     if (!id || id === 'null' || id === 'undefined') {
-       console.error('Invalid app version ID for deletion:', id);
-       return { success: false, error: 'Invalid version ID' };
-     }
-     
-     console.log('Deleting app version with id:', id);
-      
-      return { success: true, message: `Removed ${existingTasks.length} tasks from app` };
-    } else {
-      return { success: true, message: 'No active tasks to remove' };
-    }
+   
+   return { success: true, message: `Removed ${existingTasks.length} tasks from app` };
+  } else {
+    return { success: true, message: 'No active tasks to remove' };
+  }
   } catch (error) {
     console.error('Error in removeAllTasksFromApp:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
@@ -891,6 +884,12 @@ export async function updateAppVersion(id: string, updates: any) {
 export async function deleteAppVersion(id: string) {
   try {
     console.log('Deleting app version with id:', id);
+    
+    // Validate ID before making the request
+    if (!id || id === 'null' || id === 'undefined' || id === '') {
+      console.error('Invalid app version ID for deletion:', id);
+      return { success: false, error: 'Invalid version ID' };
+    }
     
     const { error } = await supabase
       .from('app_versions')

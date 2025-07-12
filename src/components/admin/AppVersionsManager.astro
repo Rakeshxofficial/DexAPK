@@ -322,7 +322,7 @@ const { app } = Astro.props;
                 <button
                   type="button"
                   class="edit-version-btn text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors duration-200"
-                  data-id="${version.id}"
+                  data-id="${version.id || ''}"
                   data-version="${version.version}"
                   data-size="${version.size}"
                   data-mod-info="${version.mod_info || ''}"
@@ -335,7 +335,7 @@ const { app } = Astro.props;
                 <button
                   type="button"
                   class="delete-version-btn text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200"
-                  data-id="${version.id}"
+                  data-id="${version.id || ''}"
                   data-version="${version.version}"
                 >
                   Delete
@@ -491,7 +491,7 @@ const { app } = Astro.props;
     const versionId = button.getAttribute('data-id');
     
     // Validate version ID
-   if (!versionId || versionId === 'null' || versionId === 'undefined' || versionId === null) {
+   if (!versionId || versionId === 'null' || versionId === 'undefined' || versionId === '') {
       console.error('Invalid version ID for edit:', versionId);
       showToast('Invalid version ID. Cannot edit this version.', 'error');
       return;
@@ -515,7 +515,7 @@ const { app } = Astro.props;
     const versionId = button.getAttribute('data-id');
     
     // Validate version ID
-   if (!versionId || versionId === 'null' || versionId === 'undefined' || versionId === null) {
+   if (!versionId || versionId === 'null' || versionId === 'undefined' || versionId === '') {
       console.error('Invalid version ID for delete:', versionId);
       showToast('Invalid version ID. Cannot delete this version.', 'error');
       return;
@@ -553,7 +553,7 @@ const { app } = Astro.props;
     if (!versionToDelete) return;
     
     // Double-check version ID before deletion
-   if (!versionToDelete || versionToDelete === 'null' || versionToDelete === 'undefined' || versionToDelete === null) {
+   if (!versionToDelete || versionToDelete === 'null' || versionToDelete === 'undefined' || versionToDelete === '') {
       console.error('Attempted to delete with invalid ID:', versionToDelete);
       showToast('Invalid version ID. Cannot delete this version.', 'error');
       hideDeleteModal();
