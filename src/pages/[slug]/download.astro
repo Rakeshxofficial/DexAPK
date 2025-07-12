@@ -581,32 +581,45 @@ const allVersions = [
     setTimeout(() => {
       const downloadButton = document.getElementById('download-button');
       if (downloadButton && downloadButton.getAttribute('href') !== '#') {
-        // Create a visual indicator that download is starting
-        const downloadStartToast = document.createElement('div');
-        downloadStartToast.className = 'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center';
-        downloadStartToast.innerHTML = `
-          <svg class="w-6 h-6 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-          </svg>
-          <div>
-            <p class="font-medium">Download starting...</p>
-            <p class="text-sm opacity-90">Your file will download automatically</p>
-          </div>
-        `;
-        document.body.appendChild(downloadStartToast);
+        // Show a toast notification that download is starting
+        showDownloadStartingToast();
         
-        // Remove toast after 5 seconds
+        // Create a hidden iframe for the download instead of opening a new tab
+        const downloadFrame = document.createElement('iframe');
+        downloadFrame.style.display = 'none';
+        downloadFrame.src = downloadButton.getAttribute('href');
+        document.body.appendChild(downloadFrame);
+        
+        // Remove the iframe after a short delay
         setTimeout(() => {
-          downloadStartToast.style.opacity = '0';
-          setTimeout(() => {
-            document.body.removeChild(downloadStartToast);
-          }, 300);
+          document.body.removeChild(downloadFrame);
         }, 5000);
-        
-        // Trigger download
-        window.open(downloadButton.getAttribute('href'), '_blank');
       }
     }, 2000);
+    
+    // Function to show download starting toast
+    function showDownloadStartingToast() {
+      const downloadStartToast = document.createElement('div');
+      downloadStartToast.className = 'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-96 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-50 flex items-center';
+      downloadStartToast.innerHTML = `
+        <svg class="w-6 h-6 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+        </svg>
+        <div>
+          <p class="font-medium">Download starting...</p>
+          <p class="text-sm opacity-90">Your file will download automatically</p>
+        </div>
+      `;
+      document.body.appendChild(downloadStartToast);
+      
+      // Remove toast after 5 seconds
+      setTimeout(() => {
+        downloadStartToast.style.opacity = '0';
+        setTimeout(() => {
+          document.body.removeChild(downloadStartToast);
+        }, 300);
+      }, 5000);
+    }
   });
 </script>
 
