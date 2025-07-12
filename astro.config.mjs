@@ -19,6 +19,9 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     trailingSlash: 'ignore',
+    optimizeDeps: {
+      exclude: ['sharp'],
+    },
     build: {
       cssCodeSplit: false, // Combine CSS for fewer requests
       minify: 'terser',
@@ -49,6 +52,9 @@ export default defineConfig({
           assetFileNames: 'assets/[name].[hash].[ext]'
         }
       }
+    },
+    ssr: {
+      noExternal: ['sharp']
     }
   },
 });

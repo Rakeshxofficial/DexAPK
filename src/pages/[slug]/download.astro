@@ -4,6 +4,7 @@ export const prerender = false; // Server-side rendering for dynamic download pa
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import ImageOptimized from '../../components/ImageOptimized.astro';
 import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
 import InternalLinkModule from '../../components/InternalLinkModule.astro';
 import { getAppBySlug, getRelatedApps, getAppDownloadTasksBySlug, getAppVersionsBySlug } from '../../lib/supabase.js';
@@ -165,13 +166,14 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
         <div class="flex items-center justify-center mb-6">
           <div class="w-24 h-24 sm:w-32 sm:h-32 bg-white dark:bg-gray-800 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden">
             {app.icon ? (
-              <img 
+              <ImageOptimized 
                 src={app.icon} 
                 alt={`${app.name} icon`}
                 class="w-full h-full object-cover"
-                width="128"
-                height="128"
+                width={128}
+                height={128}
                 loading="eager"
+                fetchpriority="high"
               />
             ) : (
               <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -210,7 +212,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
             <span>{app.size}</span>
             <span class="mx-2">•</span>
             <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z"/>
             </svg>
             <span>{app.last_updated}</span>
           </div>
@@ -460,11 +462,13 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
                       <div class="flex items-center mb-3">
                         <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden mr-3">
                           {relatedApp.icon ? (
-                            <img 
+                            <ImageOptimized 
                               src={relatedApp.icon} 
                               alt={`${relatedApp.name} icon`}
                               class="w-full h-full object-cover"
                               loading="lazy"
+                              width={64}
+                              height={64}
                             />
                           ) : (
                             <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
