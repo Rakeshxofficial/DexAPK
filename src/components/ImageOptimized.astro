@@ -27,24 +27,11 @@ const {
   ...rest
 } = Astro.props;
 
-// Function to generate srcset for responsive images
-function generateSrcSet(src: string): string {
-  // Skip srcset generation for external images (we can't resize them)
-  if (src.startsWith('http') && !src.includes('dexapk.com')) {
-    return src;
-  }
-  
-  // For local images or our own CDN, generate responsive variants
-  const widths = [320, 640, 960, 1280, 1920];
-  const extension = src.split('.').pop();
-  const basePath = src.substring(0, src.lastIndexOf('.'));
-  
-  return widths.map(w => `${basePath}-${w}.${extension} ${w}w`).join(', ');
+// Function to check if a URL is an external image
+function isExternalImage(url: string): boolean {
+  if (!url) return false;
+  return url.startsWith('http') && !url.includes('dexapk.com');
 }
-
-// Generate optimized src and srcset
-const optimizedSrc = src;
-const srcset = generateSrcSet(src);
 
 // Generate image dimensions for proper aspect ratio
 const aspectRatio = width && height ? width / height : undefined;
@@ -53,9 +40,9 @@ const aspectRatio = width && height ? width / height : undefined;
 const isPexels = src.includes('pexels.com');
 ---
 
-<!-- Image with responsive srcset and lazy loading -->
+<!-- Image with proper attributes -->
 <img 
-  src={optimizedSrc}
+  src={src}
   alt={alt}
   class={`image-optimized ${className || ''}`}
   loading={loading}
@@ -63,14 +50,13 @@ const isPexels = src.includes('pexels.com');
   width={width}
   height={height}
   sizes={sizes}
-  srcset={srcset}
   decoding={decoding}
   {...rest}
 />
 
 <!-- Preload critical images -->
 {fetchpriority === 'high' && (
-  <link rel="preload" as="image" href={optimizedSrc} />
+  <link rel="preload" as="image" href={src} />
 )}
 
 <!-- Add structured data for images -->
@@ -78,11 +64,13 @@ const isPexels = src.includes('pexels.com');
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "ImageObject",
-    "url": optimizedSrc,
+    "url": src,
     "name": alt,
     "width": width,
     "height": height,
-    "encodingFormat": "image/webp"
+    "encodingFormat": src.endsWith('.webp') ? "image/webp" : 
+                      src.endsWith('.jpg') || src.endsWith('.jpeg') ? "image/jpeg" : 
+                      src.endsWith('.png') ? "image/png" : "image/webp"
   })} />
 )}
 
