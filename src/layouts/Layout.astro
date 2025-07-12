@@ -246,8 +246,11 @@ const websiteSchema = {
       
       if (typeof localStorage !== 'undefined') {
         const observer = new MutationObserver(() => {
-          const isDark = document.documentElement.classList.contains('dark');
-          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          // Batch read and write operations to avoid forced reflow
+          requestAnimationFrame(() => {
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          });
         });
         observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
       }

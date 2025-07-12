@@ -299,6 +299,10 @@ import Logo from './Logo.astro';
       sidebarOverlay.setAttribute('aria-hidden', 'false');
       
       // Show overlay with blur effect
+      // Cache layout measurements before making changes
+      const overlayRect = sidebarOverlay.getBoundingClientRect();
+      const menuRect = sidebarMenu.getBoundingClientRect();
+      
       requestAnimationFrame(() => {
         sidebarOverlay.classList.remove('opacity-0', 'invisible');
         sidebarOverlay.classList.add('opacity-100', 'visible');
@@ -334,6 +338,10 @@ import Logo from './Logo.astro';
       sidebarOverlay.setAttribute('aria-hidden', 'true');
       
       // Hide overlay
+      // Cache layout measurements before making changes
+      const overlayRect = sidebarOverlay.getBoundingClientRect();
+      const menuRect = sidebarMenu.getBoundingClientRect();
+      
       requestAnimationFrame(() => {
         sidebarOverlay.classList.remove('opacity-100', 'visible');
         sidebarOverlay.classList.add('opacity-0', 'invisible');

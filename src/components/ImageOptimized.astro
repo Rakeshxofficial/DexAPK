@@ -145,7 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const img = entry.target as HTMLImageElement;
-        img.style.opacity = '1';
+        // Batch style changes to avoid forced reflow
+        requestAnimationFrame(() => {
+          img.style.opacity = '1';
+        });
         
         // Track image load for analytics
         img.addEventListener('load', () => {

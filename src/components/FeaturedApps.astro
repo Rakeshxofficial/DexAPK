@@ -249,13 +249,20 @@ try {
         
         // Show loading state
         if (loadingIndicator) {
-          loadingIndicator.classList.remove('hidden');
-          loadingIndicator.classList.add('flex');
+          // Batch DOM operations with requestAnimationFrame
+          requestAnimationFrame(() => {
+            loadingIndicator.classList.remove('hidden');
+            loadingIndicator.classList.add('flex');
+          });
         }
         
         // Add pressed state
+        // Store layout measurements before making changes
+        const cardRect = card.getBoundingClientRect();
+        // Use transform instead of classes that might trigger layout
         requestAnimationFrame(() => {
-          card.classList.add('scale-95', 'shadow-sm');
+          card.style.transform = 'scale(0.95)';
+          card.style.boxShadow = 'var(--shadow-sm)';
         });
         
         // Show accessibility toast
@@ -284,9 +291,13 @@ try {
     
     // Toast notification functions
     function showToast(title, message) {
-      toastTitle.textContent = title;
-      toastMessage.textContent = message;
+      // Batch read operations
+      const toastRect = toast.getBoundingClientRect();
+      
+      // Batch write operations
       requestAnimationFrame(() => {
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
         toast.classList.remove('translate-y-full', 'opacity-0', 'pointer-events-none');
         toast.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
       });
@@ -298,9 +309,20 @@ try {
     }
     
     window.hideToast = function() {
+      // Use CSS properties that don't trigger layout
       requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
-        toast.classList.add('translate-y-full', 'opacity-0', 'pointer-events-none');
+        toast.style.transform = 'translateY(100%)';
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+        
+        // Clean up classes after animation completes
+        setTimeout(() => {
+          toast.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+          toast.classList.add('translate-y-full', 'opacity-0', 'pointer-events-none');
+          toast.style.transform = '';
+          toast.style.opacity = '';
+          toast.style.pointerEvents = '';
+        }, 300);
       });
     };
     
@@ -365,8 +387,24 @@ try {
             } else if (event.key === 'End') {
               appCards[appCards.length - 1].focus();
             } else {
-              // Calculate row size only when needed
-              const cardsPerRow = Math.floor(cardsContainer.offsetWidth / appCards[0].offsetWidth);
+              // Store layout measurements to avoid forced reflow
+              let cardsPerRow;
+              // Use a cached value if available
+              if (!window.cachedCardsPerRow) {
+                // Read layout once and cache the result
+                const containerWidth = cardsContainer.offsetWidth;
+                const cardWidth = appCards[0].offsetWidth;
+                window.cachedCardsPerRow = Math.floor(containerWidth / cardWidth);
+                
+                // Update cached value on resize
+                if (!window.resizeListenerAdded) {
+                  window.addEventListener('resize', () => {
+                    window.cachedCardsPerRow = null;
+                  }, { passive: true });
+                  window.resizeListenerAdded = true;
+                }
+              }
+              cardsPerRow = window.cachedCardsPerRow || 4; // Fallback value
               
               if (event.key === 'ArrowDown') {
                 nextIndex = Math.min(currentIndex + cardsPerRow, appCards.length - 1);
