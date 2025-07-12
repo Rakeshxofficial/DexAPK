@@ -104,15 +104,13 @@ try {
                 {app.icon ? (
                   <>
                     <ImageOptimized 
-                      src={app.icon} 
+                      src={app.icon || '/placeholder.webp'} 
                       alt={`${app.name} icon`}
                       class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
                       loading="lazy"
                       width={96}
                       height={96}
-                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                     />
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>
                   </>
                 ) : (
                   <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true"></div>

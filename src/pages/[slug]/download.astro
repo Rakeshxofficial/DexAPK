@@ -167,7 +167,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
           <div class="w-24 h-24 sm:w-32 sm:h-32 bg-white dark:bg-gray-800 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden">
             {app.icon ? (
               <ImageOptimized 
-                src={app.icon} 
+                src={app.icon || '/placeholder.webp'} 
                 alt={`${app.name} icon`}
                 class="w-full h-full object-cover"
                 width={128}

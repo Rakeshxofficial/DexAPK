@@ -274,7 +274,7 @@ const dynamicFAQs = app ? [
             {app.icon ? (
               <>
                 <ImageOptimized 
-                  src={app.icon} 
+                  src={app.icon || '/placeholder.webp'} 
                   alt={`${app.name} icon`}
                   class="w-full h-full object-cover rounded-3xl"
                   width={128}
@@ -282,11 +282,6 @@ const dynamicFAQs = app ? [
                   loading="eager"
                   fetchpriority="high"
                 />
-                <div class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-500 hidden items-center justify-center">
-                  <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                  </svg>
-                </div>
               </>
             ) : (
               <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
