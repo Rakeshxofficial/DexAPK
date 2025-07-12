@@ -210,11 +210,10 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href={app.download_url || '#'}
-            target="_blank"
             id="download-button"
             data-app-slug={app.slug}
+            onclick="return window.openDownloadTasksModal(this.dataset.appSlug)"
             class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer min-w-[200px] justify-center"
-            aria-label={`Download ${app.name} v${app.version} MOD APK`}
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
@@ -291,12 +290,10 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
                   <div>
                     <a
                       href={version.download_url || '#'}
-                      target="_blank"
                       class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
                       aria-label={`Download ${app.name} ${version.version}`}
                       data-app-slug={app.slug}
-                     onclick="return openDownloadTasksModal(event)" 
-                     class="download-button"
+                      onclick="return window.openDownloadTasksModal(this.dataset.appSlug)"
                     >
                       <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
@@ -555,118 +552,8 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const downloadButton = document.getElementById('download-button');
-    if (!downloadButton) return;
-    
-    const appSlug = downloadButton.getAttribute('data-app-slug');
-    const downloadUrl = downloadButton.getAttribute('href') || '#';
-    
-    if (!appSlug) {
-      console.error('No app slug found on button');
-      return;
-    }
-    
-    // Add click handler to download button
-    downloadButton.addEventListener('click', async function(event) {
-      event.preventDefault();
-      
-      try {
-        // Check if the app has tasks using fetch API
-        const supabaseUrl = window.VITE_SUPABASE_URL;
-        const supabaseAnonKey = window.VITE_SUPABASE_ANON_KEY;
-        
-        if (!supabaseUrl || !supabaseAnonKey) {
-          console.error('Supabase credentials not available');
-          directDownload(downloadUrl);
-          return;
-        }
-        
-        // First get the app by slug
-        const appResponse = await fetch(`${supabaseUrl}/rest/v1/apps?slug=eq.${appSlug}&select=id`, {
-          headers: {
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`
-          }
-        });
-        
-        if (!appResponse.ok) {
-          console.error('Failed to fetch app:', appResponse.status);
-          directDownload(downloadUrl);
-          return;
-        }
-        
-        const appData = await appResponse.json();
-        const app = appData[0];
-        
-        if (!app) {
-          console.error('App not found:', appSlug);
-          directDownload(downloadUrl);
-          return;
-        }
-        
-        // Then check if there are any active tasks for this app
-        const tasksResponse = await fetch(
-          `${supabaseUrl}/rest/v1/app_download_tasks?app_id=eq.${app.id}&is_active=eq.true&select=id`, {
-          headers: {
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`
-          }
-        });
-        
-        if (!tasksResponse.ok) {
-          console.error('Failed to fetch tasks:', tasksResponse.status);
-          directDownload(downloadUrl);
-          return;
-        }
-        
-        const tasks = await tasksResponse.json();
-        
-        // If no tasks, do direct download
-        if (!tasks || tasks.length === 0) {
-          console.log('No tasks found, proceeding with direct download');
-          directDownload(downloadUrl);
-          return;
-        }
-        
-        // If we have tasks, show the modal
-        const modal = document.getElementById('download-tasks-modal');
-        if (modal) {
-          // Initialize the modal with the app slug
-          if (typeof window.initializeDownloadTasksModal === 'function') {
-            window.initializeDownloadTasksModal(appSlug);
-          }
-          
-          // Show the modal
-          requestAnimationFrame(() => {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-          });
-          document.body.style.overflow = 'hidden';
-          
-          // Focus the close button for accessibility
-          const closeBtn = document.getElementById('close-download-tasks');
-          closeBtn?.focus();
-        } else {
-          // If modal doesn't exist, do direct download
-          console.log('Modal not found, proceeding with direct download');
-          directDownload(downloadUrl);
-        }
-      } catch (error) {
-        console.error('Error checking for tasks:', error);
-        // Fallback to direct download on error
-        directDownload(downloadUrl);
-      }
-    });
-    
-    // Function to perform direct download
-    function directDownload(url) {
-      if (url && url !== '#') {
-        window.open(url, '_blank');
-        console.log('Opening download URL in new tab:', url);
-      } else {
-        console.warn('No valid download URL found');
-      }
-    }
+    // Download functionality is now handled by onclick attributes
+    console.log('Download page loaded');
   });
 
   // Horizontal scrolling for related apps

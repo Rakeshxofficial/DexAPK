@@ -33,8 +33,8 @@ function initializeModal() {
   setupEventListeners();
 }
 
-// Function to initialize the modal with a specific app slug
-window.initializeDownloadTasksModal = async function(appSlug) {
+// Function to open the download tasks modal with a specific app slug
+window.openDownloadTasksModal = async function(appSlug) {
   if (!appSlug) return;
   
   // Update current app slug
@@ -82,8 +82,8 @@ window.initializeDownloadTasksModal = async function(appSlug) {
     console.log('Fetching app details for slug:', appSlug);
     
     // Get app details and tasks using fetch API instead of direct imports
-    const supabaseUrl = window.VITE_SUPABASE_URL || '';
-    const supabaseAnonKey = window.VITE_SUPABASE_ANON_KEY || '';
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
     
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('Supabase credentials not available');
