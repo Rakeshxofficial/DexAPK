@@ -215,22 +215,17 @@ const dynamicFAQs = app ? [
           "@type": "SoftwareApplication",
           "name": app.name,
           "applicationCategory": "MobileApplication",
-        // Cache scroll values to avoid forced reflow
-        const scrollLeft = scrollContainer.scrollLeft;
-        const clientWidth = scrollContainer.clientWidth;
-        const scrollWidth = scrollContainer.scrollWidth;
-        
           "operatingSystem": "Android"
         },
         "reviewRating": {
-          if (scrollLeft <= 0) {
+          "@type": "Rating",
           "ratingValue": app.rating,
           "bestRating": "5",
           "worstRating": "1"
         },
         "author": {
           "@type": "Organization",
-          if (scrollLeft + clientWidth >= scrollWidth - 10) {
+          "name": "DexAPK"
         },
         "publisher": {
           "@type": "Organization",
