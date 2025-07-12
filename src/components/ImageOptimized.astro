@@ -30,21 +30,21 @@ const {
 // Function to generate srcset for responsive images
 function generateSrcSet(src: string): string {
   // Skip srcset generation for external images (we can't resize them)
-  if (src.startsWith('http') && !src.includes('dexapk.com')) {
+  if (!src || (src.startsWith('http') && !src.includes('dexapk.com'))) {
     return src;
   }
   
   // For local images or our own CDN, generate responsive variants
   const widths = [320, 640, 960, 1280, 1920];
-  const extension = src.split('.').pop();
-  const basePath = src.substring(0, src.lastIndexOf('.'));
+  const extension = src.split('.').pop() || 'webp';
+  const basePath = src.includes('.') ? src.substring(0, src.lastIndexOf('.')) : src;
   
   return widths.map(w => `${basePath}-${w}.${extension} ${w}w`).join(', ');
 }
 
 // Generate optimized src and srcset
 const optimizedSrc = src;
-const srcset = generateSrcSet(src);
+const srcset = src ? generateSrcSet(src) : '';
 
 // Generate image dimensions for proper aspect ratio
 const aspectRatio = width && height ? width / height : undefined;
@@ -56,25 +56,26 @@ const isPexels = src.includes('pexels.com');
 <!-- Image with responsive srcset and lazy loading -->
 <img 
   src={optimizedSrc}
-  alt={alt}
+  alt={alt || ''}
   class={`image-optimized ${className || ''}`}
   loading={loading}
   fetchpriority={fetchpriority}
-  width={width}
-  height={height}
+  width={width || ''}
+  height={height || ''}
   sizes={sizes}
-  srcset={srcset}
+  srcset={srcset || ''}
   decoding={decoding}
   {...rest}
+  onerror="this.onerror=null; this.src='/placeholder.webp';"
 />
 
 <!-- Preload critical images -->
-{fetchpriority === 'high' && (
+{fetchpriority === 'high' && optimizedSrc && (
   <link rel="preload" as="image" href={optimizedSrc} />
 )}
 
 <!-- Add structured data for images -->
-{addStructuredData && (
+{addStructuredData && optimizedSrc && (
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "ImageObject",
