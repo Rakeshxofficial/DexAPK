@@ -46,6 +46,7 @@ function getIconForCategory(category) {
 }
 
 // Fetch featured apps from Supabase
+import AmpLevelImage from './AmpLevelImage.astro';
 let featuredApps = []; 
 try {
   featuredApps = await getFeaturedApps(8); // Reduced from 10 to 8 to decrease initial load
@@ -102,18 +103,15 @@ try {
               <!-- App Icon - Much Larger -->
               <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-lg overflow-hidden">
                 {app.icon ? (
-                  <>
-                    <ImageOptimized 
-                      src={app.icon} 
-                      alt={`${app.name} icon`}
-                      class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
-                      loading="lazy"
-                      width={96}
-                      height={96}
-                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                    />
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>
-                  </>
+                  <AmpLevelImage 
+                    src={app.icon} 
+                    alt={`${app.name} icon`}
+                    class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                    loading="lazy"
+                    width={96}
+                    height={96}
+                    lqip={true}
+                  />
                 ) : (
                   <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true"></div>
                 )}

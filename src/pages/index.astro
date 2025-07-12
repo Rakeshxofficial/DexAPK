@@ -5,6 +5,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import FeaturedApps from '../components/FeaturedApps.astro';
+import AmpLevelImage from '../components/AmpLevelImage.astro';
 import InternalLinkModule from '../components/InternalLinkModule.astro';
 import Footer from '../components/Footer.astro';
 ---
@@ -14,6 +15,57 @@ import Footer from '../components/Footer.astro';
   <main>
     <Hero />
     <FeaturedApps />
+    
+    <!-- Example of AMP-level optimized image -->
+    <section class="py-8 bg-white dark:bg-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Experience AMP-Level Image Loading</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <AmpLevelImage 
+              src="https://cdn.dexapk.com/snaptube-mod-apk-download-free-logo.webp"
+              alt="SnapTube App Logo"
+              width={640}
+              height={640}
+              fetchpriority="high"
+              loading="eager"
+              lqip={true}
+              blurhash={false}
+              class="rounded-xl shadow-lg"
+            />
+          </div>
+          <div class="flex flex-col justify-center">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Ultra-Fast Image Loading</h3>
+            <ul class="space-y-3">
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300">Low Quality Image Placeholders (LQIP)</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300">Dominant color extraction</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300">Intelligent resource prioritization</span>
+              </li>
+              <li class="flex items-start">
+                <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span class="text-gray-700 dark:text-gray-300">Progressive loading with smooth transitions</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
     
     <!-- Popular Categories Section with Internal Links -->
     <section class="py-8 bg-gray-50 dark:bg-gray-900">
