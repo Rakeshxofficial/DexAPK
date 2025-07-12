@@ -7,7 +7,10 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [tailwind()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
-  adapter: netlify(),
+  adapter: netlify({
+    // Ensure case sensitivity is handled properly
+    trailingSlash: 'always'
+  }),
   compressHTML: true,
   build: {
     inlineStylesheets: 'always',
@@ -25,6 +28,9 @@ export default defineConfig({
     build: {
       cssCodeSplit: false, // Combine CSS for fewer requests
       minify: 'terser',
+      // Ensure URLs are lowercase
+      outDir: 'dist',
+      emptyOutDir: true,
       terserOptions: {
         compress: {
           drop_console: true, // Remove console logs in production

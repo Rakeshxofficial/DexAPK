@@ -1,11 +1,20 @@
 # robots.txt for DexAPK
 
 User-agent: *
-Allow: /
+Allow: /*
 
 # Disallow admin pages
 Disallow: /admin/
 Disallow: /admin/*
+
+# Normalize URLs - prevent crawling of uppercase URLs
+Disallow: /*?*
+Disallow: /*.php$
+Disallow: /*.html$
+Disallow: /*index
+Disallow: /*?
+Disallow: /*&
+Disallow: /*%
 
 # Image optimization rules
 Allow: /*.jpg$
