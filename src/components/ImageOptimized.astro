@@ -7,12 +7,13 @@ export interface Props {
   height?: number;
   class?: string;
   sizes?: string;
-  loading?: 'lazy' | 'eager';
+  loading?: 'lazy' | 'eager' | 'auto';
   decoding?: 'async' | 'sync' | 'auto';
   fetchpriority?: 'high' | 'low' | 'auto';
   addStructuredData?: boolean;
   placeholder?: 'blur' | 'dominant-color' | 'none';
   quality?: number;
+  isOffScreen?: boolean;
 }
 
 const {
@@ -22,12 +23,13 @@ const {
   height,
   class: className = '',
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-  loading = 'lazy',
+  loading = 'auto',
   decoding = 'async',
   fetchpriority = 'auto',
   addStructuredData = false,
   placeholder = 'blur',
   quality = 80,
+  isOffScreen = false,
   ...rest
 } = Astro.props;
 
@@ -61,6 +63,13 @@ const formatParam = src.includes('?') ? '&auto=format' : '?auto=format';
 
 // Prepare optimized URL
 const optimizedSrc = isExternalImage(src) ? src : `${src}${qualityParam}`;
+
+// Determine loading strategy based on whether image is off-screen
+const finalLoading = isOffScreen ? 'lazy' : loading === 'auto' ? 
+  (fetchpriority === 'high' ? 'eager' : 'lazy') : loading;
+
+// Determine fetchpriority based on loading and off-screen status
+const finalFetchpriority = isOffScreen ? 'low' : fetchpriority;
 ---
 
 <!-- Image with proper attributes -->
@@ -69,8 +78,8 @@ const optimizedSrc = isExternalImage(src) ? src : `${src}${qualityParam}`;
   alt={alt}
   class={`image-optimized ${className || ''}`}
   style={placeholder !== 'none' ? `background-image: url(${placeholderUrl}); background-size: cover;` : ''}
-  loading={loading}
-  fetchpriority={fetchpriority}
+  loading={finalLoading}
+  fetchpriority={finalFetchpriority}
   width={width}
   height={height}
   sizes={sizes}
@@ -102,12 +111,12 @@ const optimizedSrc = isExternalImage(src) ? src : `${src}${qualityParam}`;
 .image-optimized {
   max-width: 100%;
   height: auto;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-.image-optimized[loading="lazy"] {
+.image-optimized:not([loading="eager"]) {
   opacity: 0;
   animation: fadeIn 0.3s ease forwards;
 }
@@ -130,7 +139,7 @@ const optimizedSrc = isExternalImage(src) ? src : `${src}${qualityParam}`;
 <script>
 // Enhanced lazy loading with intersection observer for analytics
 document.addEventListener('DOMContentLoaded', () => {
-  const images = document.querySelectorAll('.image-optimized[loading="lazy"]');
+  const images = document.querySelectorAll('.image-optimized:not([loading="eager"])');
   
   const imageObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -140,14 +149,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Track image load for analytics
         img.addEventListener('load', () => {
-          // You can add analytics tracking here
-          console.log('Image loaded:', img.src);
+          // Silent load tracking
         });
         
         imageObserver.unobserve(img);
       }
     });
-  }, { threshold: 0.1 });
+  }, { 
+    threshold: 0.01,
+    rootMargin: '200px 0px' // Load images when they're within 200px of viewport
+  });
   
   images.forEach(img => imageObserver.observe(img));
 });

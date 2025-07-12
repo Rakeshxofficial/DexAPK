@@ -72,27 +72,34 @@
 [[headers]]
   for = "/*.{jpg,jpeg,png,gif,webp,svg,ico}"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=31536000, immutable, stale-while-revalidate=86400"
     Priority = "low"
 
 # Cache fonts with long TTL
 [[headers]]
   for = "/*.{woff,woff2,ttf,otf,eot}"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=31536000, immutable, stale-while-revalidate=86400"
     Access-Control-Allow-Origin = "*"
 
 # Image optimization headers
 [[headers]]
   for = "/*.{jpg,jpeg,png,gif,webp,avif}"
   [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
+    Cache-Control = "public, max-age=31536000, immutable, stale-while-revalidate=86400"
     Content-Disposition = "inline"
     X-Content-Type-Options = "nosniff"
     Accept-CH = "DPR, Width, Viewport-Width"
     Content-DPR = "1.0"
     Timing-Allow-Origin = "*"
-    Priority = "high"
+    Priority = "auto"
+
+# Add specific cache headers for CDN images
+[[headers]]
+  for = "/cdn.dexapk.com/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable, stale-while-revalidate=86400"
+    Timing-Allow-Origin = "*"
 
 # Environment variables (these will be set in Netlify dashboard)
 # VITE_SUPABASE_URL = "your_supabase_url"
