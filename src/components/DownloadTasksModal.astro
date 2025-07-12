@@ -73,10 +73,14 @@ const { appSlug } = Astro.props;
 <script>
   // Defer loading of non-critical script
   document.addEventListener('DOMContentLoaded', function() {
-    const script = document.createElement('script');
-    script.src = '../components/downloadTasksModalScript.js?v=1.5';
-    script.defer = true;
-    document.body.appendChild(script);
+    // Load the script only once
+    if (!window.downloadTasksScriptLoaded) {
+      window.downloadTasksScriptLoaded = true;
+      const script = document.createElement('script');
+      script.src = '/downloadTasksModalScript.js?v=1.6';
+      script.defer = true;
+      document.body.appendChild(script);
+    }
   });
 </script>
 
