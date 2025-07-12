@@ -546,7 +546,6 @@ const { app } = Astro.props;
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
-    versionToDelete = null;
   }
 
   async function performDelete() {
@@ -570,12 +569,12 @@ const { app } = Astro.props;
       if (result.success) {
         showToast('Version deleted successfully');
         loadVersions(appId);
+        versionToDelete = null;
       } else {
         showToast(result.error || 'Failed to delete version', 'error');
       }
       
       hideLoading();
-      versionToDelete = null;
     } catch (error) {
       console.error('Error deleting version:', error);
       hideLoading();
