@@ -7,7 +7,7 @@ export interface Props {
 const { appSlug } = Astro.props;
 ---
 
-<div id="download-tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50" aria-modal="true" aria-labelledby="download-tasks-title">
+<div id="download-tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-[100]" aria-modal="true" aria-labelledby="download-tasks-title">
   <input type="hidden" id="modal-app-slug" value={appSlug} />
   <div class="bg-white dark:bg-gray-800 rounded-3xl p-8 max-w-md w-full mx-4 relative overflow-hidden">
     <!-- Close Button -->
@@ -16,11 +16,9 @@ const { appSlug } = Astro.props;
       class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors duration-200 p-2 rounded-full"
       aria-label="Close download tasks"
     >
-      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    requestAnimationFrame(() => {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    });
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
     </button>
     
     <!-- Modal Content -->
@@ -108,10 +106,6 @@ const { appSlug } = Astro.props;
     white-space: nowrap;
     border: 0;
   }
-      requestAnimationFrame(() => {
-        downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-        downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
-      });
   @media (prefers-reduced-motion: reduce) {
     .transition-all,
     #tasks-progress-bar {
