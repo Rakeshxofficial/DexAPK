@@ -583,7 +583,7 @@ const allVersions = appVersions.length > 0 ? appVersions : [
         // Remove the iframe after a short delay
         setTimeout(() => {
           document.body.removeChild(downloadFrame);
-      }
+        }, 1000);
     }, 2000);
   });
 </script>
