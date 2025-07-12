@@ -20,7 +20,14 @@ if (slug) {
 
 // If app not found or download page is disabled, redirect to app page
 if (!app || app.disable_download_page) {
-  return Astro.redirect(`/${slug}`, 301);
+  if (slug) {
+    return Astro.redirect(`/${slug}`, 301);
+  } else {
+    return new Response(null, {
+      status: 404,
+      statusText: 'Not found'
+    });
+  }
 }
 
 // Get related apps
