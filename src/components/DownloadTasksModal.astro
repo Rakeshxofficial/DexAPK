@@ -79,6 +79,7 @@ const { appSlug } = Astro.props;
       const script = document.createElement('script');
       script.src = '/downloadTasksModalScript.js?v=1.6';
       script.defer = true;
+      script.type = 'module';
       document.body.appendChild(script);
     }
   });
