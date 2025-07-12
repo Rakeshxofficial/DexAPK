@@ -4,6 +4,9 @@ export const prerender = true;
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import InternalLinkModule from '../../components/InternalLinkModule.astro';
+import { getRelatedCategories } from '../../lib/linkUtils';
 import { getAllApps, getAppsByCategory } from '../../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -110,35 +113,14 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
-    <!-- Breadcrumbs -->
-    <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ol class="flex items-center space-x-2 py-4 text-sm" role="list">
-          <li>
-            <a href="/" class="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200" aria-label="Go to homepage">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-              </svg>
-              <span class="sr-only">Home</span>
-            </a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <a href="/categories" class="ml-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-              Categories
-            </a>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <span class="ml-2 font-medium text-gray-900 dark:text-white" aria-current="page">{category}</span>
-          </li>
-        </ol>
-      </div>
-    </nav>
+    <!-- Enhanced Breadcrumbs with Schema.org markup -->
+    <BreadcrumbNav 
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Categories', href: '/categories' },
+        { label: category, href: `/categories/${categorySlug}`, current: true }
+      ]}
+    />
 
     <!-- Category Header -->
     <section class={`bg-gradient-to-r ${meta.gradient} py-12 sm:py-16`}>
@@ -351,6 +333,35 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
 
         </div>
 
+      </div>
+    </section>
+    
+    <!-- Related Categories Section -->
+    <section class="py-8 bg-white dark:bg-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Related Categories</h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {getRelatedCategories(category).map(relatedCategory => (
+            <a 
+              href={`/categories/${relatedCategory.toLowerCase()}`}
+              class="bg-gray-50 dark:bg-gray-700 p-6 rounded-xl hover:shadow-md transition-all duration-200 group"
+            >
+              <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-200">
+                {relatedCategory} MOD APKs
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Download premium {relatedCategory.toLowerCase()} apps with unlocked features
+              </p>
+              <div class="flex items-center text-blue-600 dark:text-blue-400">
+                <span class="text-sm font-medium">Explore {relatedCategory}</span>
+                <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+              </div>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
 
