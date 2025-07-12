@@ -1,6 +1,7 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 import AppForm from '../../../../components/admin/AppForm.astro';
+import AppVersionsManager from '../../../../components/admin/AppVersionsManager.astro';
 import { getAllApps, getAppBySlug } from '../../../../lib/supabase.js';
 
 export const prerender = true;
@@ -131,6 +132,11 @@ const description = `Edit ${app.name} APK application in the admin dashboard`;
 
       <!-- App Form -->
       <AppForm app={app} mode="edit" />
+      
+      <!-- App Versions Manager -->
+      <div class="mt-8">
+        <AppVersionsManager app={app} />
+      </div>
 
     </main>
   </div>

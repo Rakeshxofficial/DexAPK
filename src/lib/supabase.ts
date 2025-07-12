@@ -763,6 +763,146 @@ export async function removeAllTasksFromApp(appId: string) {
   }
 }
 
+// App versions related functions
+export async function getAppVersions(appId: string, limit = 3) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('app_versions')
+      .select('*')
+      .eq('app_id', appId)
+      .eq('is_active', true)
+      .order('release_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching app versions:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAppVersions:', error);
+    return [];
+  }
+}
+
+export async function getAppVersionsBySlug(slug: string, limit = 3) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    // First get the app id from the slug
+    const { data: app, error: appError } = await supabase
+      .from('apps')
+      .select('id')
+      .eq('slug', slug)
+      .single();
+
+    if (appError || !app) {
+      console.error('Error fetching app by slug:', appError);
+      return [];
+    }
+
+    // Then get the versions for this app
+    const { data, error } = await supabase
+      .from('app_versions')
+      .select('*')
+      .eq('app_id', app.id)
+      .eq('is_active', true)
+      .order('release_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching app versions:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAppVersionsBySlug:', error);
+    return [];
+  }
+}
+
+export async function createAppVersion(versionData: any) {
+  try {
+    console.log('Creating app version with data:', versionData);
+    
+    const { data, error } = await supabase
+      .from('app_versions')
+      .insert([versionData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error creating app version:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('App version created successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in createAppVersion:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function updateAppVersion(id: string, updates: any) {
+  try {
+    console.log('Updating app version with id:', id);
+    console.log('Update data:', updates);
+    
+    const { data, error } = await supabase
+      .from('app_versions')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error updating app version:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('App version updated successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in updateAppVersion:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function deleteAppVersion(id: string) {
+  try {
+    console.log('Deleting app version with id:', id);
+    
+    const { error } = await supabase
+      .from('app_versions')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Supabase error deleting app version:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('App version deleted successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('Error in deleteAppVersion:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
 // Contact messages related functions
 export async function getAllContactMessages() {
   try {

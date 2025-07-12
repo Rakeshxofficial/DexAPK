@@ -4,7 +4,7 @@ export const prerender = false; // Server-side rendering for dynamic download pa
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import { getAppBySlug, getRelatedApps, getAppDownloadTasksBySlug } from '../../lib/supabase.js';
+import { getAppBySlug, getRelatedApps, getAppDownloadTasksBySlug, getAppVersionsBySlug } from '../../lib/supabase.js';
 
 // Get app slug from URL parameters
 const { slug } = Astro.params;
@@ -34,6 +34,15 @@ try {
   downloadTasks = await getAppDownloadTasksBySlug(app.slug);
 } catch (error) {
   console.error('Error loading download tasks:', error);
+}
+
+// Get app versions for this app
+let appVersions = [];
+try {
+  appVersions = await getAppVersionsBySlug(app.slug, 3);
+  console.log('Loaded app versions:', appVersions);
+} catch (error) {
+  console.error('Error loading app versions:', error);
 }
 
 // SEO data with fallbacks
@@ -108,32 +117,16 @@ const installationFAQs = [
   }
 ];
 
-// Get previous versions (limited to 2 older versions)
-const previousVersions = [
-  {
-    version: `v${parseFloat(app.version) - 0.1}.0`,
-    size: `${parseInt(app.size) - 2} MB`,
-    modInfo: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
-    date: new Date(new Date(app.updated_at).getTime() - 30*24*60*60*1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
-  },
-  {
-    version: `v${parseFloat(app.version) - 0.2}.0`,
-    size: `${parseInt(app.size) - 5} MB`,
-    modInfo: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
-    date: new Date(new Date(app.updated_at).getTime() - 60*24*60*60*1000).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
-  }
-];
-
-// Combine current version with previous versions
-const allVersions = [
+// If no versions are found in the database, create a default version based on the app data
+const allVersions = appVersions.length > 0 ? appVersions : [
   {
     version: `v${app.version}`,
     size: app.size,
-    modInfo: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
-    date: new Date(app.updated_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-    isCurrent: true
-  },
-  ...previousVersions
+    mod_info: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
+    release_date: app.updated_at,
+    download_url: app.download_url || '#',
+    is_current: true
+  }
 ];
 ---
 
@@ -263,7 +256,7 @@ const allVersions = [
                       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                         {app.name} {version.version}
                       </h3>
-                      {version.isCurrent && (
+                      {version.version === `v${app.version}` && (
                         <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                           Latest
                         </span>
@@ -272,21 +265,21 @@ const allVersions = [
                     <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
                       <span>{version.size}</span>
                       <span class="mx-2">•</span>
-                      <span>{version.date}</span>
+                      <span>{new Date(version.release_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
                     </div>
                     <div class="mt-2">
                       <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {version.modInfo}
+                        {version.mod_info}
                       </span>
                     </div>
                   </div>
                   
                   <div>
                     <a
-                      href={version.isCurrent ? app.download_url || '#' : '#'}
+                      href={version.download_url || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
-                      class={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${version.isCurrent ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'} transition-colors duration-200`}
+                      class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
                       aria-label={`Download ${app.name} ${version.version}`}
                     >
                       <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -580,7 +573,7 @@ const allVersions = [
     // Auto-start download after 2 seconds
     setTimeout(() => {
       const downloadButton = document.getElementById('download-button');
-      if (downloadButton && downloadButton.getAttribute('href') !== '#') {        
+      if (downloadButton && downloadButton.getAttribute('href') !== '#') {
         // Create a hidden iframe for the download instead of opening a new tab
         const downloadFrame = document.createElement('iframe');
         downloadFrame.style.display = 'none';
@@ -590,7 +583,6 @@ const allVersions = [
         // Remove the iframe after a short delay
         setTimeout(() => {
           document.body.removeChild(downloadFrame);
-        }, 5000);
       }
     }, 2000);
   });
@@ -606,37 +598,5 @@ const allVersions = [
   .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
-  }
-  
-  /* Smooth transitions */
-  .transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
-  }
-  
-  /* Improved focus styles */
-  a:focus, button:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
-  
-  /* Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-  
-  /* Details/summary styling */
-  details summary {
-    list-style: none;
-  }
-  
-  details summary::-webkit-details-marker {
-    display: none;
   }
 </style>
