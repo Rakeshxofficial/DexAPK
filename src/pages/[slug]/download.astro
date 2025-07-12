@@ -593,27 +593,6 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
         });
       }
     }, { timeout: 1000 });
-    
-    // Auto-start download after 2 seconds, but use a more efficient approach
-    setTimeout(() => {
-      const downloadButton = document.getElementById('download-button');
-      if (downloadButton && downloadButton.getAttribute('href') !== '#') {
-        // Create a hidden anchor element instead of an iframe
-        const downloadLink = document.createElement('a');
-        downloadLink.style.display = 'none';
-        downloadLink.href = downloadButton.getAttribute('href');
-        downloadLink.setAttribute('download', '');
-        document.body.appendChild(downloadLink);
-        
-        // Trigger click and remove element
-        downloadLink.click();
-        
-        // Remove after a short delay
-        setTimeout(() => {
-          document.body.removeChild(downloadLink);
-        }, 100);
-      }
-    }, 2000);
   });
 </script>
 
