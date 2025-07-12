@@ -20,12 +20,33 @@ export default defineConfig({
     envPrefix: 'VITE_',
     trailingSlash: 'ignore',
     build: {
-      cssCodeSplit: true,
+      cssCodeSplit: false, // Combine CSS for fewer requests
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true, // Remove console logs in production
+          drop_debugger: true
+        }
+      },
       rollupOptions: {
         output: {
-          manualChunks: {
-            'critical': ['./src/styles/global.css'],
-          }
+          manualChunks: (id) => {
+            // Group vendor dependencies
+            if (id.includes('node_modules')) {
+              if (id.includes('@supabase')) {
+                return 'vendor-supabase';
+              }
+              return 'vendor';
+            }
+            // Group critical CSS
+            if (id.includes('global.css')) {
+              return 'critical';
+            }
+          },
+          // Ensure long-term caching with content hashing
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]'
         }
       }
     }

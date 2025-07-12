@@ -126,19 +126,17 @@ async function checkForDownloadTasks(slug) {
 // Function to open the modal and load tasks
 async function openDownloadTasksModal() {
   if (!modal || !tasksList || !currentAppSlug) {
-    console.error('Cannot open modal - missing elements:', { 
-      modal: !!modal, 
-      tasksList: !!tasksList, 
-      appSlug: currentAppSlug 
-    });
+    console.error('Cannot open modal - missing elements');
     return;
   }
 
-  console.log('Opening download tasks modal for app:', currentAppSlug);
+  // Removed console.log for performance
   
   // Show the modal
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
+  requestAnimationFrame(() => {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  });
   document.body.style.overflow = 'hidden';
   
   // Focus the close button for accessibility
@@ -150,8 +148,10 @@ async function openDownloadTasksModal() {
   
   // Reset download button state
   if (downloadNowBtn) {
-    downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-    downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    requestAnimationFrame(() => {
+      downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
+      downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+    });
     downloadNowBtn.disabled = true;
     
     // Remove any existing click handlers
@@ -161,7 +161,7 @@ async function openDownloadTasksModal() {
   // Show loading state
   tasksList.innerHTML = `
     <div class="flex items-center justify-center py-8">
-      <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+      <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
     </div>
   `;
   
@@ -331,12 +331,12 @@ function handleTaskClick(e) {
 // Function to update progress
 function updateProgress(completed, total) {
   if (!progressBar || !progressText) return;
-  
-  const percentage = total > 0 ? (completed / total) * 100 : 0;
+
   requestAnimationFrame(() => {
+    const percentage = total > 0 ? (completed / total) * 100 : 0;
     progressBar.style.width = `${Math.min(percentage, 100)}%`;
+    progressText.textContent = `${completed} of ${total} tasks completed`;
   });
-  progressText.textContent = `${completed} of ${total} tasks completed`;
   
   // Announce to screen readers
   const announcement = document.createElement('div');
@@ -352,15 +352,16 @@ function updateProgress(completed, total) {
 // Function to enable download
 function enableDownload() {
   if (!downloadNowBtn) return;
-
+  
+  // Use a single requestAnimationFrame for all DOM changes
   requestAnimationFrame(() => {
     downloadNowBtn.classList.remove('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
     downloadNowBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-700', 'transform', 'hover:-translate-y-1');
+    downloadNowBtn.disabled = false;
+    
+    // Add click handler
+    downloadNowBtn.addEventListener('click', directDownload, { once: true });
   });
-  downloadNowBtn.disabled = false;
-  
-  // Add click handler
-  downloadNowBtn.addEventListener('click', directDownload, { once: true });
 }
 
 // Function to perform direct download

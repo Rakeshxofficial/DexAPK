@@ -24,6 +24,12 @@ export const supabase = createClient(
 // App-related database functions
 export async function getAllApps() {
   try {
+    // Use a static cache for frequently accessed data
+    if (globalThis._cachedApps && globalThis._cacheTimestamp && 
+        (Date.now() - globalThis._cacheTimestamp < 60000)) { // 1 minute cache
+      return globalThis._cachedApps;
+    }
+    
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -41,6 +47,10 @@ export async function getAllApps() {
       return [];
     }
 
+    // Cache the results
+    globalThis._cachedApps = data || [];
+    globalThis._cacheTimestamp = Date.now();
+    
     return data || [];
   } catch (error) {
     console.error('Error in getAllApps:', error);
@@ -50,6 +60,12 @@ export async function getAllApps() {
 
 export async function getFeaturedApps(limit = 10) {
   try {
+    // Use a static cache for frequently accessed data
+    if (globalThis._cachedFeaturedApps && globalThis._featuredCacheTimestamp && 
+        (Date.now() - globalThis._featuredCacheTimestamp < 60000)) { // 1 minute cache
+      return globalThis._cachedFeaturedApps;
+    }
+    
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -69,6 +85,10 @@ export async function getFeaturedApps(limit = 10) {
       return [];
     }
 
+    // Cache the results
+    globalThis._cachedFeaturedApps = data || [];
+    globalThis._featuredCacheTimestamp = Date.now();
+    
     return data || [];
   } catch (error) {
     console.error('Error in getFeaturedApps:', error);
@@ -78,6 +98,13 @@ export async function getFeaturedApps(limit = 10) {
 
 export async function getAppBySlug(slug: string) {
   try {
+    // Use a static cache for frequently accessed data with slug as key
+    const cacheKey = `app_${slug}`;
+    if (globalThis[cacheKey] && globalThis[`${cacheKey}_timestamp`] && 
+        (Date.now() - globalThis[`${cacheKey}_timestamp`] < 60000)) { // 1 minute cache
+      return globalThis[cacheKey];
+    }
+    
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -96,6 +123,10 @@ export async function getAppBySlug(slug: string) {
       return null;
     }
 
+    // Cache the results
+    globalThis[cacheKey] = data;
+    globalThis[`${cacheKey}_timestamp`] = Date.now();
+    
     return data;
   } catch (error) {
     console.error('Error in getAppBySlug:', error);
@@ -883,8 +914,6 @@ export async function updateAppVersion(id: string, updates: any) {
 
 export async function deleteAppVersion(id: string) {
   try {
-    console.log('Deleting app version with id:', id);
-    
     // Validate ID before making the request
     if (!id || id === 'null' || id === 'undefined' || id === '') {
       console.error('Invalid app version ID for deletion:', id);
@@ -897,14 +926,13 @@ export async function deleteAppVersion(id: string) {
       .eq('id', id);
 
     if (error) {
-      console.error('Supabase error deleting app version:', error);
+      console.error('Supabase error deleting app version');
       return { success: false, error: error.message };
     }
 
-    console.log('App version deleted successfully');
     return { success: true };
   } catch (error) {
-    console.error('Error in deleteAppVersion:', error);
+    console.error('Error in deleteAppVersion');
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

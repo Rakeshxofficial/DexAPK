@@ -225,18 +225,21 @@ try {
     const toastTitle = document.getElementById('toast-title');
     const toastMessage = document.getElementById('toast-message');
     
-    // Add click and keyboard event listeners to each app card
-    appCards.forEach((card, index) => {
-      const link = card.querySelector('a');
-      const loadingIndicator = card.querySelector('.loading-indicator');
-      const appName = card.dataset.appName;
-      const appCategory = card.dataset.appCategory;
-      const appSlug = link.dataset.appSlug;
-      
-      // Enhanced click handler with feedback
-      function handleCardActivation(event) {
+    // Use event delegation instead of attaching listeners to each card
+    const cardsContainer = document.querySelector('.grid');
+    if (cardsContainer) {
+      cardsContainer.addEventListener('click', function(event) {
+        // Find the closest app card link
+        const link = event.target.closest('.app-card a');
+        if (!link) return;
+        
         // Prevent default to show loading state first
         event.preventDefault();
+        
+        const card = link.closest('.app-card');
+        const loadingIndicator = card.querySelector('.loading-indicator');
+        const appName = card.dataset.appName;
+        const appCategory = card.dataset.appCategory;
         
         // Show loading state
         if (loadingIndicator) {
@@ -252,73 +255,26 @@ try {
         // Show accessibility toast
         showToast(
           `Opening ${appName}`,
-          `Loading ${appCategory} app details and download page...`
+          `Loading ${appCategory} app details...`
         );
         
-        // Announce to screen readers
-        announceToScreenReader(`Loading ${appName} details page`);
-        
-        // Add haptic feedback for mobile devices
-        if ('vibrate' in navigator) {
-          navigator.vibrate(50);
-        }
-        
-        // Simulate loading time for better UX
+        // Navigate to the app page after a short delay
         setTimeout(() => {
-          // Navigate to the app page
           window.location.href = link.href;
-        }, 800);
-      }
+        }, 300);
+      });
       
-      // Click event
-      link.addEventListener('click', handleCardActivation, { passive: false });
-      
-      // Keyboard events
-      link.addEventListener('keydown', function(event) {
+      // Keyboard navigation
+      cardsContainer.addEventListener('keydown', function(event) {
+        const link = event.target.closest('.app-card a');
+        if (!link) return;
+        
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
-          handleCardActivation(event);
+          link.click();
         }
-      }, { passive: false });
-      
-      // Focus events for better accessibility
-      link.addEventListener('focus', function() {
-        requestAnimationFrame(() => {
-          card.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
-        });
-        announceToScreenReader(`Focused on ${appName} app card. Press Enter or Space to open.`);
-      }, { passive: true });
-      
-      link.addEventListener('blur', function() {
-        requestAnimationFrame(() => {
-          card.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'scale-95', 'shadow-sm');
-        });
-        if (loadingIndicator) {
-          loadingIndicator.classList.add('hidden');
-          loadingIndicator.classList.remove('flex');
-        }
-      }, { passive: true });
-      
-      // Mouse events for enhanced feedback
-      card.addEventListener('mouseenter', function() {
-        if (!link.matches(':focus')) {
-          announceToScreenReader(`${appName} - ${appCategory} app. Click to download.`);
-        }
-      }, { passive: true });
-      
-      // Touch events for mobile
-      card.addEventListener('touchstart', function() {
-        requestAnimationFrame(() => {
-          card.classList.add('scale-98');
-        });
-      }, { passive: true });
-      
-      card.addEventListener('touchend', function() {
-        requestAnimationFrame(() => {
-          card.classList.remove('scale-98');
-        });
-      }, { passive: true });
-    });
+      });
+    }
     
     // Toast notification functions
     function showToast(title, message) {
@@ -343,66 +299,80 @@ try {
     };
     
     // Screen reader announcements
-    function announceToScreenReader(message) {
-      const announcement = document.createElement('div');
-      announcement.setAttribute('aria-live', 'polite');
-      announcement.setAttribute('aria-atomic', 'true');
-      announcement.className = 'sr-only';
-      announcement.textContent = message;
+    // Simplified announcer with debounce
+    const announceToScreenReader = (() => {
+      let timeout;
+      let announcer;
       
-      document.body.appendChild(announcement);
-      
-      // Remove after announcement
-      setTimeout(() => {
-        document.body.removeChild(announcement);
-      }, 1000);
-    }
+      return function(message) {
+        if (!announcer) {
+          announcer = document.createElement('div');
+          announcer.setAttribute('aria-live', 'polite');
+          announcer.setAttribute('aria-atomic', 'true');
+          announcer.className = 'sr-only';
+          document.body.appendChild(announcer);
+        }
+        
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          announcer.textContent = message;
+        }, 100);
+      };
+    })();
     
     // Keyboard navigation improvements
+    // Use a more efficient approach with debouncing
+    let keyNavTimeout;
     document.addEventListener('keydown', function(event) {
-      const focusedElement = document.activeElement;
-      const appCards = Array.from(document.querySelectorAll('.app-card a'));
-      const currentIndex = appCards.indexOf(focusedElement);
-      
-      if (currentIndex === -1) return;
-      
-      let nextIndex;
-      
-      switch(event.key) {
-        case 'ArrowRight':
-          event.preventDefault();
-          nextIndex = (currentIndex + 1) % appCards.length;
-          appCards[nextIndex].focus();
-          break;
-        case 'ArrowLeft':
-          event.preventDefault();
-          nextIndex = currentIndex === 0 ? appCards.length - 1 : currentIndex - 1;
-          appCards[nextIndex].focus();
-          break;
-        case 'ArrowDown':
-          event.preventDefault();
-          // Move to next row (assuming 5 cards per row on desktop)
-          const cardsPerRow = window.innerWidth >= 1280 ? 5 : window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 3 : 2;
-          nextIndex = Math.min(currentIndex + cardsPerRow, appCards.length - 1);
-          appCards[nextIndex].focus();
-          break;
-        case 'ArrowUp':
-          event.preventDefault();
-          // Move to previous row
-          const cardsPerRowUp = window.innerWidth >= 1280 ? 5 : window.innerWidth >= 1024 ? 4 : window.innerWidth >= 768 ? 3 : 2;
-          nextIndex = Math.max(currentIndex - cardsPerRowUp, 0);
-          appCards[nextIndex].focus();
-          break;
-        case 'Home':
-          event.preventDefault();
-          appCards[0].focus();
-          break;
-        case 'End':
-          event.preventDefault();
-          appCards[appCards.length - 1].focus();
-          break;
-      }
-    });
+      clearTimeout(keyNavTimeout);
+      keyNavTimeout = setTimeout(() => {
+        const focusedElement = document.activeElement;
+        if (!focusedElement.closest('.app-card a')) return;
+        
+        const appCards = Array.from(document.querySelectorAll('.app-card a'));
+        const currentIndex = appCards.indexOf(focusedElement);
+        
+        if (currentIndex === -1) return;
+        
+        let nextIndex;
+        
+        switch(event.key) {
+          case 'ArrowRight':
+            event.preventDefault();
+            nextIndex = (currentIndex + 1) % appCards.length;
+            appCards[nextIndex].focus();
+            break;
+          case 'ArrowLeft':
+            event.preventDefault();
+            nextIndex = currentIndex === 0 ? appCards.length - 1 : currentIndex - 1;
+            appCards[nextIndex].focus();
+            break;
+          case 'ArrowDown':
+          case 'ArrowUp':
+          case 'Home':
+          case 'End':
+            // Handle these keys only when needed to avoid unnecessary calculations
+            event.preventDefault();
+            
+            if (event.key === 'Home') {
+              appCards[0].focus();
+            } else if (event.key === 'End') {
+              appCards[appCards.length - 1].focus();
+            } else {
+              // Calculate row size only when needed
+              const cardsPerRow = Math.floor(cardsContainer.offsetWidth / appCards[0].offsetWidth);
+              
+              if (event.key === 'ArrowDown') {
+                nextIndex = Math.min(currentIndex + cardsPerRow, appCards.length - 1);
+              } else { // ArrowUp
+                nextIndex = Math.max(currentIndex - cardsPerRow, 0);
+              }
+              appCards[nextIndex].focus();
+            }
+            break;
+        }
+      }, 10);
+    }, { passive: false });
     
     // Reduced motion support
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -421,13 +391,14 @@ try {
 <style>
   /* Add containment for better performance */
   .contain-content {
-    contain: content;
+    contain: layout style content;
   }
   
   /* Enhanced accessibility styles */
   .app-card {
     position: relative;
-    contain: layout style;
+    contain: layout style content;
+    will-change: transform, opacity;
   }
   
   .app-card:focus-within {
@@ -470,7 +441,7 @@ try {
   /* Loading state styles */
   .loading-indicator {
     backdrop-filter: blur(4px);
-    will-change: opacity;
+    will-change: opacity, transform;
   }
   
   /* Touch feedback */
@@ -480,18 +451,5 @@ try {
   
   .scale-95 {
     transform: scale(0.95);
-  }
-  
-  /* Screen reader only content */
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 </style>
