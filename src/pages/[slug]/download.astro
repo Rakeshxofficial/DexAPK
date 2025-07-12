@@ -148,14 +148,16 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
     <!-- Enhanced Breadcrumbs with Schema.org markup -->
-    <BreadcrumbNav 
-      items={[
-        { label: 'Home', href: '/' },
-        { label: app.category, href: `/categories/${app.category.toLowerCase()}` },
-        { label: app.name, href: `/${app.slug}` },
-        { label: 'Download', href: `/${app.slug}/download`, current: true }
-      ]}
-    />
+    <div class="breadcrumb-wrapper">
+      <BreadcrumbNav 
+        items={[
+          { label: 'Home', href: '/' },
+          { label: app.category, href: `/categories/${app.category.toLowerCase()}` },
+          { label: app.name, href: `/${app.slug}` },
+          { label: 'Download', href: `/${app.slug}/download`, current: true }
+        ]}
+      />
+    </div>
 
     <!-- Download Header -->
     <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-12">

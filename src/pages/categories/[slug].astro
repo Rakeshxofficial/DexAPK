@@ -114,13 +114,15 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
     <!-- Enhanced Breadcrumbs with Schema.org markup -->
-    <BreadcrumbNav 
-      items={[
-        { label: 'Home', href: '/' },
-        { label: 'Categories', href: '/categories' },
-        { label: category, href: `/categories/${categorySlug}`, current: true }
-      ]}
-    />
+    <div class="breadcrumb-wrapper">
+      <BreadcrumbNav 
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Categories', href: '/categories' },
+          { label: category, href: `/categories/${categorySlug}`, current: true }
+        ]}
+      />
+    </div>
 
     <!-- Category Header -->
     <section class={`bg-gradient-to-r ${meta.gradient} py-12 sm:py-16`}>

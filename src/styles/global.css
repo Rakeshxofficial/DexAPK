@@ -14,4 +14,42 @@
 +.scrollbar-hide {
 +  -ms-overflow-style: none;  /* IE and Edge */
 +  scrollbar-width: none;  /* Firefox */
+}
+
+/* Breadcrumb styles */
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Ensure consistent spacing in breadcrumbs */
+nav[aria-label="Breadcrumb"] ol {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+nav[aria-label="Breadcrumb"] li {
+  display: flex;
+  align-items: center;
+}
+
+/* Ensure breadcrumb items don't shrink */
+nav[aria-label="Breadcrumb"] a,
+nav[aria-label="Breadcrumb"] span {
+  flex-shrink: 0;
  }
+
+/* Breadcrumb wrapper for consistent styling */
+.breadcrumb-wrapper {
+  width: 100%;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Dark mode support */
+.dark .breadcrumb-wrapper {
+  background-color: #1f2937;
+  border-bottom: 1px solid #374151;
+}

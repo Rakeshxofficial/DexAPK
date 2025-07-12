@@ -252,14 +252,16 @@ const dynamicFAQs = app ? [
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
     <!-- Enhanced Breadcrumbs with Schema.org markup -->
-    <BreadcrumbNav 
-      items={[
-        { label: 'Home', href: '/' },
-        { label: 'Apps', href: '/apps' },
-        { label: app.category, href: `/categories/${app.category.toLowerCase()}` },
-        { label: app.name, href: `/${app.slug}`, current: true }
-      ]}
-    />
+    <div class="breadcrumb-wrapper">
+      <BreadcrumbNav 
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Apps', href: '/apps' },
+          { label: app.category, href: `/categories/${app.category.toLowerCase()}` },
+          { label: app.name, href: `/${app.slug}`, current: true }
+        ]}
+      />
+    </div>
 
     <!-- App Header -->
     <section class="bg-white dark:bg-gray-800 py-8 sm:py-12">
