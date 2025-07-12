@@ -325,9 +325,9 @@ const { app } = Astro.props;
                   data-id="${version.id}"
                   data-version="${version.version}"
                   data-size="${version.size}"
-                  data-mod-info="${version.mod_info}"
-                  data-download-url="${version.download_url}"
-                  data-release-date="${version.release_date}"
+                  data-mod-info="${version.mod_info || ''}"
+                  data-download-url="${version.download_url || ''}"
+                  data-release-date="${version.release_date ? version.release_date.substring(0, 10) : ''}"
                   data-is-active="${version.is_active}"
                 >
                   Edit
@@ -489,13 +489,13 @@ const { app } = Astro.props;
   function handleEditVersion(e) {
     const button = e.currentTarget;
     const versionData = {
-      id: button.dataset.id,
-      version: button.dataset.version,
-      size: button.dataset.size,
-      modInfo: button.dataset.modInfo,
-      downloadUrl: button.dataset.downloadUrl,
-      releaseDate: button.dataset.releaseDate,
-      isActive: button.dataset.isActive
+      id: button.getAttribute('data-id'),
+      version: button.getAttribute('data-version'),
+      size: button.getAttribute('data-size'),
+      modInfo: button.getAttribute('data-mod-info'),
+      downloadUrl: button.getAttribute('data-download-url'),
+      releaseDate: button.getAttribute('data-release-date'),
+      isActive: button.getAttribute('data-is-active')
     };
     
     openVersionModal(versionData);

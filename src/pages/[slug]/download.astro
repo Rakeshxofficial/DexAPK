@@ -17,7 +17,7 @@ if (slug) {
 
 // If app not found or download page is disabled, redirect to app page
 if (!app || app.disable_download_page) {
-  return Astro.redirect(`/${slug}`);
+  return Astro.redirect(`/${slug}`, 301);
 }
 
 // Get related apps
@@ -119,14 +119,15 @@ const installationFAQs = [
 
 // If no versions are found in the database, create a default version based on the app data
 const allVersions = appVersions.length > 0 ? appVersions : [
-  {
+  app ? {
+    id: 'default',
     version: `v${app.version}`,
-    size: app.size,
+    size: app.size || '0 MB',
     mod_info: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
-    release_date: app.updated_at,
+    release_date: app.updated_at || new Date().toISOString(),
     download_url: app.download_url || '#',
-    is_current: true
-  }
+    is_active: true
+  } : null
 ];
 ---
 
