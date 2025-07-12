@@ -205,7 +205,9 @@ export async function createApp(appData: any) {
       // Custom H1 title - ensure it's properly handled
       custom_h1_title: appData.custom_h1_title ? appData.custom_h1_title.trim() : null,
       // Ensure article content is included
-      article_content: appData.article_content || null
+      article_content: appData.article_content || null,
+      // Ensure disable_download_page is included
+      disable_download_page: appData.disable_download_page || false
     };
     
     const { data, error } = await supabase
@@ -259,6 +261,8 @@ export async function updateApp(slug: string, updates: any) {
       custom_h1_title: updates.custom_h1_title ? updates.custom_h1_title.trim() : null,
       // Ensure article content is included
       article_content: updates.article_content || null,
+      // Ensure disable_download_page is included
+      disable_download_page: updates.disable_download_page !== undefined ? updates.disable_download_page : false,
       // Update the updated_at timestamp
       updated_at: new Date().toISOString()
     };
