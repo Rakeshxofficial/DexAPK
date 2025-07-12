@@ -176,10 +176,10 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
     <!-- Search and Filters -->
     <section class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-6">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           
           <!-- Search -->
-          <div class="flex-1 max-w-full md:max-w-md">
+          <div class="flex-1 max-w-md">
             <label for="search-category-apps" class="sr-only">Search {category} apps</label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -187,10 +187,10 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
               </div>
-              <input 
+              <input
                 type="text"
                 id="search-category-apps"
-                class="w-full pl-10 pr-4 py-4 text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
                 placeholder={`Search ${category} MOD APKs...`}
                 aria-label={`Search for ${category} MOD APKs`}
               />
@@ -198,7 +198,7 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
           </div>
 
           <!-- Sort Filter -->
-          <div class="flex flex-wrap items-center gap-4 mt-4 md:mt-0">
+          <div>
             <label for="sort-category-apps" class="sr-only">Sort {category} apps</label>
             <select
               id="sort-category-apps"
@@ -229,6 +229,7 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
 
         <!-- Apps Container -->
         <div id="category-apps-container" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" aria-label={`${category} MOD APKs collection`}>
+          
           {apps.length > 0 ? apps.map((app, index) => (
             <article 
               class="category-app-card group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
@@ -238,10 +239,10 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
             >
               <a 
                 href={`/${app.slug}`} 
-                class="w-full md:w-auto px-4 py-4 text-base border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                class="block w-full h-full focus:outline-none"
                 aria-label={`Download ${app.name} v${app.version} MOD APK - ${category} app with premium features unlocked`}
               >
-                <div class="relative h-40 sm:h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                <div class="relative h-32 sm:h-40 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
                   <!-- Status Badges -->
                   <div class="absolute top-2 left-2 flex gap-1.5 z-10">
                     <span class="bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
@@ -256,7 +257,7 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
                   </div>
                   
                   <!-- App Icon -->
-                  <div class="w-24 h-24 sm:w-32 sm:h-32 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center transition-colors duration-300 shadow-lg overflow-hidden">
+                  <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center transition-colors duration-300 shadow-lg overflow-hidden">
                     {app.icon ? (
                       <>
                         <ImageOptimized 
@@ -268,14 +269,14 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
                           height={48}
                           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                         />
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 text-gray-700 dark:text-gray-300 hidden items-center justify-center">
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden items-center justify-center">
                           <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                           </svg>
                         </div>
                       </>
                     ) : (
-                      <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                       </svg>
                     )}
@@ -292,11 +293,11 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
                 </div>
                 
                 <!-- App Details -->
-                <div class="p-4 group-hover:bg-gray-50 dark:group-hover:bg-gray-700 transition-colors duration-300">
-                  <h3 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                <div class="p-3 group-hover:bg-gray-50 dark:group-hover:bg-gray-700 transition-colors duration-300">
+                  <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
                     {app.name}
                   </h3>
-                  <p class="text-sm sm:text-base font-medium mb-2 text-blue-600 dark:text-blue-400 transition-colors duration-300">
+                  <p class="text-xs sm:text-sm font-medium mb-2 text-blue-600 dark:text-blue-400 transition-colors duration-300">
                     {category}
                   </p>
                   <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
@@ -304,13 +305,13 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
                       <svg class="w-3 h-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                       </svg>
-                      <span class="text-xs sm:text-sm">{app.version}</span>
+                      <span class="text-xs">{app.version}</span>
                     </div>
                     <div class="flex items-center gap-1" title={`File size: ${app.size}`}>
                       <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
                       </svg>
-                      <span class="text-xs sm:text-sm">{app.size}</span>
+                      <span class="text-xs">{app.size}</span>
                     </div>
                   </div>
                 </div>
@@ -325,7 +326,7 @@ const description = `Download the best ${category.toLowerCase()} MOD APKs. ${met
                 </div>
               </a>
             </article>
-          )).slice(0, 50) : (
+          )) : (
             <div class="col-span-full text-center py-12" role="status" aria-live="polite">
               <div class="text-gray-500 dark:text-gray-400">
                 <svg class="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
