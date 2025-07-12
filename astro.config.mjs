@@ -20,7 +20,7 @@ export default defineConfig({
     envPrefix: 'VITE_',
     trailingSlash: 'ignore',
     optimizeDeps: {
-      exclude: ['sharp'],
+      exclude: [],
     },
     build: {
       cssCodeSplit: false, // Combine CSS for fewer requests
@@ -54,7 +54,7 @@ export default defineConfig({
       }
     },
     ssr: {
-      noExternal: ['sharp']
+      noExternal: []
     }
   },
 });

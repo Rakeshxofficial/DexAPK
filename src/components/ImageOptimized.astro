@@ -6,10 +6,12 @@ export interface Props {
   width?: number;
   height?: number;
   class?: string;
-  sizes?: string;
+  sizes?: string; 
   loading?: 'lazy' | 'eager';
   decoding?: 'async' | 'sync' | 'auto';
   fetchpriority?: 'high' | 'low' | 'auto';
+  placeholder?: boolean;
+  blurhash?: string;
   addStructuredData?: boolean;
 }
 
@@ -23,6 +25,8 @@ const {
   loading = 'lazy',
   decoding = 'async',
   fetchpriority = 'auto',
+  placeholder = true,
+  blurhash,
   addStructuredData = false,
   ...rest
 } = Astro.props;
@@ -33,26 +37,59 @@ function isExternalImage(url: string): boolean {
   return url.startsWith('http') && !url.includes('dexapk.com');
 }
 
-// Generate image dimensions for proper aspect ratio
-const aspectRatio = width && height ? width / height : undefined;
+// Calculate aspect ratio for proper sizing
+const aspectRatio = width && height ? (width / height).toFixed(2) : undefined;
+const paddingBottom = aspectRatio ? `${(1 / Number(aspectRatio) * 100).toFixed(2)}%` : undefined;
 
 // Determine if this is a stock photo from Pexels
 const isPexels = src.includes('pexels.com');
+
+// Generate a simple placeholder color based on the image URL
+const placeholderColor = src ? 
+  `#${src.split('').reduce((acc, char) => (acc * char.charCodeAt(0)) % 0xffffff, 0x123456).toString(16).padStart(6, '0')}` : 
+  '#f0f0f0';
+
+// Determine if WebP is supported
+const isWebP = src.endsWith('.webp') || src.endsWith('.WEBP');
+
+// Get file extension
+const fileExtension = src.split('.').pop()?.toLowerCase() || 'jpg';
+
+// Create optimized image URL (without modifying the original URL)
+const imageUrl = src;
 ---
 
 <!-- Image with proper attributes -->
 <img 
   src={src}
   alt={alt}
-  class={`image-optimized ${className || ''}`}
+  class={`image-optimized ${className || ''}`} 
   loading={loading}
   fetchpriority={fetchpriority}
   width={width}
   height={height}
   sizes={sizes}
   decoding={decoding}
+  style={aspectRatio ? `aspect-ratio: ${aspectRatio};` : undefined}
   {...rest}
 />
+
+{placeholder && !blurhash && (
+  <div 
+    class="image-placeholder" 
+    style={`background-color: ${placeholderColor}; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; ${paddingBottom ? `padding-bottom: ${paddingBottom};` : ''}`}
+    aria-hidden="true"
+  ></div>
+)}
+
+{placeholder && blurhash && (
+  <div 
+    class="image-blurhash" 
+    data-blurhash={blurhash}
+    style={`position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; ${paddingBottom ? `padding-bottom: ${paddingBottom};` : ''}`}
+    aria-hidden="true"
+  ></div>
+)}
 
 <!-- Preload critical images -->
 {fetchpriority === 'high' && (
@@ -79,11 +116,26 @@ const isPexels = src.includes('pexels.com');
   max-width: 100%;
   height: auto;
   transition: opacity 0.3s ease;
+  will-change: opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .image-optimized[loading="lazy"] {
   opacity: 0;
   animation: fadeIn 0.3s ease forwards;
+}
+
+.image-placeholder,
+.image-blurhash {
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.3s ease;
+}
+
+.image-optimized.loaded + .image-placeholder,
+.image-optimized.loaded + .image-blurhash {
+  opacity: 0;
 }
 
 @keyframes fadeIn {
@@ -98,11 +150,16 @@ const isPexels = src.includes('pexels.com');
     animation: none;
     transition: none;
   }
+  
+  .image-placeholder,
+  .image-blurhash {
+    transition: none;
+  }
 }
 </style>
 
 <script>
-// Enhanced lazy loading with intersection observer for analytics
+// Enhanced lazy loading with intersection observer
 document.addEventListener('DOMContentLoaded', () => {
   const images = document.querySelectorAll('.image-optimized[loading="lazy"]');
   
@@ -110,13 +167,25 @@ document.addEventListener('DOMContentLoaded', () => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const img = entry.target as HTMLImageElement;
-        img.style.opacity = '1';
         
-        // Track image load for analytics
-        img.addEventListener('load', () => {
-          // You can add analytics tracking here
-          console.log('Image loaded:', img.src);
-        });
+        // Handle image load
+        const handleLoad = () => {
+          img.classList.add('loaded');
+          img.style.opacity = '1';
+          
+          // Track image load for analytics
+          if (window.performance && window.performance.mark) {
+            window.performance.mark(`img-loaded-${img.src}`);
+          }
+        };
+        
+        // If image is already loaded
+        if (img.complete) {
+          handleLoad();
+        } else {
+          // Add load event listener
+          img.addEventListener('load', handleLoad);
+        }
         
         imageObserver.unobserve(img);
       }
@@ -124,5 +193,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { threshold: 0.1 });
   
   images.forEach(img => imageObserver.observe(img));
+  
+  // Initialize blurhash placeholders if the library is available
+  const blurhashElements = document.querySelectorAll('.image-blurhash[data-blurhash]');
+  if (blurhashElements.length > 0 && typeof window.blurhash !== 'undefined') {
+    blurhashElements.forEach(element => {
+      const blurhash = element.getAttribute('data-blurhash');
+      if (blurhash) {
+        // This would use the blurhash library if available
+        // window.blurhash.getDataURL(blurhash, 32, 32, (dataURL) => {
+        //   element.style.backgroundImage = `url(${dataURL})`;
+        // });
+      }
+    });
+  }
 });
 </script>

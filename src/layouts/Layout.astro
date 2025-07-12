@@ -82,6 +82,8 @@ const websiteSchema = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/favicon-96x96.png" />
     <meta name="generator" content={Astro.generator} />
+    <link rel="dns-prefetch" href="https://cdn.dexapk.com" />
+    <link rel="preconnect" href="https://cdn.dexapk.com" crossorigin />
     
     <!-- Primary Meta Tags -->
     <meta http-equiv="content-language" content="en-US" />
@@ -220,6 +222,10 @@ const websiteSchema = {
     <meta name="HandheldFriendly" content="true" />
     <meta name="MobileOptimized" content="320" />
 
+    <!-- Image optimization hints -->
+    <meta http-equiv="Accept-CH" content="DPR, Width, Viewport-Width" />
+    <meta name="image-rendering" content="optimizeQuality" />
+    
     <!-- Security Headers -->
     <!-- Security headers are now set in netlify.toml instead of meta tags -->
 
