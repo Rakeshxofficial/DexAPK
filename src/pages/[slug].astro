@@ -4,6 +4,7 @@ export const prerender = true;
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ImageOptimized from '../components/ImageOptimized.astro';
 import BreadcrumbNav from '../components/BreadcrumbNav.astro';
 import InternalLinkModule from '../components/InternalLinkModule.astro';
 import MarkdownRenderer from '../components/MarkdownRenderer.astro';
@@ -131,7 +132,7 @@ const dynamicFAQs = app ? [
     <Fragment slot="head">
       <!-- Preload critical resources -->
       {app.icon && <link rel="preload" href={app.icon} as="image" />}
-      {app.screenshots && app.screenshots[0] && <link rel="preload" href={app.screenshots[0]} as="image" />}
+      {app.screenshots && app.screenshots[0] && <link rel="preload" href={app.screenshots[0]} as="image" fetchpriority="high" />}
 
       <!-- FAQ Schema -->
       <script type="application/ld+json" set:html={JSON.stringify({
@@ -271,14 +272,14 @@ const dynamicFAQs = app ? [
           <!-- App Icon -->
           <div class="w-24 h-24 sm:w-32 sm:h-32 mx-auto mb-6 bg-white dark:bg-gray-700 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden" style="contain: layout paint;">
             {app.icon ? (
-              <img 
+              <ImageOptimized 
                 src={app.icon} 
                 alt={`${app.name} icon`}
                 class="w-full h-full object-cover rounded-3xl"
-                loading="lazy"
-                width="128"
-                height="128"
-                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                width={128}
+                height={128}
+                loading="eager"
+                fetchpriority="high"
               />
               <div class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400 dark:text-gray-500 hidden items-center justify-center">
                 <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -454,15 +455,17 @@ const dynamicFAQs = app ? [
             <!-- Screenshots -->
             {app.screenshots && app.screenshots.length > 0 && (
               <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Screenshots</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6" id="screenshots">Screenshots</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {app.screenshots.map((screenshot, index) => (
                     <div class="aspect-[9/16] bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden">
-                      <img 
+                      <ImageOptimized 
                         src={screenshot} 
                         alt={`${app.name} screenshot ${index + 1}`}
                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                         loading="lazy"
+                        width={300}
+                        height={533}
                       />
                     </div>
                   ))}

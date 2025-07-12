@@ -7,8 +7,17 @@ Allow: /
 Disallow: /admin/
 Disallow: /admin/*
 
+# Image optimization rules
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.gif$
+Allow: /*.webp$
+Allow: /*.svg$
+
 # Sitemap location
 Sitemap: https://dexapk.com/sitemap.xml
+Sitemap: https://dexapk.com/image-sitemap.xml
 
 # Crawl delay to prevent server overload
 Crawl-delay: 1
