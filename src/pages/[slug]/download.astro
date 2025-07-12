@@ -4,7 +4,6 @@ export const prerender = false; // Server-side rendering for dynamic download pa
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import DownloadTasksModal from '../../components/DownloadTasksModal.astro';
 import { getAppBySlug, getRelatedApps, getAppDownloadTasksBySlug, getAppVersionsBySlug } from '../../lib/supabase.js';
 
 // Get app slug from URL parameters
@@ -211,11 +210,10 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
           <a
             href={app.download_url || '#'}
             target="_blank"
+            rel="noopener noreferrer"
             id="download-button"
-            data-app-slug={app.slug}
             class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer min-w-[200px] justify-center"
             aria-label={`Download ${app.name} v${app.version} MOD APK`}
-            onclick="return openDownloadTasksModal(event)"
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
@@ -237,9 +235,6 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
         </div>
       </div>
     </section>
-
-    <!-- Import Download Tasks Modal -->
-    <DownloadTasksModal appSlug={app.slug} />
 
     <!-- Thank You Section -->
     <section class="py-12 bg-white dark:bg-gray-800">
@@ -293,10 +288,9 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
                     <a
                       href={version.download_url || '#'}
                       target="_blank"
+                      rel="noopener noreferrer"
                       class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
                       aria-label={`Download ${app.name} ${version.version}`}
-                      data-app-slug={app.slug}
-                      onclick="return openDownloadTasksModal(event)"
                     >
                       <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
@@ -554,13 +548,6 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
 </Layout>
 
 <script>
-  // Function to open the download tasks modal
-  window.openDownloadTasksModal = function(event) {
-    // This function is now defined in downloadTasksModalScript.js
-    // It will check if the app has tasks and only show the modal if it does
-    return false; // Prevent default link behavior, the script will handle navigation
-  };
-
   // Horizontal scrolling for related apps
   document.addEventListener('DOMContentLoaded', function() {
     // Use let instead of const for variables that will be reused
