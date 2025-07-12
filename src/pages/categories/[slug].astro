@@ -8,51 +8,41 @@ import ImageOptimized from '../../components/ImageOptimized.astro';
 import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
 import InternalLinkModule from '../../components/InternalLinkModule.astro';
 import { getRelatedCategories } from '../../lib/linkUtils';
-import { getAllApps, getAppsByCategory } from '../../lib/supabase.js';
+import { getAppsByCategory } from '../../lib/supabase.js';
 
-export async function getStaticPaths() {
-  const categories = [
-    { slug: 'productivity', name: 'Productivity' },
-    { slug: 'music', name: 'Music' },
-    { slug: 'video', name: 'Video' },
-    { slug: 'entertainment', name: 'Entertainment' },
-    { slug: 'social', name: 'Social' },
-    { slug: 'photography', name: 'Photography' },
-    { slug: 'games', name: 'Games' },
-    { slug: 'media', name: 'Media' },
-    { slug: 'apps', name: 'Apps' }
-  ];
+// Map of category slugs to names
+const categoryMap = {
+  'productivity': 'Productivity',
+  'music': 'Music',
+  'video': 'Video',
+  'entertainment': 'Entertainment',
+  'social': 'Social',
+  'photography': 'Photography',
+  'games': 'Games',
+  'media': 'Media',
+  'apps': 'Apps'
+};
 
-  const paths = [];
-  
-  for (const category of categories) {
-    try {
-      const apps = await getAppsByCategory(category.name, 100);
-      paths.push({
-        params: { slug: category.slug },
-        props: { 
-          category: category.name,
-          categorySlug: category.slug,
-          apps: apps || []
-        }
-      });
-    } catch (error) {
-      console.error(`Error loading apps for category ${category.name}:`, error);
-      paths.push({
-        params: { slug: category.slug },
-        props: { 
-          category: category.name,
-          categorySlug: category.slug,
-          apps: []
-        }
-      });
-    }
-  }
 
-  return paths;
+// Get category name from slug
+const category = categoryMap[slug] || 'Unknown';
+const categorySlug = slug;
+
+// Fetch apps for this category
+let apps = [];
+try {
+  apps = await getAppsByCategory(category, 100);
+} catch (error) {
+  console.error(`Error loading apps for category ${category}:`, error);
 }
 
-const { category, categorySlug, apps } = Astro.props;
+// If category not found, return 404
+if (!categoryMap[slug]) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
 
 // Category metadata
 const categoryMeta = {

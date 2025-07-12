@@ -14,7 +14,13 @@
 # Redirect all app detail pages to handle dynamic routing
 [[redirects]]
   from = "/:slug"
-  to = "/:slug/index.html"
+  to = "/[slug]"
+  status = 200
+
+# Redirect all category pages to handle dynamic routing
+[[redirects]]
+  from = "/categories/:slug"
+  to = "/categories/[slug]"
   status = 200
 
 # Handle 404s
