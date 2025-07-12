@@ -70,16 +70,13 @@ const { appSlug } = Astro.props;
   </div>
 </div>
 
-<script>
-  // Defer loading of non-critical script
-  document.addEventListener('DOMContentLoaded', function() {
-    const script = document.createElement('script');
-    script.src = '/downloadTasksModalScript.js?v=1.7';
-    script.defer = true;
-    script.type = 'module';
-    document.body.appendChild(script);
-  });
+<script is:inline>
+  // Make Supabase credentials available to the script
+  window.VITE_SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  window.VITE_SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 </script>
+
+<script src="/downloadTasksModalScript.js" defer type="module"></script>
 
 <style>
   /* Ensure the modal is accessible */

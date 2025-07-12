@@ -213,9 +213,8 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
             target="_blank"
             id="download-button"
             data-app-slug={app.slug}
-            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer min-w-[200px] justify-center download-button"
+            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer min-w-[200px] justify-center"
             aria-label={`Download ${app.name} v${app.version} MOD APK`}
-            onclick="return openDownloadTasksModal(event)"
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
@@ -555,97 +554,120 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
 </Layout>
 
 <script>
-  // Function to handle download button clicks
-  window.openDownloadTasksModal = async function(event) {
-    event.preventDefault();
+  document.addEventListener('DOMContentLoaded', function() {
+    const downloadButton = document.getElementById('download-button');
+    if (!downloadButton) return;
     
-    // Get the app slug from the button's data attribute
-    const button = event.currentTarget;
-    const appSlug = button.getAttribute('data-app-slug');
-    const downloadUrl = button.getAttribute('href') || '#';
+    const appSlug = downloadButton.getAttribute('data-app-slug');
+    const downloadUrl = downloadButton.getAttribute('href') || '#';
     
     if (!appSlug) {
       console.error('No app slug found on button');
-      if (downloadUrl && downloadUrl !== '#') {
-        window.open(downloadUrl, '_blank');
-      }
-      return false;
+      return;
     }
     
-    try {
-      // Import the Supabase client
-      const { supabase } = await import('../../lib/supabase.js');
+    // Add click handler to download button
+    downloadButton.addEventListener('click', async function(event) {
+      event.preventDefault();
       
-      // First get the app id from the slug
-      const { data: app } = await supabase
-        .from('apps')
-        .select('id')
-        .eq('slug', appSlug)
-        .single();
-      
-      if (!app) {
-        console.log('App not found, proceeding with direct download');
-        if (downloadUrl && downloadUrl !== '#') {
-          window.open(downloadUrl, '_blank');
-        }
-        return false;
-      }
-      
-      // Then check if there are any active tasks for this app
-      const { data: tasks } = await supabase
-        .from('app_download_tasks')
-        .select(`
-          id,
-          is_active,
-          download_tasks (*)
-        `)
-        .eq('app_id', app.id)
-        .eq('is_active', true);
-      
-      // If no tasks, do direct download
-      if (!tasks || tasks.length === 0) {
-        console.log('No tasks found, proceeding with direct download');
-        if (downloadUrl && downloadUrl !== '#') {
-          window.open(downloadUrl, '_blank');
-        }
-        return false;
-      }
-      
-      // If we have tasks, show the modal
-      const modal = document.getElementById('download-tasks-modal');
-      if (modal) {
-        // Initialize the modal with the app slug
-        if (typeof window.initializeDownloadTasksModal === 'function') {
-          window.initializeDownloadTasksModal(appSlug);
+      try {
+        // Check if the app has tasks using fetch API
+        const supabaseUrl = window.VITE_SUPABASE_URL;
+        const supabaseAnonKey = window.VITE_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseAnonKey) {
+          console.error('Supabase credentials not available');
+          directDownload(downloadUrl);
+          return;
         }
         
-        // Show the modal
-        requestAnimationFrame(() => {
-          modal.classList.remove('hidden');
-          modal.classList.add('flex');
+        // First get the app by slug
+        const appResponse = await fetch(`${supabaseUrl}/rest/v1/apps?slug=eq.${appSlug}&select=id`, {
+          headers: {
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`
+          }
         });
-        document.body.style.overflow = 'hidden';
         
-        // Focus the close button for accessibility
-        const closeBtn = document.getElementById('close-download-tasks');
-        closeBtn?.focus();
-      } else {
-        // If modal doesn't exist, do direct download
-        console.log('Modal not found, proceeding with direct download');
-        if (downloadUrl && downloadUrl !== '#') {
-          window.open(downloadUrl, '_blank');
+        if (!appResponse.ok) {
+          console.error('Failed to fetch app:', appResponse.status);
+          directDownload(downloadUrl);
+          return;
         }
+        
+        const appData = await appResponse.json();
+        const app = appData[0];
+        
+        if (!app) {
+          console.error('App not found:', appSlug);
+          directDownload(downloadUrl);
+          return;
+        }
+        
+        // Then check if there are any active tasks for this app
+        const tasksResponse = await fetch(
+          `${supabaseUrl}/rest/v1/app_download_tasks?app_id=eq.${app.id}&is_active=eq.true&select=id`, {
+          headers: {
+            'apikey': supabaseAnonKey,
+            'Authorization': `Bearer ${supabaseAnonKey}`
+          }
+        });
+        
+        if (!tasksResponse.ok) {
+          console.error('Failed to fetch tasks:', tasksResponse.status);
+          directDownload(downloadUrl);
+          return;
+        }
+        
+        const tasks = await tasksResponse.json();
+        
+        // If no tasks, do direct download
+        if (!tasks || tasks.length === 0) {
+          console.log('No tasks found, proceeding with direct download');
+          directDownload(downloadUrl);
+          return;
+        }
+        
+        // If we have tasks, show the modal
+        const modal = document.getElementById('download-tasks-modal');
+        if (modal) {
+          // Initialize the modal with the app slug
+          if (typeof window.initializeDownloadTasksModal === 'function') {
+            window.initializeDownloadTasksModal(appSlug);
+          }
+          
+          // Show the modal
+          requestAnimationFrame(() => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+          });
+          document.body.style.overflow = 'hidden';
+          
+          // Focus the close button for accessibility
+          const closeBtn = document.getElementById('close-download-tasks');
+          closeBtn?.focus();
+        } else {
+          // If modal doesn't exist, do direct download
+          console.log('Modal not found, proceeding with direct download');
+          directDownload(downloadUrl);
+        }
+      } catch (error) {
+        console.error('Error checking for tasks:', error);
+        // Fallback to direct download on error
+        directDownload(downloadUrl);
       }
-    } catch (error) {
-      console.error('Error checking for tasks:', error);
-      // Fallback to direct download on error
-      if (downloadUrl && downloadUrl !== '#') {
-        window.open(downloadUrl, '_blank');
+    });
+    
+    // Function to perform direct download
+    function directDownload(url) {
+      if (url && url !== '#') {
+        window.open(url, '_blank');
+        console.log('Opening download URL in new tab:', url);
+      } else {
+        console.warn('No valid download URL found');
       }
     }
-    
-    return false;
-  }
+  });
 
   // Horizontal scrolling for related apps
   document.addEventListener('DOMContentLoaded', function() {
