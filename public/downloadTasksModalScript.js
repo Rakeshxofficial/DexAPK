@@ -1,5 +1,5 @@
 // Import Supabase functions at the top
-import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase';
+import { getAppDownloadTasksBySlug, getAppBySlug } from '../lib/supabase.js';
 
 // Global variables
 let tasks = [];
@@ -34,9 +34,6 @@ function initializeModal() {
   
   // Set up event listeners
   setupEventListeners();
-  
-  // Initialize download button
-  initializeDownloadButton();
 }
 
 // Function to initialize the modal with a specific app slug
@@ -173,41 +170,6 @@ function setupEventListeners() {
       closeDownloadTasksModal();
     }
   });
-}
-
-// Initialize the download button
-async function initializeDownloadButton() {
-  const downloadBtn = document.getElementById('download-button');
-  
-  if (!downloadBtn) {
-    console.error('Download button or app slug not found:', { 
-      downloadBtn: !!downloadBtn
-    });
-    return;
-  }
-  
-  // Store the original download URL
-  originalDownloadUrl = downloadBtn.getAttribute('href') || '#';
-  console.log('Original download URL:', originalDownloadUrl);
-}
-
-// Check for tasks and set up the download button accordingly
-async function checkAndSetupDownloadButton(downloadBtn, slug) {
-  try {
-    if (!downloadBtn) return;
-    
-    // Ensure the button opens in a new window
-    // downloadBtn.setAttribute('target', '_blank');
-    // downloadBtn.setAttribute('rel', 'noopener noreferrer');
-    console.log('Using direct download');
-  } catch (error) {
-    console.error('Error setting up download button:', error);
-    // Fallback to direct download if there's an error
-    // if (downloadBtn) {
-    //   downloadBtn.setAttribute('target', '_blank');
-    //   downloadBtn.setAttribute('rel', 'noopener noreferrer');
-    // }
-  }
 }
 
 // Check if the app has any download tasks
@@ -446,50 +408,44 @@ function renderTasks() {
   // Add event listeners to task buttons
   document.querySelectorAll('.task-button').forEach(button => {
     if (!button.getAttribute('disabled')) {
-      button.addEventListener('click', handleTaskClick, { once: true });
+      button.addEventListener('click', handleTaskClick);
     }
   });
 }
 
 // Function to handle task click
 function handleTaskClick(e) {
-  try {
-    const button = e.target.closest('.task-button');
-    if (!button) return;
-    
-    const taskId = button.dataset.taskId;
-    const taskUrl = button.dataset.taskUrl;
-    
-    if (!taskId || !taskUrl) {
-      console.error('Task ID or URL missing:', { taskId, taskUrl });
-      return;
-    }
+  const button = e.currentTarget;
+  const taskId = button.dataset.taskId;
+  const taskUrl = button.dataset.taskUrl;
   
-    // Open task URL in new tab
-    window.open(taskUrl, '_blank', 'noopener,noreferrer');
+  if (!taskId || !taskUrl) {
+    console.error('Task ID or URL missing:', { taskId, taskUrl });
+    return;
+  }
+
+  // Open task URL in new tab
+  window.open(taskUrl, '_blank', 'noopener,noreferrer');
+
+  // Mark task as completed
+  if (taskId && !completedTasks.includes(taskId)) {
+    completedTasks.push(taskId);
+    button.dataset.taskCompleted = 'true';
+    button.setAttribute('disabled', 'true');
   
-    // Mark task as completed
-    if (taskId && !completedTasks.includes(taskId)) {
-      completedTasks.push(taskId);
-      button.dataset.taskCompleted = 'true';
-      button.setAttribute('disabled', 'true');
-    
-      // Add completed styles
-      requestAnimationFrame(() => {
-        button.classList.add('opacity-75');
-      });
-      button.innerHTML = button.innerHTML.replace(/<\/div>(?!.*<\/div>)/s, '</div><svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>');
-    
-      // Update progress
-      updateProgress(completedTasks.length, tasks.length);
-    
-      // Check if all tasks are completed and enable download button
-      if (completedTasks.length >= tasks.length) {
-        enableDownload();
-      }
+    // Add completed styles
+    requestAnimationFrame(() => {
+      button.classList.add('opacity-75');
+    });
+    button.innerHTML = button.innerHTML.replace(/<\/div>(?!.*<\/div>)/s, '</div><svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>');
+  
+    // Update progress
+    updateProgress(completedTasks.length, tasks.length);
+  
+    // Check if all tasks are completed and enable download button
+    if (completedTasks.length >= tasks.length) {
+      enableDownload();
     }
-  } catch (error) {
-    console.error('Error handling task click:', error);
   }
 }
 
@@ -566,30 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('download-tasks-modal')) {
     initializeModal();
   }
-  
-  // Force re-initialization when the page is fully loaded
-  window.addEventListener('load', function() {
-    // Short delay to ensure everything is loaded
-    if (document.getElementById('download-tasks-modal')) {
-      setTimeout(initializeModal, 100);
-    }
-  });
 });
-
-// Initialize immediately for client:load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('download-tasks-modal')) {
-      initializeModal();
-    }
-  });
-} else {
-  // Initialize now and again after a short delay
-  if (document.getElementById('download-tasks-modal')) {
-    initializeModal();
-    setTimeout(initializeModal, 100);
-  }
-}
 
 // Helper functions for task type styling
 function getTaskTypeClass(taskType) {

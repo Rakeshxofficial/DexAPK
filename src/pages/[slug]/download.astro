@@ -213,7 +213,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
             target="_blank"
             id="download-button"
             data-app-slug={app.slug}
-            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer min-w-[200px] justify-center"
+            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer min-w-[200px] justify-center download-button"
             aria-label={`Download ${app.name} v${app.version} MOD APK`}
             onclick="return openDownloadTasksModal(event)"
           >
@@ -296,7 +296,8 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
                       class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
                       aria-label={`Download ${app.name} ${version.version}`}
                       data-app-slug={app.slug}
-                      onclick="return openDownloadTasksModal(event)"
+                     onclick="return openDownloadTasksModal(event)" 
+                     class="download-button"
                     >
                       <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
@@ -554,12 +555,97 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
 </Layout>
 
 <script>
-  // Function to open the download tasks modal
-  window.openDownloadTasksModal = function(event) {
-    // This function is now defined in downloadTasksModalScript.js
-    // It will check if the app has tasks and only show the modal if it does
-    return false; // Prevent default link behavior, the script will handle navigation
-  };
+  // Function to handle download button clicks
+  window.openDownloadTasksModal = async function(event) {
+    event.preventDefault();
+    
+    // Get the app slug from the button's data attribute
+    const button = event.currentTarget;
+    const appSlug = button.getAttribute('data-app-slug');
+    const downloadUrl = button.getAttribute('href') || '#';
+    
+    if (!appSlug) {
+      console.error('No app slug found on button');
+      if (downloadUrl && downloadUrl !== '#') {
+        window.open(downloadUrl, '_blank');
+      }
+      return false;
+    }
+    
+    try {
+      // Import the Supabase client
+      const { supabase } = await import('../../lib/supabase.js');
+      
+      // First get the app id from the slug
+      const { data: app } = await supabase
+        .from('apps')
+        .select('id')
+        .eq('slug', appSlug)
+        .single();
+      
+      if (!app) {
+        console.log('App not found, proceeding with direct download');
+        if (downloadUrl && downloadUrl !== '#') {
+          window.open(downloadUrl, '_blank');
+        }
+        return false;
+      }
+      
+      // Then check if there are any active tasks for this app
+      const { data: tasks } = await supabase
+        .from('app_download_tasks')
+        .select(`
+          id,
+          is_active,
+          download_tasks (*)
+        `)
+        .eq('app_id', app.id)
+        .eq('is_active', true);
+      
+      // If no tasks, do direct download
+      if (!tasks || tasks.length === 0) {
+        console.log('No tasks found, proceeding with direct download');
+        if (downloadUrl && downloadUrl !== '#') {
+          window.open(downloadUrl, '_blank');
+        }
+        return false;
+      }
+      
+      // If we have tasks, show the modal
+      const modal = document.getElementById('download-tasks-modal');
+      if (modal) {
+        // Initialize the modal with the app slug
+        if (typeof window.initializeDownloadTasksModal === 'function') {
+          window.initializeDownloadTasksModal(appSlug);
+        }
+        
+        // Show the modal
+        requestAnimationFrame(() => {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        });
+        document.body.style.overflow = 'hidden';
+        
+        // Focus the close button for accessibility
+        const closeBtn = document.getElementById('close-download-tasks');
+        closeBtn?.focus();
+      } else {
+        // If modal doesn't exist, do direct download
+        console.log('Modal not found, proceeding with direct download');
+        if (downloadUrl && downloadUrl !== '#') {
+          window.open(downloadUrl, '_blank');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for tasks:', error);
+      // Fallback to direct download on error
+      if (downloadUrl && downloadUrl !== '#') {
+        window.open(downloadUrl, '_blank');
+      }
+    }
+    
+    return false;
+  }
 
   // Horizontal scrolling for related apps
   document.addEventListener('DOMContentLoaded', function() {
