@@ -1,5 +1,5 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
@@ -48,7 +48,7 @@ const seoTitle = app.seo_title || `${app.name} v${app.version} MOD APK - Premium
 const seoDescription = app.seo_description || `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 100)}...`;
 const seoKeywords = app.seo_keywords || `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
 const seoFeaturedImage = app.seo_featured_image || app.icon || '/favicon.svg';
-const canonicalUrl = app.seo_canonical_url || `https://${Astro.request.headers.get('host') || 'dexapk.com'}/${app.slug}`;
+const canonicalUrl = app.seo_canonical_url || `https://dexapk.com/${app.slug}`;
 
 // Prepare SEO data for Layout
 const seoData = {
