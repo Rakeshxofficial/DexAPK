@@ -1,0 +1,92 @@
+---
+// Optimized Image Component with responsive srcset, lazy loading, and proper alt text
+export interface Props {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  class?: string;
+  sizes?: string;
+  loading?: 'lazy' | 'eager';
+  decoding?: 'async' | 'sync' | 'auto';
+  fetchpriority?: 'high' | 'low' | 'auto';
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  class: className = '',
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  loading = 'lazy',
+  decoding = 'async',
+  fetchpriority = 'auto'
+} = Astro.props;
+
+// Function to generate srcset for responsive images
+function generateSrcSet(src: string): string {
+  // Skip srcset generation for external images (we can't resize them)
+  if (src.startsWith('http') && !src.includes('dexapk.com')) {
+    return src;
+  }
+  
+  // For local images or our own CDN, generate responsive variants
+  const widths = [320, 640, 960, 1280, 1920];
+  const extension = src.split('.').pop();
+  const basePath = src.substring(0, src.lastIndexOf('.'));
+  
+  return widths.map(w => `${basePath}-${w}.${extension} ${w}w`).join(', ');
+}
+
+// Generate image dimensions for proper aspect ratio
+const aspectRatio = width && height ? width / height : undefined;
+const imgClass = `${className} ${aspectRatio ? 'object-cover' : ''}`.trim();
+
+// Generate a unique ID for the image
+const imageId = `img-${Math.random().toString(36).substring(2, 9)}`;
+
+// Determine if this is a stock photo from Pexels
+const isPexels = src.includes('pexels.com');
+</script>
+
+<img 
+  src={src} 
+  alt={alt} 
+  width={width} 
+  height={height} 
+  class={imgClass}
+  loading={loading}
+  decoding={decoding}
+  fetchpriority={fetchpriority}
+  sizes={sizes}
+  srcset={generateSrcSet(src)}
+  id={imageId}
+  onerror="this.onerror=null; this.src='/placeholder.webp';"
+  style={aspectRatio ? `aspect-ratio: ${aspectRatio};` : ''}
+/>
+
+{isPexels && (
+  <span class="text-xs text-gray-500 dark:text-gray-400 block mt-1">
+    Photo by <a href="https://www.pexels.com" class="hover:underline" rel="noopener noreferrer" target="_blank">Pexels</a>
+  </span>
+)}
+
+<script define:vars={{ imageId, src }}>
+// Add intersection observer for analytics
+document.addEventListener('DOMContentLoaded', () => {
+  const img = document.getElementById(imageId);
+  if (!img) return;
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Image is visible, could log for analytics
+        observer.unobserve(img);
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  observer.observe(img);
+});
+</script>
