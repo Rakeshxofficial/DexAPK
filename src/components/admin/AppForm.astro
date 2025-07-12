@@ -552,6 +552,27 @@ Your conclusion here..."
             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
           </label>
         </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div>
+            <label for="disable_download_page" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Disable Download Page
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Skip download page and link directly to file
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="disable_download_page"
+              name="disable_download_page"
+              checked={app?.disable_download_page || false}
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -716,6 +737,7 @@ Your conclusion here..."
           screenshots: screenshotsText ? screenshotsText.split('\n').filter(f => f.trim()) : [],
           is_featured: formData.has('is_featured'),
           is_active: formData.has('is_active'),
+          disable_download_page: formData.has('disable_download_page'),
           // Article content
           article_content: formData.get('article_content') || '',
           // SEO fields

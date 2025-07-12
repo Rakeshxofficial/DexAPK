@@ -359,9 +359,9 @@ const dynamicFAQs = app ? [
 
           <!-- Download Button -->
           <a
-            href={app.download_url || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={app.disable_download_page ? (app.download_url || '#') : `/${app.slug}/download`}
+            target={app.disable_download_page ? "_blank" : "_self"}
+            rel={app.disable_download_page ? "noopener noreferrer" : ""}
             id="download-button"
             class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
             aria-label={`Download ${app.name} v${app.version} MOD APK (opens in new tab)`}
