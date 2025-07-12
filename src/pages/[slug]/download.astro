@@ -117,18 +117,27 @@ const installationFAQs = [
   }
 ];
 
-// If no versions are found in the database, create a default version based on the app data
-const allVersions = appVersions.length > 0 ? appVersions : [
-  app ? {
-    id: 'default',
-    version: `v${app.version}`,
-    size: app.size || '0 MB',
-    mod_info: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
-    release_date: app.updated_at || new Date().toISOString(),
-    download_url: app.download_url || '#',
-    is_active: true
-  } : null
-];
+// Prepare versions for display
+// Current version is always shown first
+const currentVersion = app ? {
+  id: 'current',
+  version: `v${app.version}`,
+  size: app.size || '0 MB',
+  mod_info: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
+  release_date: app.updated_at || new Date().toISOString(),
+  download_url: app.download_url || '#',
+  is_active: true,
+  isCurrent: true
+} : null;
+
+// Filter out any versions that match the current version
+const previousVersions = appVersions.filter(v => 
+  v.version !== `v${app.version}` && 
+  v.version !== app.version
+);
+
+// Combine current version with previous versions
+const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
 ---
 
 <Layout seoData={seoData}>
@@ -244,7 +253,7 @@ const allVersions = appVersions.length > 0 ? appVersions : [
     <section class="py-12 bg-gray-50 dark:bg-gray-900">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          Latest Versions
+          {previousVersions.length > 0 ? 'Latest Versions' : 'Current Version'}
         </h2>
         
         <div class="space-y-4">
@@ -257,7 +266,7 @@ const allVersions = appVersions.length > 0 ? appVersions : [
                       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                         {app.name} {version.version}
                       </h3>
-                      {version.version === `v${app.version}` && (
+                      {version.isCurrent && (
                         <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                           Latest
                         </span>

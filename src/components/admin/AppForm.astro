@@ -647,6 +647,8 @@ Your conclusion here..."
     
     const isEdit = submitBtn.textContent.includes('Update');
     const originalSlug = isEdit ? document.getElementById('slug').value : null;
+   const originalVersion = isEdit ? document.getElementById('version').value : null;
+   const originalDownloadUrl = isEdit ? document.getElementById('download_url').value : null;
 
     // Auto-generate slug from name
     const nameInput = document.getElementById('name');
@@ -716,6 +718,10 @@ Your conclusion here..."
         const modInfoText = formData.get('mod_info') || '';
         const screenshotsText = formData.get('screenshots') || '';
         
+       // Get current and new version for comparison
+       const newVersion = formData.get('version');
+       const newDownloadUrl = formData.get('download_url') || '#';
+       
         const appData = {
           slug: formData.get('slug'),
           name: formData.get('name'),
@@ -756,6 +762,30 @@ Your conclusion here..."
         if (isEdit) {
           console.log('Updating app with slug:', originalSlug);
           result = await updateApp(originalSlug, appData);
+         
+         // If version has changed, create a version record for the old version
+         if (originalVersion && originalDownloadUrl && 
+             originalVersion !== newVersion) {
+           try {
+             const { createAppVersion } = await import('../../lib/supabase.js');
+             const oldVersionData = {
+               app_id: result.data.id,
+               version: originalVersion,
+               size: appData.size, // Use current size as approximation
+               mod_info: appData.mod_info && appData.mod_info.length > 0 ? 
+                 appData.mod_info[0] : 'Premium Unlocked',
+               download_url: originalDownloadUrl,
+               release_date: new Date().toISOString().split('T')[0], // Today's date
+               is_active: true
+             };
+             
+             console.log('Creating version record for old version:', oldVersionData);
+             await createAppVersion(oldVersionData);
+           } catch (versionError) {
+             console.error('Error creating version record for old version:', versionError);
+             // Don't fail the main update if this fails
+           }
+         }
         } else {
           console.log('Creating new app');
           result = await createApp(appData);

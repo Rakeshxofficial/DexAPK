@@ -467,13 +467,6 @@ const { app } = Astro.props;
         const versionId = formData.get('id');
         result = await updateAppVersion(versionId, versionData);
       } else {
-        result = await createAppVersion(versionData);
-      }
-      
-      if (result.success) {
-        showToast(`Version ${isEditMode ? 'updated' : 'created'} successfully`);
-        closeVersionModal();
-        loadVersions(versionData.app_id);
       } else {
         showToast(result.error || `Failed to ${isEditMode ? 'update' : 'create'} version`, 'error');
       }
