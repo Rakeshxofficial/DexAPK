@@ -29,7 +29,8 @@
   to = "/:splat"
   status = 301
   force = true
-  conditions = {Path = {":splat", "^.*[A-Z].*$"}}
+  [redirects.conditions]
+    Path = {":splat" = "^.*[A-Z].*$"}
 
 # Properly handle index pages redirects
 [[redirects]]
