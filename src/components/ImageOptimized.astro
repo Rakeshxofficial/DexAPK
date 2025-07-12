@@ -51,38 +51,40 @@ const isPexels = src.includes('pexels.com');
 </script>
 
 <img 
-  src={src} 
-  alt={alt} 
-  width={width} 
-  height={height} 
-  class={imgClass}
-  loading={loading}
-  decoding={decoding}
-  fetchpriority={fetchpriority}
-  sizes={sizes}
-  srcset={generateSrcSet(src)}
-  id={imageId}
-  onerror="this.onerror=null; this.src='/placeholder.webp';"
-  style={aspectRatio ? `aspect-ratio: ${aspectRatio};` : ''}
-/>
+<>
+  <!-- Image with responsive srcset and lazy loading -->
+  <img 
+    src={optimizedSrc}
+    alt={alt}
+    class={`image-optimized ${class || ''}`}
+    loading={loading}
+    fetchpriority={fetchpriority}
+    width={width}
+    height={height}
+    sizes={sizes}
+    srcset={srcset}
+    decoding="async"
+    {...rest}
+  />
 
-{isPexels && (
-  <span class="text-xs text-gray-500 dark:text-gray-400 block mt-1">
-    Photo by <a href="https://www.pexels.com" class="hover:underline" rel="noopener noreferrer" target="_blank">Pexels</a>
-  </span>
+  <!-- Preload critical images -->
+  {fetchpriority === 'high' && (
+    <link rel="preload" as="image" href={optimizedSrc} />
+  )}
 
-<script define:vars={{ imageId, src }}>
-// Add intersection observer for analytics
-document.addEventListener('DOMContentLoaded', () => {
-  const img = document.getElementById(imageId);
-  if (!img) return;
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // Image is visible, could log for analytics
-        observer.unobserve(img);
-      }
+  <!-- Add structured data for images -->
+  {addStructuredData && (
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ImageObject",
+      "url": optimizedSrc,
+      "name": alt,
+      "width": width,
+      "height": height,
+      "encodingFormat": "image/webp"
+    })} />
+  )}
+</>
     });
   }, { threshold: 0.1 });
   
