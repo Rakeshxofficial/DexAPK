@@ -488,8 +488,17 @@ const { app } = Astro.props;
 
   function handleEditVersion(e) {
     const button = e.currentTarget;
+    const versionId = button.getAttribute('data-id');
+    
+    // Validate version ID
+    if (!versionId || versionId === 'null' || versionId === 'undefined') {
+      console.error('Invalid version ID for edit:', versionId);
+      showToast('Invalid version ID. Cannot edit this version.', 'error');
+      return;
+    }
+    
     const versionData = {
-      id: button.getAttribute('data-id'),
+      id: versionId,
       version: button.getAttribute('data-version'),
       size: button.getAttribute('data-size'),
       modInfo: button.getAttribute('data-mod-info'),
@@ -503,9 +512,18 @@ const { app } = Astro.props;
 
   function handleDeleteVersion(e) {
     const button = e.currentTarget;
-    versionToDelete = button.dataset.id;
+    const versionId = button.getAttribute('data-id');
     
-    const versionName = button.dataset.version;
+    // Validate version ID
+    if (!versionId || versionId === 'null' || versionId === 'undefined') {
+      console.error('Invalid version ID for delete:', versionId);
+      showToast('Invalid version ID. Cannot delete this version.', 'error');
+      return;
+    }
+    
+    versionToDelete = versionId;
+    
+    const versionName = button.getAttribute('data-version') || 'Unknown';
     const deleteVersionName = document.querySelector('#delete-modal p');
     if (deleteVersionName) {
       deleteVersionName.textContent = `Are you sure you want to delete version "${versionName}"? This action cannot be undone.`;
@@ -533,6 +551,14 @@ const { app } = Astro.props;
 
   async function performDelete() {
     if (!versionToDelete) return;
+    
+    // Double-check version ID before deletion
+    if (versionToDelete === 'null' || versionToDelete === 'undefined') {
+      console.error('Attempted to delete with invalid ID:', versionToDelete);
+      showToast('Invalid version ID. Cannot delete this version.', 'error');
+      hideDeleteModal();
+      return;
+    }
     
     try {
       showLoading();
