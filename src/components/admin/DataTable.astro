@@ -101,7 +101,11 @@ const descriptionId = `${tableId}-description`;
               aria-label={column.accessibleLabel || column.header}
             >
               <div class="th-content">
-                <span>{column.header}</span>
+                {column.key === 'select' ? (
+                  <input type="checkbox" id="select-all" aria-label="Select all items" />
+                ) : (
+                  <span>{column.header}</span>
+                )}
                 {column.sortable && (
                   <span class="sort-icon" aria-hidden="true">
                     <span class="sort-arrow sort-arrow-up">▲</span>
