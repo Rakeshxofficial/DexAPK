@@ -1,6 +1,6 @@
 import { getAllApps } from '../lib/supabase';
 
-export async function GET({ request }) {
+export async function GET() {
   const apps = await getAllApps();
   
   // Base URL for the site
