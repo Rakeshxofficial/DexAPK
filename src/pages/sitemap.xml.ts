@@ -1,6 +1,6 @@
 import { getAllApps } from '../lib/supabase';
 
-export async function GET() {
+export async function GET({ request }) {
   const apps = await getAllApps();
   
   // Base URL for the site
@@ -143,38 +143,6 @@ export async function GET() {
     <priority>0.8</priority>
   </url>
   
-  <!-- Help and Support Pages -->
-  <url>
-    <loc>${baseUrl}/help</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/about</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/contact</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/privacy</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/terms</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
   <!-- App Detail Pages -->
   ${apps.map(app => `
   <url>
@@ -207,8 +175,8 @@ export async function GET() {
 
   return new Response(xml, {
     headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': 'max-age=3600'
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600'
     }
   });
 }

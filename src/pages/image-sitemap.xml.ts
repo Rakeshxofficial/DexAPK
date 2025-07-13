@@ -1,6 +1,6 @@
 import { getAllApps } from '../lib/supabase';
 
-export async function GET() {
+export async function GET({ request }) {
   const apps = await getAllApps();
   
   // Base URL for the site
@@ -8,35 +8,6 @@ export async function GET() {
   
   // Current date in ISO format
   const now = new Date().toISOString();
-  
-  // Collect all images from apps
-  const images = [];
-  
-  // Add app icons
-  apps.forEach(app => {
-    if (app.icon) {
-      images.push({
-        loc: app.icon,
-        title: `${app.name} icon`,
-        caption: `Icon for ${app.name} MOD APK`,
-        geoLocation: '',
-        license: ''
-      });
-    }
-    
-    // Add screenshots
-    if (app.screenshots && Array.isArray(app.screenshots)) {
-      app.screenshots.forEach((screenshot, index) => {
-        images.push({
-          loc: screenshot,
-          title: `${app.name} screenshot ${index + 1}`,
-          caption: `Screenshot of ${app.name} MOD APK`,
-          geoLocation: '',
-          license: ''
-        });
-      });
-    }
-  });
   
   // Generate Image Sitemap XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -63,8 +34,8 @@ export async function GET() {
 
   return new Response(xml, {
     headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': 'max-age=3600'
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=3600'
     }
   });
 }
