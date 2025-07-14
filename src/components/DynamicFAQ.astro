@@ -96,7 +96,7 @@ const dynamicFAQs = generateDynamicFAQ(app);
 ---
 
 <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 border border-gray-200 dark:border-gray-700">
-  <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+  <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center" id="faq-section">
     <svg class="w-6 h-6 mr-3 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
@@ -105,14 +105,14 @@ const dynamicFAQs = generateDynamicFAQ(app);
   
   <div class="space-y-6">
     {dynamicFAQs.map((faq, index) => (
-      <details class="group border-l-4 border-blue-500 pl-4 transition-all duration-200 hover:border-blue-600">
-        <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors duration-200">
+      <details class="group border-l-4 border-blue-500 pl-4 transition-all duration-200 hover:border-blue-600" id={`faq-item-${index}`}>
+        <summary class="cursor-pointer font-semibold text-gray-900 dark:text-white mb-2 flex items-center justify-between group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors duration-200 py-2">
           <span>{faq.question}</span>
           <svg class="w-5 h-5 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
         </summary>
-        <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed">
+        <div class="mt-2 text-gray-600 dark:text-gray-400 leading-relaxed pl-2">
           {faq.answer}
         </div>
       </details>
@@ -122,7 +122,7 @@ const dynamicFAQs = generateDynamicFAQ(app);
 
 <style>
   details[open] summary {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
   }
   
   details summary::-webkit-details-marker {
@@ -131,5 +131,22 @@ const dynamicFAQs = generateDynamicFAQ(app);
   
   details summary {
     list-style: none;
+  }
+  
+  /* Improved spacing and readability */
+  details {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  details[open] {
+    padding-bottom: 1rem;
+  }
+  
+  /* Better focus indicators for keyboard navigation */
+  summary:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 0.25rem;
   }
 </style>
