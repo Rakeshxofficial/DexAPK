@@ -5,8 +5,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        'dyslexic': ['Open Sans', 'Verdana', 'Arial', 'sans-serif'],
+        'sans': ['Inter', 'system-ui', 'sans-serif'],
       },
       colors: {
         primary: {
@@ -61,52 +60,7 @@ export default {
         'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
         'glow-purple': '0 0 20px rgba(147, 51, 234, 0.5)',
       },
-      typography: {
-        DEFAULT: {
-          css: {
-            lineHeight: '1.8',
-            p: {
-              marginTop: '1.25em',
-              marginBottom: '1.25em',
-            },
-            'h1, h2, h3, h4, h5, h6': {
-              marginTop: '1.5em',
-              marginBottom: '0.75em',
-              fontWeight: '600',
-              lineHeight: '1.3',
-            },
-            a: {
-              textDecorationThickness: '1px',
-              textUnderlineOffset: '0.15em',
-            },
-            'a:hover': {
-              textDecorationThickness: '2px',
-            },
-            ul: {
-              marginTop: '1em',
-              marginBottom: '1.5em',
-            },
-            li: {
-              marginBottom: '0.5em',
-            },
-          },
-        },
-      },
     },
   },
-  plugins: [
-    function({ addBase, theme }) {
-      addBase({
-        // Improved contrast ratios for text
-        '.text-gray-600': { color: '#4b5563' }, // Darker than default for better contrast
-        '.dark .text-gray-400': { color: '#9ca3af' }, // Lighter in dark mode
-        
-        // Focus styles for better keyboard navigation
-        'a:focus, button:focus, input:focus, select:focus, textarea:focus': {
-          outline: '3px solid #3b82f6',
-          outlineOffset: '3px',
-        },
-      });
-    },
-  ],
+  plugins: [],
 }

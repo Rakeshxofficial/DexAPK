@@ -137,13 +137,13 @@ const websiteSchema = {
     <meta name="color-scheme" content="dark light" />
     
     <!-- Preconnect to external domains for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdn.dexapk.com" crossorigin />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     
     <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" as="style" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
 
     <!-- App-specific Meta Tags -->
     {seoData?.appName && (
@@ -166,9 +166,9 @@ const websiteSchema = {
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
     <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     </noscript>
     
     <!-- DNS Prefetch for better performance -->
@@ -253,131 +253,26 @@ const websiteSchema = {
       }
     </script>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300" id="main-body">
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <slot />
     <TelegramHelpButton />
-    
-    <!-- Accessibility Controls -->
-    <div class="fixed bottom-20 left-4 z-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 flex flex-col gap-2 border border-gray-200 dark:border-gray-700">
-      <button id="toggle-dyslexia" class="p-2 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors" aria-label="Toggle dyslexia-friendly mode">
-        <span class="sr-only">Dyslexia Mode</span>
-        <span aria-hidden="true">Aa</span>
-      </button>
-      <button id="toggle-contrast" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="Toggle high contrast mode">
-        <span class="sr-only">High Contrast</span>
-        <span aria-hidden="true">A/A</span>
-      </button>
-      <button id="increase-font" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" aria-label="Increase font size">
-        <span class="sr-only">Larger Text</span>
-        <span aria-hidden="true">A+</span>
-      </button>
-    </div>
   </body>
 </html>
 
 <style>
   html {
     font-family: 'Inter', system-ui, sans-serif;
-    scroll-behavior: auto; /* Changed from smooth for users with motion sensitivity */
+    scroll-behavior: smooth;
   }
   
   body {
     margin: 0;
     width: 100%;
     min-height: 100vh;
-    line-height: 1.8;
+    line-height: 1.6;
   }
   
   * {
     box-sizing: border-box;
   }
-
-  /* Responsive font size adjustments */
-  @media (max-width: 640px) {
-    html {
-      font-size: 15px;
-    }
-  }
-
-  /* Reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-    
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
 </style>
-
-<script>
-  // Accessibility controls
-  document.addEventListener('DOMContentLoaded', () => {
-    const body = document.getElementById('main-body');
-    const dyslexiaButton = document.getElementById('toggle-dyslexia');
-    const contrastButton = document.getElementById('toggle-contrast');
-    const increaseFontButton = document.getElementById('increase-font');
-    
-    // Check for saved preferences
-    const dyslexiaMode = localStorage.getItem('dyslexia-mode') === 'true';
-    const highContrastMode = localStorage.getItem('high-contrast-mode') === 'true';
-    const fontSize = localStorage.getItem('font-size') || '100';
-    
-    // Apply saved preferences
-    if (dyslexiaMode && body) body.classList.add('dyslexia-mode');
-    if (highContrastMode && body) body.classList.add('high-contrast-mode');
-    if (fontSize !== '100' && body) {
-      body.style.fontSize = `${fontSize}%`;
-    }
-    
-    // Toggle dyslexia-friendly mode
-    dyslexiaButton?.addEventListener('click', () => {
-      body?.classList.toggle('dyslexia-mode');
-      const isEnabled = body?.classList.contains('dyslexia-mode');
-      localStorage.setItem('dyslexia-mode', isEnabled ? 'true' : 'false');
-      
-      // Announce to screen readers
-      announceToScreenReader(`Dyslexia-friendly mode ${isEnabled ? 'enabled' : 'disabled'}`);
-    });
-    
-    // Toggle high contrast mode
-    contrastButton?.addEventListener('click', () => {
-      body?.classList.toggle('high-contrast-mode');
-      const isEnabled = body?.classList.contains('high-contrast-mode');
-      localStorage.setItem('high-contrast-mode', isEnabled ? 'true' : 'false');
-      
-      // Announce to screen readers
-      announceToScreenReader(`High contrast mode ${isEnabled ? 'enabled' : 'disabled'}`);
-    });
-    
-    // Increase font size
-    increaseFontButton?.addEventListener('click', () => {
-      const currentSize = parseInt(localStorage.getItem('font-size') || '100');
-      const newSize = currentSize < 150 ? currentSize + 10 : 100;
-      
-      if (body) body.style.fontSize = `${newSize}%`;
-      localStorage.setItem('font-size', newSize.toString());
-      
-      // Announce to screen readers
-      announceToScreenReader(`Font size ${newSize === 100 ? 'reset to default' : 'increased to ' + newSize + ' percent'}`);
-    });
-    
-    // Function for screen reader announcements
-    function announceToScreenReader(message) {
-      const announcement = document.createElement('div');
-      announcement.setAttribute('aria-live', 'assertive');
-      announcement.setAttribute('aria-atomic', 'true');
-      announcement.className = 'sr-only';
-      announcement.textContent = message;
-      
-      document.body.appendChild(announcement);
-      
-      setTimeout(() => {
-        document.body.removeChild(announcement);
-      }, 1000);
-    }
-  });
-</script>

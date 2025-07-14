@@ -194,8 +194,8 @@ const { html, toc } = parseMarkdown(content);
 
 {generateToc && toc.length > 0 && (
   <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700" id="table-of-contents">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center" id="toc-heading">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
         <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
         </svg>
@@ -204,16 +204,15 @@ const { html, toc } = parseMarkdown(content);
     </div>
     <div class="px-6 py-4">
       <nav class="space-y-2">
-        {toc.map((item, index) => (
+        {toc.map(item => (
           <a 
             href={`#${item.id}`}
-            id={`toc-link-${index}`}
             class={`block text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200 ${
               item.level === 1 ? 'font-semibold' : 
               item.level === 2 ? 'ml-4' : 
               item.level === 3 ? 'ml-8' : 
               'ml-12'
-            } py-1 px-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800`}
+            }`}
           >
             {item.text}
           </a>
@@ -224,14 +223,13 @@ const { html, toc } = parseMarkdown(content);
 )}
 
 <div class="prose prose-gray dark:prose-invert max-w-none">
-  <div set:html={html} class="content-wrapper" />
+  <div set:html={html} />
 </div>
 
 <style>
   /* Enhanced prose styles */
   .prose {
-    line-height: 1.8;
-    font-size: 1.05rem;
+    line-height: 1.6;
   }
   
   .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
@@ -240,15 +238,12 @@ const { html, toc } = parseMarkdown(content);
   
   /* Increase scroll margin to prevent headings from being hidden under the header */
   .prose h1, .prose h2, .prose h3 {
-    scroll-margin-top: 100px;
-    margin-top: 2em;
-    margin-bottom: 0.75em;
-    font-weight: 600;
+    scroll-margin-top: 8rem;
   }
   
   /* Add scroll margin to heading IDs for TOC links */
   h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
-    scroll-margin-top: 100px;
+    scroll-margin-top: 8rem;
   }
   
   .prose pre {
@@ -272,40 +267,6 @@ const { html, toc } = parseMarkdown(content);
   
   .dark .prose th, .dark .prose td {
     border-color: #374151;
-  }
-
-  /* Improved content readability */
-  .content-wrapper {
-    max-width: 70ch;
-    margin: 0 auto;
-  }
-  
-  .content-wrapper p {
-    margin-bottom: 1.5em;
-  }
-  
-  .content-wrapper ul, 
-  .content-wrapper ol {
-    margin-top: 1em;
-    margin-bottom: 1.5em;
-    padding-left: 1.5em;
-  }
-  
-  .content-wrapper li {
-    margin-bottom: 0.5em;
-  }
-  
-  .content-wrapper blockquote {
-    font-style: italic;
-    color: #4b5563;
-    border-left: 4px solid #e5e7eb;
-    padding-left: 1rem;
-    margin-left: 0;
-  }
-  
-  .dark .content-wrapper blockquote {
-    color: #9ca3af;
-    border-left-color: #4b5563;
   }
   
   /* Smooth scrolling for anchor links */
@@ -331,32 +292,22 @@ const { html, toc } = parseMarkdown(content);
           // Get the header height to offset the scroll position
           const headerHeight = document.querySelector('header')?.offsetHeight || 100;
           
-          // Check if user prefers reduced motion
-          const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-          
-          const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY;
-          const scrollOffset = headerHeight + 40; // Add extra padding
-          
-          // Scroll to element with offset for the header
-          window.scrollTo({
-            top: targetPosition - scrollOffset,
-            behavior: prefersReducedMotion ? 'auto' : 'smooth'
-          });
-          
-          // Update URL without triggering page reload
-          history.pushState(null, null, `#${targetId}`);
-          
-          // Announce to screen readers
-          announceToScreenReader(`Navigated to ${targetId.replace(/-/g, ' ')} section`);
-          
-          // Set focus to the target element for keyboard users
-          targetElement.setAttribute('tabindex', '-1');
-          targetElement.focus();
-          
-          // Remove tabindex after blur to maintain normal tab order
-          targetElement.addEventListener('blur', function onBlur() {
-            targetElement.removeAttribute('tabindex');
-            targetElement.removeEventListener('blur', onBlur);
+          // Use requestAnimationFrame to avoid forced reflow
+          window.requestAnimationFrame(() => {
+            const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+            const scrollOffset = headerHeight + 40; // Add extra padding
+            
+            // Scroll to element with offset for the header
+            window.scrollTo({
+              top: targetPosition - scrollOffset,
+              behavior: 'smooth'
+            });
+            
+            // Update URL without triggering page reload
+            history.pushState(null, null, `#${targetId}`);
+            
+            // Announce to screen readers
+            announceToScreenReader(`Navigated to ${targetId.replace(/-/g, ' ')} section`);
           });
         }
       }, { passive: false });
@@ -370,14 +321,11 @@ const { html, toc } = parseMarkdown(content);
       announcement.className = 'sr-only';
       announcement.textContent = message;
       
-      // Use aria-live="assertive" for important navigation announcements
-      announcement.setAttribute('aria-live', 'assertive');
-      
       document.body.appendChild(announcement);
       
       setTimeout(() => {
         document.body.removeChild(announcement);
-      }, 2000);
+      }, 1000);
     }
   });
 </script>
