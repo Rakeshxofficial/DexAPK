@@ -5,15 +5,6 @@
 	contain: style;
 +}
 +
-/* Form input accessibility improvements */
-input, select, textarea {
-  background-color: white;
-  color: #111827;
-}
-
-.dark input, .dark select, .dark textarea {
-  background-color: #374151;
-  color: white;
 +/* Hide scrollbar for Chrome, Safari and Opera */
 +.scrollbar-hide::-webkit-scrollbar {
 +  display: none;
