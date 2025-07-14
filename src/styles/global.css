@@ -12,6 +12,28 @@
 +
 +/* Hide scrollbar for IE, Edge and Firefox */
 +.scrollbar-hide {
+/* Fix for dark buttons in light mode */
+select, button, .button {
+  background-color: white;
+  color: #374151;
+}
+
+.dark select, .dark button, .dark .button {
+  background-color: #1f2937;
+  color: white;
+}
+
+/* Fix for "Highest Rated" button specifically */
+#sort-category-apps, #sort-filter, #trending-filter, #sort-games {
+  background-color: white;
+  color: #374151;
+}
+
+.dark #sort-category-apps, .dark #sort-filter, .dark #trending-filter, .dark #sort-games {
+  background-color: #1f2937;
+  color: white;
+}
+
 +  -ms-overflow-style: none;  /* IE and Edge */
 +  scrollbar-width: none;  /* Firefox */
 }
