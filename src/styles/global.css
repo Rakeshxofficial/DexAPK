@@ -47,9 +47,3 @@ nav[aria-label="Breadcrumb"] span {
   background-color: white;
   border-bottom: 1px solid #e5e7eb;
 }
-
-/* Dark mode support */
-.dark .breadcrumb-wrapper {
-  background-color: #1f2937;
-  border-bottom: 1px solid #374151;
-}
