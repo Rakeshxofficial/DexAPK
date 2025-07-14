@@ -5,33 +5,6 @@
 	contain: style;
 +}
 +
-/* Fix for dark input fields in light mode */
-input, 
-textarea, 
-select {
-  background-color: #f9fafb !important;
-  color: #111827 !important;
-  border-color: #d1d5db !important;
-}
-
-/* Dark mode styles */
-.dark input,
-.dark textarea,
-.dark select {
-  background-color: #374151 !important;
-  color: #f9fafb !important;
-  border-color: #4b5563 !important;
-}
-
-/* Focus styles for better accessibility */
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid #3b82f6 !important;
-  outline-offset: 2px !important;
-  border-color: #3b82f6 !important;
-}
-
 +/* Hide scrollbar for Chrome, Safari and Opera */
 +.scrollbar-hide::-webkit-scrollbar {
 +  display: none;
