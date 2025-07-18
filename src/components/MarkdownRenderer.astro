@@ -43,11 +43,13 @@ function parseMarkdown(markdown: string) {
     const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
     if (headingMatch) {
       const level = headingMatch[1].length;
-      const text = headingMatch[2];
+      const text = formatInlineMarkdown(headingMatch[2]);
       const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       
       if (generateToc) {
-        toc.push({ level, text, id });
+        // For TOC, use plain text without HTML tags
+        const plainText = headingMatch[2].replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').replace(/`(.*?)`/g, '$1');
+        toc.push({ level, text: plainText, id });
       }
       
       html += `<h${level} id="${id}" class="text-${level === 1 ? '3xl' : level === 2 ? '2xl' : level === 3 ? 'xl' : 'lg'} font-bold text-gray-900 dark:text-white mb-4 mt-8">${text}</h${level}>`;
