@@ -581,17 +581,57 @@ const currentVersion = {
   async function loadRelatedApps() {
     try {
       const { getRelatedApps } = await import('../../lib/supabase.js');
-      const appSlug = window.location.pathname.split('/')[1];
-      const appCategory = document.querySelector('h1').textContent.includes('MOD APK') ? 
-        document.querySelector('h1').textContent.split(' ')[0] : 'Apps';
+      
+      // Get app slug from URL path
+      const pathParts = window.location.pathname.split('/');
+      const appSlug = pathParts[1]; // First part after domain
+      
+      // Get app category from the page data or breadcrumb
+      let appCategory = 'Apps'; // Default fallback
+      
+      // Try to get category from breadcrumb navigation
+      const breadcrumbLinks = document.querySelectorAll('nav[aria-label="Breadcrumb"] a');
+      if (breadcrumbLinks.length >= 2) {
+        // Second breadcrumb link should be the category
+        const categoryLink = breadcrumbLinks[1];
+        if (categoryLink && categoryLink.textContent) {
+          appCategory = categoryLink.textContent.trim();
+        }
+      }
+      
+      // Fallback: try to extract from page title
+      if (appCategory === 'Apps') {
+        const pageTitle = document.querySelector('h1');
+        if (pageTitle && pageTitle.textContent) {
+          const titleText = pageTitle.textContent;
+          // Look for common category keywords in the title
+          const categories = ['Games', 'Music', 'Video', 'Social', 'Photography', 'Productivity', 'Entertainment', 'Media'];
+          for (const cat of categories) {
+            if (titleText.toLowerCase().includes(cat.toLowerCase())) {
+              appCategory = cat;
+              break;
+            }
+          }
+        }
+      }
+      
+      console.log('Loading related apps for:', { appSlug, appCategory });
       
       const relatedApps = await getRelatedApps(appSlug, appCategory, 6);
+      console.log('Related apps loaded:', relatedApps);
       
       const relatedAppsContainer = document.getElementById('related-apps-container');
       const relatedAppsLoading = document.getElementById('related-apps-loading');
       const relatedAppsList = document.getElementById('related-apps-list');
       
-      if (relatedApps && relatedApps.length > 0) {
+      if (!relatedAppsContainer || !relatedAppsLoading || !relatedAppsList) {
+        console.error('Related apps DOM elements not found');
+        return;
+      }
+      
+      if (relatedApps && Array.isArray(relatedApps) && relatedApps.length > 0) {
+        console.log('Rendering', relatedApps.length, 'related apps');
+        
         relatedAppsList.innerHTML = relatedApps.map(app => `
           <div class="w-64 flex-shrink-0">
             <a href="/${app.slug}" class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full">
@@ -599,7 +639,7 @@ const currentVersion = {
                 <div class="flex items-center mb-3">
                   <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden mr-3">
                     ${app.icon ? 
-                      `<img src="${app.icon}" alt="${app.name} icon" class="w-full h-full object-cover" loading="lazy" width="48" height="48">` :
+                      `<img src="${app.icon}" alt="${app.name} icon" class="w-full h-full object-cover" loading="lazy" width="48" height="48" onerror="this.style.display='none';">` :
                       `<svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                       </svg>`
@@ -627,11 +667,70 @@ const currentVersion = {
         relatedAppsLoading.classList.add('hidden');
         relatedAppsContainer.classList.remove('hidden');
       } else {
-        relatedAppsLoading.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No related apps found</p>';
+        console.log('No related apps found, trying fallback approach');
+        
+        // Fallback: try to get any apps from the same category
+        try {
+          const { getAppsByCategory } = await import('../../lib/supabase.js');
+          const categoryApps = await getAppsByCategory(appCategory, 6);
+          
+          if (categoryApps && categoryApps.length > 0) {
+            // Filter out current app
+            const filteredApps = categoryApps.filter(app => app.slug !== appSlug);
+            
+            if (filteredApps.length > 0) {
+              console.log('Using category fallback apps:', filteredApps.length);
+              
+              relatedAppsList.innerHTML = filteredApps.slice(0, 6).map(app => `
+                <div class="w-64 flex-shrink-0">
+                  <a href="/${app.slug}" class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full">
+                    <div class="p-4">
+                      <div class="flex items-center mb-3">
+                        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden mr-3">
+                          ${app.icon ? 
+                            `<img src="${app.icon}" alt="${app.name} icon" class="w-full h-full object-cover" loading="lazy" width="48" height="48" onerror="this.style.display='none';">` :
+                            `<svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>`
+                          }
+                        </div>
+                        <div>
+                          <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">${app.name}</h3>
+                          <p class="text-xs text-blue-600 dark:text-blue-400">${app.category}</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center">
+                          <svg class="w-3 h-3 text-yellow-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                          <span>${app.rating}</span>
+                        </div>
+                        <span>${app.size}</span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              `).join('');
+              
+              relatedAppsLoading.classList.add('hidden');
+              relatedAppsContainer.classList.remove('hidden');
+              return;
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Fallback category apps loading failed:', fallbackError);
+        }
+        
+        // Final fallback: show message
+        relatedAppsLoading.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Unable to load related apps</p>';
       }
     } catch (error) {
       console.error('Error loading related apps:', error);
-      document.getElementById('related-apps-loading').innerHTML = '<p class="text-gray-500 dark:text-gray-400">Unable to load related apps</p>';
+      const loadingElement = document.getElementById('related-apps-loading');
+      if (loadingElement) {
+        loadingElement.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Unable to load related apps</p>';
+      }
     }
   }
   
