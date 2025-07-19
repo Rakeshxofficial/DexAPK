@@ -23,30 +23,10 @@ if (!app || app.disable_download_page) {
   return Astro.redirect(`/${slug}`, 301);
 }
 
-// Get related apps
-let relatedApps = [];
-try {
-  relatedApps = await getRelatedApps(app.slug, app.category, 6);
-} catch (error) {
-  console.error('Error loading related apps:', error);
-}
-
-// Get download tasks for this app
-let downloadTasks = [];
-try {
-  downloadTasks = await getAppDownloadTasksBySlug(app.slug);
-} catch (error) {
-  console.error('Error loading download tasks:', error);
-}
-
-// Get app versions for this app
-let appVersions = [];
-try {
-  appVersions = await getAppVersionsBySlug(app.slug, 3);
-  console.log('Loaded app versions:', appVersions);
-} catch (error) {
-  console.error('Error loading app versions:', error);
-}
+// Defer non-critical data loading to improve TTFB
+const relatedApps = [];
+const downloadTasks = [];
+const appVersions = [];
 
 // SEO data with fallbacks
 const seoTitle = `Download ${app.name} v${app.version} MOD APK`;
@@ -120,9 +100,8 @@ const installationFAQs = [
   }
 ];
 
-// Prepare versions for display
-// Current version is always shown first
-const currentVersion = app ? {
+// Simplified version data for initial render
+const currentVersion = {
   id: 'current',
   version: `v${app.version}`,
   size: app.size || '0 MB',
@@ -131,16 +110,7 @@ const currentVersion = app ? {
   download_url: app.download_url || '#',
   is_active: true,
   isCurrent: true
-} : null;
-
-// Filter out any versions that match the current version
-const previousVersions = appVersions.filter(v => 
-  v.version !== `v${app.version}` && 
-  v.version !== app.version
-);
-
-// Combine current version with previous versions
-const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
+};
 ---
 
 <Layout seoData={seoData}>
@@ -233,62 +203,137 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
       </div>
     </section>
 
-    <!-- Latest Versions Section -->
-    <section class="py-12 bg-gray-50 dark:bg-gray-900">
+    <!-- Current Version Section (Simplified) -->
+    <section class="py-12 bg-gray-50 dark:bg-gray-900" id="current-version">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-          {previousVersions.length > 0 ? 'Latest Versions' : 'Current Version'}
+          Current Version
         </h2>
         
-        <div class="space-y-4">
-          {allVersions.map((version) => (
-            <div class={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border ${version.isCurrent ? 'border-blue-300 dark:border-blue-700' : 'border-gray-200 dark:border-gray-700'} overflow-hidden`}>
-              <div class="p-6">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div>
-                    <div class="flex items-center">
-                      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {app.name} {version.version}
-                      </h3>
-                      {version.isCurrent && (
-                        <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                          Latest
-                        </span>
-                      )}
-                    </div>
-                    <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                      <span>{version.size}</span>
-                      <span class="mx-2">•</span>
-                      <span>{new Date(version.release_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
-                    </div>
-                    <div class="mt-2">
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                        {version.mod_info}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <a
-                      href={version.download_url || '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="version-download-btn inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
-                      aria-label={`Download ${app.name} ${version.version}`}
-                      data-version={version.version}
-                      data-size={version.size}
-                      data-download-url={version.download_url || '#'}
-                    >
-                      <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-                      </svg>
-                      Download
-                    </a>
-                  </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-blue-300 dark:border-blue-700 overflow-hidden">
+          <div class="p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div class="flex items-center">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {app.name} {currentVersion.version}
+                  </h3>
+                  <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    Latest
+                  </span>
+                </div>
+                <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <span>{currentVersion.size}</span>
+                  <span class="mx-2">•</span>
+                  <span>{new Date(currentVersion.release_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
+                </div>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    {currentVersion.mod_info}
+                  </span>
                 </div>
               </div>
+              
+              <div>
+                <a
+                  href={currentVersion.download_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="version-download-btn inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
+                  aria-label={`Download ${app.name} ${currentVersion.version}`}
+                  data-version={currentVersion.version}
+                  data-size={currentVersion.size}
+                  data-download-url={currentVersion.download_url || '#'}
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                  </svg>
+                  Download
+                </a>
+              </div>
             </div>
-          ))}
+          </div>
+        </div>
+        
+        <!-- Load More Versions Button -->
+        <div class="text-center mt-6">
+          <button
+            id="load-versions-btn"
+            class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Load Previous Versions
+          </button>
+        </div>
+        
+        <!-- Additional Versions Container (Hidden Initially) -->
+        <div id="additional-versions" class="hidden space-y-4 mt-6">
+          <!-- Versions will be loaded here dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Advanced Download Flow Section -->
+    <section id="engage-download" class="py-12 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 md:p-12">
+          <div class="mb-6">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+              </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Ready to Download?
+            </h2>
+            <p id="selected-version-info" class="text-lg text-gray-600 dark:text-gray-400 mb-2">
+              Selected version: v{app.version}
+            </p>
+            <p class="text-gray-500 dark:text-gray-500 text-sm">
+              File size: {app.size} • Last updated: {app.last_updated}
+            </p>
+          </div>
+          
+          <!-- Download Button with States -->
+          <div class="space-y-4">
+            <button
+              id="engage-download-btn"
+              data-download-url={app.download_url || '#'}
+              data-app-name={app.name}
+              data-app-size={app.size}
+              class="w-full max-w-md mx-auto py-4 px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 min-h-[64px] flex items-center justify-center"
+            >
+              <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+              </svg>
+              Get Download Link
+            </button>
+            
+            <!-- Installation Tip (shown during countdown) -->
+            <div id="installation-tip" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+              <div class="flex items-start">
+                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    Installation Tip
+                  </h4>
+                  <p class="text-sm text-blue-700 dark:text-blue-300" id="tip-text">
+                    Enable "Unknown Sources" in your Android settings before installing the APK file.
+                  </p>
+                  </div>
+                  
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -417,68 +462,6 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
       </div>
     </section>
 
-    <!-- Advanced Download Flow Section -->
-    <section id="engage-download" class="py-12 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 md:p-12">
-          <div class="mb-6">
-            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-              </svg>
-            </div>
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Ready to Download?
-            </h2>
-            <p id="selected-version-info" class="text-lg text-gray-600 dark:text-gray-400 mb-2">
-              Selected version: v{app.version}
-            </p>
-            <p class="text-gray-500 dark:text-gray-500 text-sm">
-              File size: {app.size} • Last updated: {app.last_updated}
-            </p>
-          </div>
-          
-          <!-- Download Button with States -->
-          <div class="space-y-4">
-            <button
-              id="engage-download-btn"
-              data-download-url={app.download_url || '#'}
-              data-app-name={app.name}
-              data-app-size={app.size}
-              class="w-full max-w-md mx-auto py-4 px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 min-h-[64px] flex items-center justify-center"
-            >
-              <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-              </svg>
-              Get Download Link
-            </button>
-            
-            <!-- Installation Tip (shown during countdown) -->
-            <div id="installation-tip" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-              <div class="flex items-start">
-                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1 flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                    </svg>
-                    Installation Tip
-                  </h4>
-                  <p class="text-sm text-blue-700 dark:text-blue-300" id="tip-text">
-                    Enable "Unknown Sources" in your Android settings before installing the APK file.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- FAQs Section -->
     <section class="py-12 bg-gray-50 dark:bg-gray-900">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -506,88 +489,51 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
       </div>
     </section>
 
-    <!-- Related Posts Section -->
-    <section class="py-12 bg-white dark:bg-gray-800">
+    <!-- Related Posts Section (Lazy Loaded) -->
+    <section class="py-12 bg-white dark:bg-gray-800" id="related-apps">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-10">
           Related Apps
         </h2>
         
-        <div class="relative px-16">
-          <!-- Scrollable Container -->
-          <div class="overflow-x-auto pb-4 scrollbar-hide">
-            <div class="flex space-x-4 min-w-max">
-              {relatedApps.map((relatedApp) => (
-                <div class="w-64 flex-shrink-0">
-                  <a 
-                    href={`/${relatedApp.slug}`} 
-                    class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full"
-                  >
-                    <div class="p-4">
-                      <div class="flex items-center mb-3">
-                        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden mr-3">
-                          {relatedApp.icon ? (
-                            <ImageOptimized 
-                              src={relatedApp.icon} 
-                              alt={`${relatedApp.name} icon`}
-                              class="w-full h-full object-cover"
-                              loading="lazy"
-                              width={64}
-                              height={64}
-                            />
-                          ) : (
-                            <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
-                          )}
-                        </div>
-                        <div>
-                          <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                            {relatedApp.name}
-                          </h3>
-                          <p class="text-xs text-blue-600 dark:text-blue-400">
-                            {relatedApp.category}
-                          </p>
-                        </div>
-                      </div>
-                      <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <div class="flex items-center">
-                          <svg class="w-3 h-3 text-yellow-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                          </svg>
-                          <span>{relatedApp.rating}</span>
-                        </div>
-                        <span>{relatedApp.size}</span>
-                      </div>
-                    </div>
-                  </a>
-                </div>
-              ))}
+        <!-- Loading State -->
+        <div id="related-apps-loading" class="flex items-center justify-center py-8">
+          <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        </div>
+        
+        <!-- Related Apps Container -->
+        <div id="related-apps-container" class="hidden">
+          <div class="relative px-16">
+            <!-- Scrollable Container -->
+            <div class="overflow-x-auto pb-4 scrollbar-hide">
+              <div id="related-apps-list" class="flex space-x-4 min-w-max">
+                <!-- Related apps will be loaded here -->
+              </div>
             </div>
-          </div>
-          
-          <!-- Scroll Indicators -->
-          <div class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
-            <button
-              id="scroll-left" 
-              class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
-              aria-label="Scroll left"
-            >
-              <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-              </svg>
-            </button>
-          </div>
-          <div class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20">
-            <button 
-              id="scroll-right" 
-              class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
-              aria-label="Scroll right"
-            >
-              <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-              </svg>
-            </button>
+            
+            <!-- Scroll Indicators -->
+            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
+              <button
+                id="scroll-left" 
+                class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+                aria-label="Scroll left"
+              >
+                <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </button>
+            </div>
+            <div class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20">
+              <button 
+                id="scroll-right" 
+                class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+                aria-label="Scroll right"
+              >
+                <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
         
@@ -607,58 +553,115 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
 </Layout>
 
 <script>
-  // Horizontal scrolling for related apps
   document.addEventListener('DOMContentLoaded', function() {
     // Advanced Download Flow Logic
     setupAdvancedDownloadFlow();
     
-    // Use let instead of const for variables that will be reused
-    let scrollContainer, scrollLeftBtn, scrollRightBtn;
+    // Load non-critical content after initial render
+    loadNonCriticalContent();
     
-    // Use requestIdleCallback to defer non-critical initialization
-    (window.requestIdleCallback || window.setTimeout)(() => {
-      scrollContainer = document.querySelector('.overflow-x-auto');
-      scrollLeftBtn = document.getElementById('scroll-left');
-      scrollRightBtn = document.getElementById('scroll-right');
+    // Setup load versions button
+    setupLoadVersionsButton();
+  });
+  
+  // Load non-critical content after page load
+  async function loadNonCriticalContent() {
+    try {
+      // Load related apps
+      await loadRelatedApps();
       
-      if (scrollContainer && scrollLeftBtn && scrollRightBtn) {
-        // Initially hide left button if at start
-        updateScrollButtons();
+      // Setup horizontal scrolling after content is loaded
+      setupHorizontalScrolling();
+    } catch (error) {
+      console.error('Error loading non-critical content:', error);
+    }
+  }
+  
+  // Load related apps dynamically
+  async function loadRelatedApps() {
+    try {
+      const { getRelatedApps } = await import('../../lib/supabase.js');
+      const appSlug = window.location.pathname.split('/')[1];
+      const appCategory = document.querySelector('h1').textContent.includes('MOD APK') ? 
+        document.querySelector('h1').textContent.split(' ')[0] : 'Apps';
+      
+      const relatedApps = await getRelatedApps(appSlug, appCategory, 6);
+      
+      const relatedAppsContainer = document.getElementById('related-apps-container');
+      const relatedAppsLoading = document.getElementById('related-apps-loading');
+      const relatedAppsList = document.getElementById('related-apps-list');
+      
+      if (relatedApps && relatedApps.length > 0) {
+        relatedAppsList.innerHTML = relatedApps.map(app => `
+          <div class="w-64 flex-shrink-0">
+            <a href="/${app.slug}" class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full">
+              <div class="p-4">
+                <div class="flex items-center mb-3">
+                  <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden mr-3">
+                    ${app.icon ? 
+                      `<img src="${app.icon}" alt="${app.name} icon" class="w-full h-full object-cover" loading="lazy" width="48" height="48">` :
+                      `<svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>`
+                    }
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">${app.name}</h3>
+                    <p class="text-xs text-blue-600 dark:text-blue-400">${app.category}</p>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <div class="flex items-center">
+                    <svg class="w-3 h-3 text-yellow-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    <span>${app.rating}</span>
+                  </div>
+                  <span>${app.size}</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        `).join('');
         
-        scrollLeftBtn.addEventListener('click', function() {
-          scrollContainer.scrollBy({ left: -300, behavior: 'smooth' });
-          // Announce to screen readers
-          announceToScreenReader('Scrolled left');
-        });
-        
-        scrollRightBtn.addEventListener('click', function() {
-          scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
-          // Announce to screen readers
-          announceToScreenReader('Scrolled right');
-        });
-        
-        // Use passive event listener for better performance
-        scrollContainer.addEventListener('scroll', updateScrollButtons, { passive: true });
-        
-        // Update on resize with debounce
-        let resizeTimer;
-        window.addEventListener('resize', function() {
-          clearTimeout(resizeTimer);
-          resizeTimer = setTimeout(updateScrollButtons, 100);
-        }, { passive: true });
+        relatedAppsLoading.classList.add('hidden');
+        relatedAppsContainer.classList.remove('hidden');
+      } else {
+        relatedAppsLoading.innerHTML = '<p class="text-gray-500 dark:text-gray-400">No related apps found</p>';
       }
+    } catch (error) {
+      console.error('Error loading related apps:', error);
+      document.getElementById('related-apps-loading').innerHTML = '<p class="text-gray-500 dark:text-gray-400">Unable to load related apps</p>';
+    }
+  }
+  
+  // Setup horizontal scrolling for related apps
+  function setupHorizontalScrolling() {
+    const scrollContainer = document.querySelector('.overflow-x-auto');
+    const scrollLeftBtn = document.getElementById('scroll-left');
+    const scrollRightBtn = document.getElementById('scroll-right');
+    
+    if (scrollContainer && scrollLeftBtn && scrollRightBtn) {
+      updateScrollButtons();
+      
+      scrollLeftBtn.addEventListener('click', function() {
+        scrollContainer.scrollBy({ left: -300, behavior: 'smooth' });
+      });
+      
+      scrollRightBtn.addEventListener('click', function() {
+        scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
+      });
+      
+      scrollContainer.addEventListener('scroll', updateScrollButtons, { passive: true });
       
       function updateScrollButtons() {
-        // Use requestAnimationFrame to batch DOM updates
         requestAnimationFrame(() => {
-          // Show/hide left button based on scroll position
           if (scrollContainer.scrollLeft <= 0) {
             scrollLeftBtn.classList.add('opacity-0', 'pointer-events-none');
           } else {
             scrollLeftBtn.classList.remove('opacity-0', 'pointer-events-none');
           }
           
-          // Show/hide right button based on scroll position
           if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10) {
             scrollRightBtn.classList.add('opacity-0', 'pointer-events-none');
           } else {
@@ -666,22 +669,77 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
           }
         });
       }
-      
-      // Function for screen reader announcements
-      function announceToScreenReader(message) {
-        const announcement = document.createElement('div');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.setAttribute('aria-atomic', 'true');
-        announcement.className = 'sr-only';
-        announcement.textContent = message;
+    }
+  }
+  
+  // Setup load versions button
+  function setupLoadVersionsButton() {
+    const loadVersionsBtn = document.getElementById('load-versions-btn');
+    const additionalVersions = document.getElementById('additional-versions');
+    
+    if (loadVersionsBtn) {
+      loadVersionsBtn.addEventListener('click', async function() {
+        this.innerHTML = `
+          <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Loading Versions...
+        `;
+        this.disabled = true;
         
-        document.body.appendChild(announcement);
-        setTimeout(() => {
-          document.body.removeChild(announcement);
-        }, 1000);
-      }
-    }, { timeout: 1000 });
-  });
+        try {
+          const { getAppVersionsBySlug } = await import('../../lib/supabase.js');
+          const appSlug = window.location.pathname.split('/')[1];
+          const versions = await getAppVersionsBySlug(appSlug, 10);
+          
+          if (versions && versions.length > 0) {
+            additionalVersions.innerHTML = versions.map(version => `
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="p-6">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <div class="flex items-center">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${version.version}</h3>
+                      </div>
+                      <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <span>${version.size}</span>
+                        <span class="mx-2">•</span>
+                        <span>${new Date(version.release_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
+                      </div>
+                      <div class="mt-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          ${version.mod_info}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <a href="${version.download_url || '#'}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                        </svg>
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+            
+            additionalVersions.classList.remove('hidden');
+            this.style.display = 'none';
+          } else {
+            this.innerHTML = 'No additional versions available';
+            this.disabled = true;
+          }
+        } catch (error) {
+          console.error('Error loading versions:', error);
+          this.innerHTML = 'Failed to load versions';
+          this.disabled = true;
+        }
+      });
+    }
+  }
   
   // Advanced Download Flow Setup
   function setupAdvancedDownloadFlow() {
