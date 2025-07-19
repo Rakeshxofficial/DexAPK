@@ -233,62 +233,6 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
       </div>
     </section>
 
-    <!-- Advanced Download Flow Section -->
-    <section id="engage-download" class="py-12 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 md:p-12">
-          <div class="mb-6">
-            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-              </svg>
-            </div>
-            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Ready to Download?
-            </h2>
-            <p id="selected-version-info" class="text-lg text-gray-600 dark:text-gray-400 mb-2">
-              Selected version: v{app.version}
-            </p>
-            <p class="text-gray-500 dark:text-gray-500 text-sm">
-              File size: {app.size} • Last updated: {app.last_updated}
-            </p>
-          </div>
-          
-          <!-- Download Button with States -->
-          <div class="space-y-4">
-            <button
-              id="engage-download-btn"
-              data-download-url={app.download_url || '#'}
-              data-app-name={app.name}
-              data-app-size={app.size}
-              class="w-full max-w-md mx-auto py-4 px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 min-h-[64px] flex items-center justify-center"
-            >
-              <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
-              </svg>
-              📥 Get Download Link
-            </button>
-            
-            <!-- Installation Tip (shown during countdown) -->
-            <div id="installation-tip" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-              <div class="flex items-start">
-                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1">💡 Installation Tip</h4>
-                  <p class="text-sm text-blue-700 dark:text-blue-300" id="tip-text">
-                    Enable "Unknown Sources" in your Android settings before installing the APK file.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
     <!-- Latest Versions Section -->
     <section class="py-12 bg-gray-50 dark:bg-gray-900">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -465,6 +409,68 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
                     <li>On newer Android versions, grant permission to your browser or file manager to install apps</li>
                     <li>Temporarily disable any antivirus apps that might be blocking installation</li>
                   </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Advanced Download Flow Section -->
+    <section id="engage-download" class="py-12 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 md:p-12">
+          <div class="mb-6">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+              </svg>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Ready to Download?
+            </h2>
+            <p id="selected-version-info" class="text-lg text-gray-600 dark:text-gray-400 mb-2">
+              Selected version: v{app.version}
+            </p>
+            <p class="text-gray-500 dark:text-gray-500 text-sm">
+              File size: {app.size} • Last updated: {app.last_updated}
+            </p>
+          </div>
+          
+          <!-- Download Button with States -->
+          <div class="space-y-4">
+            <button
+              id="engage-download-btn"
+              data-download-url={app.download_url || '#'}
+              data-app-name={app.name}
+              data-app-size={app.size}
+              class="w-full max-w-md mx-auto py-4 px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 min-h-[64px] flex items-center justify-center"
+            >
+              <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+              </svg>
+              Get Download Link
+            </button>
+            
+            <!-- Installation Tip (shown during countdown) -->
+            <div id="installation-tip" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+              <div class="flex items-start">
+                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    Installation Tip
+                  </h4>
+                  <p class="text-sm text-blue-700 dark:text-blue-300" id="tip-text">
+                    Enable "Unknown Sources" in your Android settings before installing the APK file.
+                  </p>
                 </div>
               </div>
             </div>
@@ -823,7 +829,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
-            ✅ Download (${currentAppSize})
+            Download (${currentAppSize})
           `;
           engageDownloadBtn.disabled = false;
           engageDownloadBtn.classList.remove('opacity-75', 'cursor-not-allowed');
@@ -840,7 +846,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
                 <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
-                Download Started! ✨
+                Download Started!
               `;
               
               // Reset after 3 seconds
@@ -850,7 +856,7 @@ const allVersions = currentVersion ? [currentVersion, ...previousVersions] : [];
                   <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
                   </svg>
-                  📥 Get Download Link
+                  Get Download Link
                 `;
                 this.classList.remove('bg-green-600', 'hover:bg-green-700');
                 this.classList.add('bg-gradient-to-r', 'from-blue-600', 'to-purple-600', 'hover:from-blue-700', 'hover:to-purple-700');
