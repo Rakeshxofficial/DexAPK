@@ -301,9 +301,11 @@ const dynamicFAQs = app ? [
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             {app.custom_h1_title || `${app.name} v${app.version} MOD APK`}
           </h1>
-          <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
-            [Premium Unlocked] for Android
-          </p>
+          {app.mod_info && app.mod_info.length > 0 && (
+            <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+              {app.mod_info[0]}
+            </p>
+          )}
 
           <!-- App Meta -->
           <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-gray-600 dark:text-gray-400 mb-8">
