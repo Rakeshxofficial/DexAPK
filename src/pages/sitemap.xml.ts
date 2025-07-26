@@ -1,7 +1,11 @@
 import { getAllApps } from '../lib/supabase';
+import { getAllBlogPosts, getAllBlogCategories, getAllBlogTags } from '../lib/supabase';
 
 export async function GET({ request }) {
   const apps = await getAllApps();
+  const blogPosts = await getAllBlogPosts();
+  const blogCategories = await getAllBlogCategories();
+  const blogTags = await getAllBlogTags();
   
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
