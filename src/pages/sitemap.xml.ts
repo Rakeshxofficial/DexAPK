@@ -4,8 +4,8 @@ export async function GET({ request }) {
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
   
-  // Use a fixed date to prevent constant regeneration - update this manually when needed
-  const lastModified = '2025-01-15T00:00:00.000Z';
+  // Current timestamp for when sitemap was last updated - update this manually when needed
+  const lastModified = '2025-07-26T07:30:00.000Z';
   
   // Initialize arrays for all data
   let apps = [];

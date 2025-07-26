@@ -4,8 +4,8 @@ export async function GET() {
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
   
-  // Fixed timestamp to prevent constant regeneration
-  const lastModified = '2025-01-15T00:00:00.000Z';
+  // Current timestamp for when sitemap was last updated
+  const lastModified = '2025-07-26T07:30:00.000Z';
   
   // Initialize arrays for blog data
   let blogPosts = [];

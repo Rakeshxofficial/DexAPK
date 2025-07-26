@@ -6,8 +6,8 @@ export async function GET({ request }) {
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
   
-  // Current date in ISO format
-  const now = new Date().toISOString();
+  // Current timestamp for when sitemap was last updated
+  const now = '2025-07-26T07:30:00.000Z';
   
   // Generate Image Sitemap XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
