@@ -435,6 +435,50 @@ const readingTime = post.reading_time || calculateReadingTime(post.content);
   }
 </style>
   // Copy to clipboard function
+<script>
+  // Copy to clipboard function
+  function copyToClipboard() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      // Show a temporary success message
+      const button = event.target.closest('button');
+      const originalTitle = button.title;
+      button.title = 'Copied!';
+      
+      // Reset title after 2 seconds
+      setTimeout(() => {
+        button.title = originalTitle;
+      }, 2000);
+      
+      // Optional: Show toast notification
+      showToast('Link copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy: ', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = window.location.href;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('Link copied to clipboard!');
+    });
+  }
+  
+  // Simple toast notification function
+  function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 300);
+    }, 2000);
+  }
+</script>
   function copyToClipboard() {
     navigator.clipboard.writeText(window.location.href).then(() => {
       // Show a temporary success message
