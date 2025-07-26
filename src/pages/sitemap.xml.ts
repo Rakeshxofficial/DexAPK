@@ -97,6 +97,18 @@ export async function GET({ request }) {
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>${baseUrl}/blog/tags</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/publisher</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
   
   <!-- Category Pages -->
   <url>
@@ -154,22 +166,6 @@ export async function GET({ request }) {
     <priority>0.8</priority>
   </url>
   
-  <!-- Publisher Pages -->
-  <url>
-    <loc>${baseUrl}/publisher</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Blog Tags Page -->
-  <url>
-    <loc>${baseUrl}/blog/tags</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
   <!-- Blog Category Pages -->
   ${blogCategories.map(category => {
     const categorySlug = category.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -212,6 +208,18 @@ export async function GET({ request }) {
     </image:image>` : ''}
   </url>`).join('')}
   
+  <!-- Publisher Detail Pages -->
+  ${publishers.map(publisher => {
+    return `
+  <url>
+    <loc>${baseUrl}/publisher/${publisher.slug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/publisher/${publisher.slug}"/>
+  </url>`;
+  }).join('')}
+  
   <!-- App Detail Pages -->
   ${apps.map(app => `
   <url>
@@ -240,18 +248,6 @@ export async function GET({ request }) {
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/${app.slug}/download"/>
   </url>`).join('')}
-  
-  <!-- Publisher Detail Pages -->
-  ${publishers.map(publisher => {
-    return `
-  <url>
-    <loc>${baseUrl}/publisher/${publisher.slug}</loc>
-    <lastmod>${now}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/publisher/${publisher.slug}"/>
-  </url>`;
-  }).join('')}
 </urlset>`;
 
   return new Response(xml, {

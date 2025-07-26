@@ -1072,6 +1072,83 @@ export async function getAllBlogPosts() {
   }
 }
 
+// Get all unique blog categories
+export async function getAllBlogCategories() {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('category')
+      .eq('is_published', true);
+
+    if (error) {
+      console.error('Error fetching blog categories:', error);
+      return [];
+    }
+
+    // Extract unique categories
+    const categories = [...new Set(data?.map(post => post.category).filter(Boolean))] || [];
+    return categories;
+  } catch (error) {
+    console.error('Error in getAllBlogCategories:', error);
+    return [];
+  }
+}
+
+// Get all unique blog tags
+export async function getAllBlogTags() {
+  try {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('tags')
+      .eq('is_published', true);
+
+    if (error) {
+      console.error('Error fetching blog tags:', error);
+      return [];
+    }
+
+    // Extract unique tags from all posts
+    const allTags = [];
+    data?.forEach(post => {
+      if (post.tags && Array.isArray(post.tags)) {
+        allTags.push(...post.tags);
+      }
+    });
+
+    // Return unique tags
+    return [...new Set(allTags)].filter(Boolean);
+  } catch (error) {
+    console.error('Error in getAllBlogTags:', error);
+    return [];
+  }
+}
+
+// Get all unique publishers
+export async function getAllPublishers() {
+  try {
+    const { data, error } = await supabase
+      .from('apps')
+      .select('publisher')
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Error fetching publishers:', error);
+      return [];
+    }
+
+    // Extract unique publishers and create publisher objects with slugs
+    const uniquePublishers = [...new Set(data?.map(app => app.publisher).filter(Boolean))] || [];
+    
+    return uniquePublishers.map(publisher => ({
+      name: publisher,
+      slug: publisher.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      appCount: data?.filter(app => app.publisher === publisher).length || 0
+    }));
+  } catch (error) {
+    console.error('Error in getAllPublishers:', error);
+    return [];
+  }
+}
 export async function getFeaturedBlogPosts(limit = 5) {
   try {
     // Check if we have valid credentials before making the request
