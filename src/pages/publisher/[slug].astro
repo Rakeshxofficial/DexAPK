@@ -38,7 +38,7 @@ if (!publisher) {
 // Get apps by this publisher
 let publisherApps = [];
 try {
-  publisherApps = await getAppsByPublisher(publisherName);
+  publisherApps = await getAppsByPublisherSlug(slug);
 } catch (error) {
   console.error('Error loading publisher apps:', error);
 }

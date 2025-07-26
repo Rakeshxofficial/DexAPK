@@ -181,8 +181,10 @@ export async function GET({ request }) {
   </url>`).join('')}
   
   <!-- Publisher Detail Pages -->
-  ${[...new Set(apps.map(app => app.publisher).filter(publisher => publisher && publisher !== 'Unknown'))].map(publisher => {
-    const publisherSlug = publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  ${[...new Set(apps.map(app => {
+    if (!app.publisher || app.publisher === 'Unknown') return null;
+    return app.publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }).filter(Boolean))].map(publisherSlug => {
     return `
   <url>
     <loc>${baseUrl}/publisher/${publisherSlug}</loc>

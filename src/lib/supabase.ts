@@ -1055,19 +1055,30 @@ export async function getAllPublishers() {
       return [];
     }
 
-    // Get unique publishers and count their apps
+    // Get unique publishers and count their apps (case-insensitive grouping)
     const publisherCounts = {};
     data.forEach(app => {
       if (app.publisher && app.publisher !== 'Unknown') {
-        publisherCounts[app.publisher] = (publisherCounts[app.publisher] || 0) + 1;
+        // Normalize publisher name for grouping (case-insensitive)
+        const normalizedName = app.publisher.trim();
+        const lowerName = normalizedName.toLowerCase();
+        
+        // Use the first occurrence as the canonical name (preserves original casing)
+        if (!publisherCounts[lowerName]) {
+          publisherCounts[lowerName] = {
+            name: normalizedName,
+            count: 0
+          };
+        }
+        publisherCounts[lowerName].count++;
       }
     });
 
-    // Convert to array with slugs
-    const publishers = Object.keys(publisherCounts).map(publisher => ({
-      name: publisher,
-      slug: publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-      appCount: publisherCounts[publisher]
+    // Convert to array with consistent slugs
+    const publishers = Object.keys(publisherCounts).map(lowerName => ({
+      name: publisherCounts[lowerName].name,
+      slug: lowerName.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      appCount: publisherCounts[lowerName].count
     }));
 
     return publishers;
@@ -1085,22 +1096,66 @@ export async function getAppsByPublisher(publisherName: string, limit = 50) {
       return [];
     }
 
+    // Get all apps and filter case-insensitively
     const { data, error } = await supabase
       .from('apps')
       .select('*')
       .eq('is_active', true)
-      .eq('publisher', publisherName)
       .order('created_at', { ascending: false })
-      .limit(limit);
+      .limit(limit * 3); // Get more to account for filtering
 
     if (error) {
       console.error('Supabase error fetching apps by publisher:', error);
       return [];
     }
 
-    return data || [];
+    // Filter apps case-insensitively by publisher name
+    const filteredApps = data.filter(app => 
+      app.publisher && 
+      app.publisher.toLowerCase().trim() === publisherName.toLowerCase().trim()
+    ).slice(0, limit);
+
+    return filteredApps || [];
   } catch (error) {
     console.error('Error in getAppsByPublisher:', error);
+    return [];
+  }
+}
+
+export async function getAppsByPublisherSlug(publisherSlug: string, limit = 50) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    // Get all apps to find matching publisher
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching apps by publisher slug:', error);
+      return [];
+    }
+
+    // Find apps where publisher slug matches
+    const filteredApps = data.filter(app => {
+      if (!app.publisher || app.publisher === 'Unknown') return false;
+      
+      const appPublisherSlug = app.publisher.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+      
+      return appPublisherSlug === publisherSlug;
+    }).slice(0, limit);
+
+    return filteredApps || [];
+  } catch (error) {
+    console.error('Error in getAppsByPublisherSlug:', error);
     return [];
   }
 }

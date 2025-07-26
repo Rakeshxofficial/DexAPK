@@ -407,7 +407,7 @@ const dynamicFAQs = app ? [
                   <div>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Publisher</p>
                     <a 
-                      href={`/publisher/${app.publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
+                      href={`/publisher/${app.publisher.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
                       class="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
                     >
                       {app.publisher}
