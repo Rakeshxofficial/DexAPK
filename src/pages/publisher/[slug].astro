@@ -6,7 +6,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
 import ImageOptimized from '../../components/ImageOptimized.astro';
-import { getAllPublishers, getPublisherBySlug, getAppsByPublisher } from '../../lib/supabase.js';
+import { getAllPublishers, getPublisherBySlug, getAppsByPublisherSlug } from '../../lib/supabase.js';
 
 export async function getStaticPaths() {
   try {
