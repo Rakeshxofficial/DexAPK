@@ -393,7 +393,7 @@ const readingTime = post.reading_time || calculateReadingTime(post.content);
 
 <script>
   // Copy to clipboard function
-  function copyToClipboard() {
+  function copyToClipboard(event) {
     navigator.clipboard.writeText(window.location.href).then(() => {
       // Show a temporary success message
       const button = event.target.closest('button');
