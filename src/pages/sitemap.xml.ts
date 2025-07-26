@@ -143,6 +143,14 @@ export async function GET({ request }) {
     <priority>0.8</priority>
   </url>
   
+  <!-- Publisher Pages -->
+  <url>
+    <loc>${baseUrl}/publisher</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
   <!-- App Detail Pages -->
   ${apps.map(app => `
   <url>
@@ -171,6 +179,19 @@ export async function GET({ request }) {
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/${app.slug}/download"/>
   </url>`).join('')}
+  
+  <!-- Publisher Detail Pages -->
+  ${[...new Set(apps.map(app => app.publisher).filter(publisher => publisher && publisher !== 'Unknown'))].map(publisher => {
+    const publisherSlug = publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return `
+  <url>
+    <loc>${baseUrl}/publisher/${publisherSlug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/publisher/${publisherSlug}"/>
+  </url>`;
+  }).join('')}
 </urlset>`;
 
   return new Response(xml, {

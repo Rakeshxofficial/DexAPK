@@ -1,0 +1,174 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import { getAllPublishers } from '../../lib/supabase.js';
+
+// Fetch all publishers
+let publishers = [];
+try {
+  publishers = await getAllPublishers();
+} catch (error) {
+  console.error('Error loading publishers:', error);
+  publishers = [];
+}
+
+const title = "Publishers - DexAPK";
+const description = "Browse MOD APKs by publisher. Discover apps from your favorite developers and publishers.";
+---
+
+<Layout title={title} description={description}>
+  <Header />
+  
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
+    <!-- Enhanced Breadcrumbs with Schema.org markup -->
+    <div class="breadcrumb-wrapper">
+      <BreadcrumbNav 
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Publishers', href: '/publisher', current: true }
+        ]}
+      />
+    </div>
+
+    <!-- Page Header -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+            <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+          Publishers
+        </h1>
+        <p class="text-xl text-blue-100 max-w-3xl mx-auto">
+          Discover MOD APKs from your favorite developers and publishers
+        </p>
+        <div class="mt-6 flex items-center justify-center text-blue-100">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="text-lg font-medium">{publishers.length} Publishers Available</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Publishers Grid -->
+    <section class="py-8 sm:py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Results Info -->
+        <div class="flex items-center justify-between mb-6">
+          <p class="text-gray-600 dark:text-gray-400" aria-live="polite">
+            Showing {publishers.length} publishers
+          </p>
+        </div>
+
+        <!-- Publishers Container -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" aria-label="Publishers collection">
+          
+          {publishers.length > 0 ? publishers.map((publisher, index) => (
+            <article 
+              class="publisher-card group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
+            >
+              <a 
+                href={`/publisher/${publisher.slug}`} 
+                class="block w-full h-full focus:outline-none"
+                aria-label={`View apps by ${publisher.name} - ${publisher.appCount} apps available`}
+              >
+                <div class="relative h-32 sm:h-40 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                  <!-- Publisher Logo (First Character) -->
+                  <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 rounded-2xl sm:rounded-3xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                    <span class="text-2xl sm:text-3xl font-bold text-white">
+                      {publisher.name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  
+                  <!-- App Count Badge -->
+                  <div class="absolute top-2 right-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                    <span class="text-white text-sm font-medium">{publisher.appCount}</span>
+                  </div>
+                  
+                  <!-- Hover Overlay -->
+                  <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                      <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Publisher Details -->
+                <div class="p-4 group-hover:bg-gray-50 dark:group-hover:bg-gray-700 transition-colors duration-300">
+                  <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                    {publisher.name}
+                  </h3>
+                  <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300">
+                    {publisher.appCount} app{publisher.appCount !== 1 ? 's' : ''} available
+                  </p>
+                </div>
+                
+                <!-- Screen Reader Content -->
+                <div class="sr-only">
+                  Publisher: {publisher.name}.
+                  {publisher.appCount} apps available.
+                  Click to view all apps by this publisher.
+                </div>
+              </a>
+            </article>
+          )) : (
+            <div class="col-span-full text-center py-12" role="status" aria-live="polite">
+              <div class="text-gray-500 dark:text-gray-400">
+                <svg class="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <h3 class="text-lg font-medium mb-2">No publishers available</h3>
+                <p class="text-sm">Please connect to Supabase to load publisher data.</p>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+  
+  <Footer />
+</Layout>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  .publisher-card a:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .publisher-card,
+    .publisher-card * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

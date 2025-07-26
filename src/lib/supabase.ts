@@ -1035,6 +1035,86 @@ export async function deleteContactMessage(messageId: string) {
   }
 }
 
+// Publisher-related functions
+export async function getAllPublishers() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('publisher')
+      .eq('is_active', true)
+      .order('publisher', { ascending: true });
+
+    if (error) {
+      console.error('Supabase error fetching publishers:', error);
+      return [];
+    }
+
+    // Get unique publishers and count their apps
+    const publisherCounts = {};
+    data.forEach(app => {
+      if (app.publisher && app.publisher !== 'Unknown') {
+        publisherCounts[app.publisher] = (publisherCounts[app.publisher] || 0) + 1;
+      }
+    });
+
+    // Convert to array with slugs
+    const publishers = Object.keys(publisherCounts).map(publisher => ({
+      name: publisher,
+      slug: publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      appCount: publisherCounts[publisher]
+    }));
+
+    return publishers;
+  } catch (error) {
+    console.error('Error in getAllPublishers:', error);
+    return [];
+  }
+}
+
+export async function getAppsByPublisher(publisherName: string, limit = 50) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('apps')
+      .select('*')
+      .eq('is_active', true)
+      .eq('publisher', publisherName)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching apps by publisher:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAppsByPublisher:', error);
+    return [];
+  }
+}
+
+export async function getPublisherBySlug(slug: string) {
+  try {
+    const publishers = await getAllPublishers();
+    return publishers.find(publisher => publisher.slug === slug) || null;
+  } catch (error) {
+    console.error('Error in getPublisherBySlug:', error);
+    return null;
+  }
+}
+
 export async function getAppsWithTasks() {
   try {
     // Check if we have valid credentials before making the request

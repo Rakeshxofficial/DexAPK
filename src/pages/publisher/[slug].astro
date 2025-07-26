@@ -1,0 +1,296 @@
+---
+export const prerender = true;
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
+import ImageOptimized from '../../components/ImageOptimized.astro';
+import { getAllPublishers, getPublisherBySlug, getAppsByPublisher } from '../../lib/supabase.js';
+
+export async function getStaticPaths() {
+  try {
+    const publishers = await getAllPublishers();
+    return publishers.map(publisher => ({
+      params: { slug: publisher.slug },
+      props: { 
+        publisher: publisher,
+        publisherName: publisher.name
+      }
+    }));
+  } catch (error) {
+    console.error('Error generating static paths for publishers:', error);
+    return [];
+  }
+}
+
+const { slug } = Astro.params;
+const { publisher, publisherName } = Astro.props;
+
+// If publisher not found, return 404
+if (!publisher) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Get apps by this publisher
+let publisherApps = [];
+try {
+  publisherApps = await getAppsByPublisher(publisherName);
+} catch (error) {
+  console.error('Error loading publisher apps:', error);
+}
+
+const title = `${publisherName} MOD APKs - DexAPK`;
+const description = `Download MOD APKs published by ${publisherName}. ${publisherApps.length} premium modified applications available.`;
+---
+
+<Layout title={title} description={description}>
+  <Header />
+  
+  <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
+    <!-- Enhanced Breadcrumbs with Schema.org markup -->
+    <div class="breadcrumb-wrapper">
+      <BreadcrumbNav 
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Publishers', href: '/publisher' },
+          { label: publisherName, href: `/publisher/${slug}`, current: true }
+        ]}
+      />
+    </div>
+
+    <!-- Publisher Header -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-12 sm:py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        
+        <!-- Publisher Logo -->
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+            <span class="text-4xl font-bold text-white">
+              {publisherName.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        </div>
+        
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
+          {publisherName}
+        </h1>
+        <p class="text-xl text-blue-100 max-w-3xl mx-auto mb-6">
+          Premium MOD APKs published by {publisherName}
+        </p>
+        <div class="flex items-center justify-center text-blue-100">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span class="text-lg font-medium">{publisherApps.length} Apps Available</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Publisher Stats -->
+    <section class="bg-white dark:bg-gray-800 py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <div class="text-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl">
+            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {publisherApps.length}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">Total Apps</p>
+          </div>
+
+          <div class="text-center p-6 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-2xl">
+            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {publisherApps.length > 0 ? (publisherApps.reduce((sum, app) => sum + app.rating, 0) / publisherApps.length).toFixed(1) : '0.0'}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">Average Rating</p>
+          </div>
+
+          <div class="text-center p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl">
+            <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              {[...new Set(publisherApps.map(app => app.category))].length}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">Categories</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Apps Grid -->
+    <section class="py-8 sm:py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Results Info -->
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Apps by {publisherName}
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400" aria-live="polite">
+            {publisherApps.length} apps available
+          </p>
+        </div>
+
+        <!-- Apps Container -->
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6" aria-label={`${publisherName} MOD APKs collection`}>
+          
+          {publisherApps.length > 0 ? publisherApps.map((app, index) => (
+            <article 
+              class="app-card group relative bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 dark:border-gray-700 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-gray-900"
+            >
+              <a 
+                href={`/${app.slug}`} 
+                class="block w-full h-full focus:outline-none"
+                aria-label={`Download ${app.name} v${app.version} MOD APK - ${app.category} app with premium features unlocked`}
+              >
+                <div class="relative h-32 sm:h-40 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
+                  <!-- Status Badges -->
+                  <div class="absolute top-2 left-2 flex gap-1.5 z-10">
+                    <span class="bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                      <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                      NEW
+                    </span>
+                    <span class="bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow-sm">
+                      MOD
+                    </span>
+                  </div>
+                  
+                  <!-- App Icon -->
+                  <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center transition-colors duration-300 shadow-lg overflow-hidden">
+                    {app.icon ? (
+                      <>
+                        <ImageOptimized 
+                          src={app.icon} 
+                          alt={`${app.name} icon`}
+                          class="w-full h-full object-cover rounded-2xl sm:rounded-3xl"
+                          loading="lazy"
+                          width={96}
+                          height={96}
+                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        />
+                        <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden items-center justify-center">
+                          <svg class="w-full h-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                          </svg>
+                        </div>
+                      </>
+                    ) : (
+                      <svg class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>
+                    )}
+                  </div>
+                  
+                  <!-- Hover Overlay -->
+                  <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <div class="bg-white/20 backdrop-blur-sm rounded-full p-3 transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                      <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- App Details -->
+                <div class="p-3 group-hover:bg-gray-50 dark:group-hover:bg-gray-700 transition-colors duration-300">
+                  <h3 class="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                    {app.name}
+                  </h3>
+                  <p class="text-xs sm:text-sm font-medium mb-2 text-blue-600 dark:text-blue-400 transition-colors duration-300">
+                    {app.category}
+                  </p>
+                  <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                    <div class="flex items-center gap-1" title={`Version ${app.version}`}>
+                      <svg class="w-3 h-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                      <span class="text-xs">{app.rating}</span>
+                    </div>
+                    <div class="flex items-center gap-1" title={`File size: ${app.size}`}>
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                      </svg>
+                      <span class="text-xs">{app.size}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Screen Reader Content -->
+                <div class="sr-only">
+                  Rating: {app.rating} out of 5 stars with {app.votes} votes.
+                  Last updated: {app.last_updated}.
+                  Category: {app.category}.
+                  Requirements: {app.requirements}.
+                  Click to download and view more details.
+                </div>
+              </a>
+            </article>
+          )) : (
+            <div class="col-span-full text-center py-12" role="status" aria-live="polite">
+              <div class="text-gray-500 dark:text-gray-400">
+                <svg class="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                <h3 class="text-lg font-medium mb-2">No apps available</h3>
+                <p class="text-sm">This publisher doesn't have any published apps yet.</p>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+  
+  <Footer />
+</Layout>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  .app-card a:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .app-card,
+    .app-card * {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>

@@ -57,6 +57,9 @@ import Logo from './Logo.astro';
         <a href="/trending" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center">
           Trending
         </a>
+        <a href="/publisher" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center">
+          Publishers
+        </a>
         <a href="/about" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center">
           About
         </a>
@@ -210,6 +213,27 @@ import Logo from './Logo.astro';
         </a>
       </li>
 
+      <!-- Publishers -->
+      <li>
+        <a 
+          href="/publisher" 
+          class="sidebar-link group flex items-center px-4 py-3 text-base font-medium text-gray-700 dark:text-gray-300 rounded-xl hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-600 dark:hover:text-orange-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 min-h-[44px]"
+          tabindex="0"
+        >
+          <div class="flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-lg mr-4 group-hover:bg-orange-100 dark:group-hover:bg-orange-800 transition-colors duration-200">
+            <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <span class="block font-semibold">Publishers</span>
+            <span class="block text-sm text-gray-500 dark:text-gray-400 group-hover:text-orange-500 dark:group-hover:text-orange-300 transition-colors duration-200">Browse by developer</span>
+          </div>
+          <svg class="w-5 h-5 text-gray-400 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </li>
       <!-- About -->
       <li>
         <a 

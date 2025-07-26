@@ -406,7 +406,12 @@ const dynamicFAQs = app ? [
                   </div>
                   <div>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Publisher</p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{app.publisher}</p>
+                    <a 
+                      href={`/publisher/${app.publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
+                      class="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
+                    >
+                      {app.publisher}
+                    </a>
                   </div>
                 </div>
               </div>
@@ -436,7 +441,12 @@ const dynamicFAQs = app ? [
                   </div>
                   <div>
                     <p class="text-sm text-gray-600 dark:text-gray-400">Category</p>
-                    <p class="text-lg font-semibold text-gray-900 dark:text-white">{app.category}</p>
+                    <a 
+                      href={`/categories/${app.category.toLowerCase()}`}
+                      class="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
+                    >
+                      {app.category}
+                    </a>
                   </div>
                 </div>
               </div>
