@@ -16,6 +16,7 @@ export async function getStaticPaths() {
     for (const tag of tags) {
       const tagSlug = tag.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const posts = await getBlogPostsByTag(tag);
+      console.log(`Generating static path for tag "${tag}" (slug: ${tagSlug}) with ${posts?.length || 0} posts`);
       
       paths.push({
         params: { slug: tagSlug },
@@ -27,6 +28,7 @@ export async function getStaticPaths() {
       });
     }
     
+    console.log(`Generated ${paths.length} tag paths`);
     return paths;
   } catch (error) {
     console.error('Error generating static paths for blog tags:', error);
