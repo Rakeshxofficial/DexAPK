@@ -1376,7 +1376,7 @@ export async function getBlogPostsByTag(tag: string, limit = 20) {
       .from('blog_posts')
       .select('*')
       .eq('is_published', true)
-      .contains('tags', [tag])
+      .or(`tags.cs.{${JSON.stringify(tag)}},tags.cs.{${tag}}`)
       .order('published_date', { ascending: false })
       .limit(limit);
 
