@@ -1,18 +1,75 @@
 import { getAllApps } from '../lib/supabase';
-import { getAllBlogPosts, getAllBlogCategories, getAllBlogTags, getAllPublishers } from '../lib/supabase';
 
 export async function GET({ request }) {
-  const apps = await getAllApps();
-  const blogPosts = await getAllBlogPosts();
-  const blogCategories = await getAllBlogCategories();
-  const blogTags = await getAllBlogTags();
-  const publishers = await getAllPublishers();
-  
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
   
   // Current date in ISO format
   const now = new Date().toISOString();
+  
+  // Initialize arrays for all data
+  let apps = [];
+  let blogPosts = [];
+  let blogCategories = [];
+  let blogTags = [];
+  let publishers = [];
+  
+  try {
+    // Try to fetch apps data
+    apps = await getAllApps();
+  } catch (error) {
+    console.error('Error fetching apps for sitemap:', error);
+    apps = [];
+  }
+  
+  try {
+    // Try to fetch blog data using dynamic imports to avoid build issues
+    const { getAllBlogPosts, getAllBlogCategories, getAllBlogTags, getAllPublishers } = await import('../lib/supabase');
+    
+    // Fetch blog posts with error handling
+    try {
+      blogPosts = await getAllBlogPosts();
+    } catch (error) {
+      console.error('Error fetching blog posts for sitemap:', error);
+      blogPosts = [];
+    }
+    
+    // Fetch blog categories with error handling
+    try {
+      blogCategories = await getAllBlogCategories();
+    } catch (error) {
+      console.error('Error fetching blog categories for sitemap:', error);
+      blogCategories = [];
+    }
+    
+    // Fetch blog tags with error handling
+    try {
+      blogTags = await getAllBlogTags();
+    } catch (error) {
+      console.error('Error fetching blog tags for sitemap:', error);
+      blogTags = [];
+    }
+    
+    // Fetch publishers with error handling
+    try {
+      publishers = await getAllPublishers();
+    } catch (error) {
+      console.error('Error fetching publishers for sitemap:', error);
+      publishers = [];
+    }
+  } catch (importError) {
+    console.error('Error importing blog functions for sitemap:', importError);
+    // If import fails, provide fallback data
+    blogPosts = [];
+    blogCategories = ['Tutorials', 'News', 'Reviews', 'Tips & Tricks', 'Android', 'Technology', 'General'];
+    blogTags = ['android', 'tutorial', 'mod apk', 'guide', 'tips', 'review', 'news', 'technology'];
+    publishers = [
+      { name: 'DexAPK Team', slug: 'dexapk-team' },
+      { name: 'Google LLC', slug: 'google-llc' },
+      { name: 'Meta Platforms', slug: 'meta-platforms' },
+      { name: 'Microsoft Corporation', slug: 'microsoft-corporation' }
+    ];
+  }
   
   // Generate sitemap XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
