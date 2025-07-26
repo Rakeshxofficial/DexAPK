@@ -195,16 +195,19 @@ const { html, toc } = parseMarkdown(content);
 ---
 
 {generateToc && toc.length > 0 && (
-  <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+  <details class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8 group">
+    <summary class="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center justify-between">
+      <div class="flex items-center">
         <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
         </svg>
-        Table of Contents
-      </h3>
-    </div>
-    <div class="px-6 py-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Table of Contents</h3>
+      </div>
+      <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </summary>
+    <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
       <nav class="space-y-2">
         {toc.map(item => (
           <a 
@@ -221,7 +224,179 @@ const { html, toc } = parseMarkdown(content);
         ))}
       </nav>
     </div>
-  </div>
+  </details>
+)}
+
+<div class="prose prose-gray dark:prose-invert max-w-none">
+  <div set:html={html} />
+</div>
+
+<style>
+  /* Enhanced prose styles */
+  .prose {
+    line-height: 1.6;
+  }
+  
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    scroll-margin-top: 2rem;
+  }
+  
+  /* Increase scroll margin to prevent headings from being hidden under the header */
+  .prose h1, .prose h2, .prose h3 {
+    scroll-margin-top: 8rem;
+  }
+  
+  /* Add scroll margin to heading IDs for TOC links */
+  h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
+    scroll-margin-top: 8rem;
+  }
+  
+  .prose pre {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+  }
+  
+  .dark .prose pre {
+    background: #1f2937;
+    border: 1px solid #374151;
+  }
+  
+  .prose table {
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+  }
+  
+  .prose th, .prose td {
+    border: 1px solid #e5e7eb;
+  }
+  
+  .dark .prose th, .dark .prose td {
+    border-color: #374151;
+  }
+  
+  /* Table of Contents collapsible styles */
+  details summary {
+    list-style: none;
+  }
+  
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+  
+  details[open] summary {
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .dark details[open] summary {
+    border-bottom-color: #374151;
+  }
+  
+  /* Smooth animation for the chevron */
+  details summary svg {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  details[open] summary svg {
+    transform: rotate(180deg);
+  }
+  
+  /* Hover effect for the summary */
+  details summary:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .dark details summary:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Focus styles for accessibility */
+  details summary:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  /* Smooth scrolling for anchor links */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    </div>
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    details summary svg,
+    * {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  // Add click handlers for table of contents
+  document.addEventListener('DOMContentLoaded', () => {
+    const tocLinks = document.querySelectorAll('nav a[href^="#"]');
+    
+    tocLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const targetId = e.currentTarget.getAttribute('href').slice(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+          // Get the header height to offset the scroll position
+          const headerHeight = document.querySelector('header')?.offsetHeight || 100;
+          
+          // Use requestAnimationFrame to avoid forced reflow
+          window.requestAnimationFrame(() => {
+            const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+            const scrollOffset = headerHeight + 40; // Add extra padding
+            
+            // Scroll to element with offset for the header
+            window.scrollTo({
+              top: targetPosition - scrollOffset,
+              behavior: 'smooth'
+            });
+            
+            // Update URL without triggering page reload
+            history.pushState(null, null, `#${targetId}`);
+            
+            // Announce to screen readers
+            announceToScreenReader(`Navigated to ${targetId.replace(/-/g, ' ')} section`);
+          });
+        }
+      }, { passive: false });
+    });
+    
+    // Function for screen reader announcements
+    function announceToScreenReader(message) {
+      const announcement = document.createElement('div');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.setAttribute('aria-atomic', 'true');
+      announcement.className = 'sr-only';
+      announcement.textContent = message;
+      
+      document.body.appendChild(announcement);
+      
+      setTimeout(() => {
+        document.body.removeChild(announcement);
+      }, 1000);
+    }
+    
+    // Add keyboard support for details element
+    const detailsElements = document.querySelectorAll('details');
+    detailsElements.forEach(details => {
+      const summary = details.querySelector('summary');
+      if (summary) {
+        summary.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            details.open = !details.open;
+          }
+        });
+      }
+    });
+  });
+</script>
 )}
 
 <div class="prose prose-gray dark:prose-invert max-w-none">
