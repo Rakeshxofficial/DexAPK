@@ -161,6 +161,48 @@ export async function GET({ request }) {
     <priority>0.7</priority>
   </url>
   
+  <!-- Blog Category Pages -->
+  ${blogCategories.map(category => {
+    const categorySlug = category.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return `
+  <url>
+    <loc>${baseUrl}/blog/category/${categorySlug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/blog/category/${categorySlug}"/>
+  </url>`;
+  }).join('')}
+  
+  <!-- Blog Tag Pages -->
+  ${blogTags.map(tag => {
+    const tagSlug = tag.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return `
+  <url>
+    <loc>${baseUrl}/blog/tag/${tagSlug}</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/blog/tag/${tagSlug}"/>
+  </url>`;
+  }).join('')}
+  
+  <!-- Blog Post Pages -->
+  ${blogPosts.map(post => `
+  <url>
+    <loc>${baseUrl}/blog/${post.slug}</loc>
+    <lastmod>${post.updated_at || now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/blog/${post.slug}"/>
+    ${post.thumbnail_image ? `
+    <image:image>
+      <image:loc>${post.thumbnail_image}</image:loc>
+      <image:title>${post.title}</image:title>
+      <image:caption>Thumbnail for ${post.title} blog post</image:caption>
+    </image:image>` : ''}
+  </url>`).join('')}
+  
   <!-- App Detail Pages -->
   ${apps.map(app => `
   <url>
