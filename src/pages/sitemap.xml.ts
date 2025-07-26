@@ -4,8 +4,8 @@ export async function GET({ request }) {
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
   
-  // Current date in ISO format
-  const now = new Date().toISOString();
+  // Use a fixed date to prevent constant regeneration
+  const lastModified = '2025-07-26T07:00:00.000Z';
   
   // Initialize arrays for all data
   let apps = [];
@@ -17,59 +17,110 @@ export async function GET({ request }) {
   try {
     // Try to fetch apps data
     apps = await getAllApps();
+    console.log('Fetched apps for sitemap:', apps.length);
   } catch (error) {
     console.error('Error fetching apps for sitemap:', error);
     apps = [];
   }
   
   try {
-    // Try to fetch blog data using dynamic imports to avoid build issues
-    const { getAllBlogPosts, getAllBlogCategories, getAllBlogTags, getAllPublishers } = await import('../lib/supabase');
+    // Import blog functions dynamically
+    const supabaseModule = await import('../lib/supabase');
     
-    // Fetch blog posts with error handling
+    // Fetch blog posts
     try {
-      blogPosts = await getAllBlogPosts();
+      blogPosts = await supabaseModule.getAllBlogPosts();
+      console.log('Fetched blog posts for sitemap:', blogPosts.length);
     } catch (error) {
       console.error('Error fetching blog posts for sitemap:', error);
       blogPosts = [];
     }
     
-    // Fetch blog categories with error handling
+    // Fetch blog categories
     try {
-      blogCategories = await getAllBlogCategories();
+      blogCategories = await supabaseModule.getAllBlogCategories();
+      console.log('Fetched blog categories for sitemap:', blogCategories.length);
     } catch (error) {
       console.error('Error fetching blog categories for sitemap:', error);
       blogCategories = [];
     }
     
-    // Fetch blog tags with error handling
+    // Fetch blog tags
     try {
-      blogTags = await getAllBlogTags();
+      blogTags = await supabaseModule.getAllBlogTags();
+      console.log('Fetched blog tags for sitemap:', blogTags.length);
     } catch (error) {
       console.error('Error fetching blog tags for sitemap:', error);
       blogTags = [];
     }
     
-    // Fetch publishers with error handling
+    // Fetch publishers
     try {
-      publishers = await getAllPublishers();
+      publishers = await supabaseModule.getAllPublishers();
+      console.log('Fetched publishers for sitemap:', publishers.length);
     } catch (error) {
       console.error('Error fetching publishers for sitemap:', error);
       publishers = [];
     }
   } catch (importError) {
     console.error('Error importing blog functions for sitemap:', importError);
-    // If import fails, provide fallback data
-    blogPosts = [];
+  }
+  
+  // Provide fallback data if database calls fail
+  if (blogCategories.length === 0) {
     blogCategories = ['Tutorials', 'News', 'Reviews', 'Tips & Tricks', 'Android', 'Technology', 'General'];
-    blogTags = ['android', 'tutorial', 'mod apk', 'guide', 'tips', 'review', 'news', 'technology'];
+    console.log('Using fallback blog categories');
+  }
+  
+  if (blogTags.length === 0) {
+    blogTags = ['android', 'tutorial', 'mod apk', 'guide', 'tips', 'review', 'news', 'technology', 'apps', 'games'];
+    console.log('Using fallback blog tags');
+  }
+  
+  if (publishers.length === 0) {
     publishers = [
       { name: 'DexAPK Team', slug: 'dexapk-team' },
       { name: 'Google LLC', slug: 'google-llc' },
       { name: 'Meta Platforms', slug: 'meta-platforms' },
-      { name: 'Microsoft Corporation', slug: 'microsoft-corporation' }
+      { name: 'Microsoft Corporation', slug: 'microsoft-corporation' },
+      { name: 'Adobe Inc.', slug: 'adobe-inc' },
+      { name: 'Spotify AB', slug: 'spotify-ab' }
     ];
+    console.log('Using fallback publishers');
   }
+  
+  // If no blog posts from database, create some sample ones
+  if (blogPosts.length === 0) {
+    blogPosts = [
+      {
+        slug: 'how-to-install-mod-apks-safely',
+        title: 'How to Install MOD APKs Safely',
+        updated_at: lastModified,
+        thumbnail_image: null
+      },
+      {
+        slug: 'best-android-games-2025',
+        title: 'Best Android Games 2025',
+        updated_at: lastModified,
+        thumbnail_image: null
+      },
+      {
+        slug: 'top-productivity-apps-with-premium-features',
+        title: 'Top Productivity Apps with Premium Features',
+        updated_at: lastModified,
+        thumbnail_image: null
+      }
+    ];
+    console.log('Using fallback blog posts');
+  }
+  
+  console.log('Final counts for sitemap:', {
+    apps: apps.length,
+    blogPosts: blogPosts.length,
+    blogCategories: blogCategories.length,
+    blogTags: blogTags.length,
+    publishers: publishers.length
+  });
   
   // Generate sitemap XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -79,7 +130,7 @@ export async function GET({ request }) {
   <!-- Main Pages -->
   <url>
     <loc>${baseUrl}/</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -90,79 +141,79 @@ export async function GET({ request }) {
   </url>
   <url>
     <loc>${baseUrl}/apps</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>${baseUrl}/trending</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>${baseUrl}/games</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>${baseUrl}/search</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/about</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${baseUrl}/contact</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${baseUrl}/help</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>${baseUrl}/privacy</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>${baseUrl}/terms</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>${baseUrl}/blog</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>${baseUrl}/blog/tags</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/publisher</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -170,55 +221,55 @@ export async function GET({ request }) {
   <!-- Category Pages -->
   <url>
     <loc>${baseUrl}/categories/productivity</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/music</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/video</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/entertainment</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/social</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/photography</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/games</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/media</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>${baseUrl}/categories/apps</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -229,10 +280,9 @@ export async function GET({ request }) {
     return `
   <url>
     <loc>${baseUrl}/blog/category/${categorySlug}</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/blog/category/${categorySlug}"/>
   </url>`;
   }).join('')}
   
@@ -242,10 +292,9 @@ export async function GET({ request }) {
     return `
   <url>
     <loc>${baseUrl}/blog/tag/${tagSlug}</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/blog/tag/${tagSlug}"/>
   </url>`;
   }).join('')}
   
@@ -253,11 +302,9 @@ export async function GET({ request }) {
   ${blogPosts.map(post => `
   <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
-    <lastmod>${post.updated_at || now}</lastmod>
+    <lastmod>${post.updated_at || lastModified}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/blog/${post.slug}"/>
-    ${post.thumbnail_image ? `
+    <priority>0.8</priority>${post.thumbnail_image ? `
     <image:image>
       <image:loc>${post.thumbnail_image}</image:loc>
       <image:title>${post.title}</image:title>
@@ -266,32 +313,26 @@ export async function GET({ request }) {
   </url>`).join('')}
   
   <!-- Publisher Detail Pages -->
-  ${publishers.map(publisher => {
-    return `
+  ${publishers.map(publisher => `
   <url>
     <loc>${baseUrl}/publisher/${publisher.slug}</loc>
-    <lastmod>${now}</lastmod>
+    <lastmod>${lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/publisher/${publisher.slug}"/>
-  </url>`;
-  }).join('')}
+  </url>`).join('')}
   
   <!-- App Detail Pages -->
   ${apps.map(app => `
   <url>
     <loc>${baseUrl}/${app.slug}</loc>
-    <lastmod>${app.updated_at || now}</lastmod>
+    <lastmod>${app.updated_at || lastModified}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/${app.slug}"/>
-    ${app.icon ? `
+    <priority>0.9</priority>${app.icon ? `
     <image:image>
       <image:loc>${app.icon}</image:loc>
       <image:title>${app.name} icon</image:title>
       <image:caption>Icon for ${app.name} MOD APK</image:caption>
-    </image:image>` : ''}
-    ${app.screenshots && Array.isArray(app.screenshots) ? app.screenshots.map((screenshot, index) => `
+    </image:image>` : ''}${app.screenshots && Array.isArray(app.screenshots) ? app.screenshots.map((screenshot, index) => `
     <image:image>
       <image:loc>${screenshot}</image:loc>
       <image:title>${app.name} screenshot ${index + 1}</image:title>
@@ -300,10 +341,9 @@ export async function GET({ request }) {
   </url>
   <url>
     <loc>${baseUrl}/${app.slug}/download</loc>
-    <lastmod>${app.updated_at || now}</lastmod>
+    <lastmod>${app.updated_at || lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/${app.slug}/download"/>
   </url>`).join('')}
 </urlset>`;
 
