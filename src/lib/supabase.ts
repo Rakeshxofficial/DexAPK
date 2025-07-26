@@ -1372,20 +1372,42 @@ export async function getBlogPostsByTag(tag: string, limit = 20) {
       return [];
     }
 
+    // First try to get all published blog posts and filter client-side
+    // This is more reliable than complex JSON queries
     const { data, error } = await supabase
       .from('blog_posts')
       .select('*')
       .eq('is_published', true)
-      .contains('tags', [tag])
-      .order('published_date', { ascending: false })
-      .limit(limit);
+      .order('published_date', { ascending: false });
 
     if (error) {
       console.error('Supabase error fetching blog posts by tag:', error);
       return [];
     }
 
-    return data || [];
+    // Filter posts client-side to handle different tag formats
+    const filteredPosts = (data || []).filter(post => {
+      if (!post.tags || !Array.isArray(post.tags)) return false;
+      
+      // Check if any tag matches (case-insensitive)
+      return post.tags.some(postTag => {
+        if (!postTag || typeof postTag !== 'string') return false;
+        
+        // Normalize both tags for comparison
+        const normalizedPostTag = postTag.toLowerCase().trim();
+        const normalizedSearchTag = tag.toLowerCase().trim();
+        
+        // Check exact match, partial match, or slug match
+        return normalizedPostTag === normalizedSearchTag ||
+               normalizedPostTag.includes(normalizedSearchTag) ||
+               normalizedSearchTag.includes(normalizedPostTag) ||
+               normalizedPostTag.replace(/\s+/g, '-') === normalizedSearchTag ||
+               normalizedSearchTag.replace(/\s+/g, '-') === normalizedPostTag;
+      });
+    });
+
+    console.log(`Found ${filteredPosts.length} posts for tag "${tag}"`);
+    return filteredPosts.slice(0, limit);
   } catch (error) {
     console.error('Error in getBlogPostsByTag:', error);
     return [];
