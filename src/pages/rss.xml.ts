@@ -1,7 +1,9 @@
 import { getAllApps } from '../lib/supabase';
+import { getAllBlogPosts } from '../lib/supabase';
 
 export async function GET() {
   const apps = await getAllApps();
+  const blogPosts = await getAllBlogPosts();
   
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
@@ -16,16 +18,26 @@ export async function GET() {
     return dateB.getTime() - dateA.getTime();
   });
   
+  // Sort blog posts by published_date (newest first)
+  const sortedBlogPosts = [...blogPosts].sort((a, b) => {
+    const dateA = new Date(a.published_date || a.created_at || 0);
+    const dateB = new Date(b.published_date || b.created_at || 0);
+    return dateB.getTime() - dateA.getTime();
+  });
+  
   // Take only the 20 most recent apps
   const recentApps = sortedApps.slice(0, 20);
+  
+  // Take only the 10 most recent blog posts
+  const recentBlogPosts = sortedBlogPosts.slice(0, 10);
   
   // Generate RSS XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>DexAPK - Latest MOD APKs</title>
+    <title>DexAPK - Latest MOD APKs and Blog Posts</title>
     <link>${baseUrl}</link>
-    <description>Download the latest modified Android applications with premium features unlocked. Fast, secure, and always updated.</description>
+    <description>Download the latest modified Android applications with premium features unlocked. Read our blog for tutorials and insights. Fast, secure, and always updated.</description>
     <language>en-us</language>
     <lastBuildDate>${now}</lastBuildDate>
     <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
@@ -39,6 +51,8 @@ export async function GET() {
     <category>MOD</category>
     <category>Apps</category>
     <category>Games</category>
+    <category>Blog</category>
+    <category>Tutorials</category>
     
     ${recentApps.map(app => `
     <item>
@@ -59,6 +73,21 @@ export async function GET() {
         <p><a href="${baseUrl}/${app.slug}">Download Now</a></p>
       ]]></description>
       <category>${app.category}</category>
+    </item>`).join('')}
+    
+    ${recentBlogPosts.map(post => `
+    <item>
+      <title>${post.title}</title>
+      <link>${baseUrl}/blog/${post.slug}</link>
+      <guid isPermaLink="true">${baseUrl}/blog/${post.slug}</guid>
+      <pubDate>${new Date(post.published_date || post.created_at || now).toUTCString()}</pubDate>
+      <description><![CDATA[
+        ${post.excerpt ? `<p>${post.excerpt}</p>` : ''}
+        <p>By ${post.author} | ${post.reading_time || 5} min read</p>
+        <p><a href="${baseUrl}/blog/${post.slug}">Read Full Article</a></p>
+      ]]></description>
+      <category>${post.category}</category>
+      <author>${post.author}</author>
     </item>`).join('')}
   </channel>
 </rss>`;

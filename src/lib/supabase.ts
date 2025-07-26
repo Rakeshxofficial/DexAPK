@@ -1035,6 +1035,263 @@ export async function deleteContactMessage(messageId: string) {
   }
 }
 
+// Blog-related database functions
+export async function getAllBlogPosts() {
+  try {
+    // Use a static cache for frequently accessed data
+    if (globalThis._cachedBlogPosts && globalThis._blogCacheTimestamp && 
+        (Date.now() - globalThis._blogCacheTimestamp < 60000)) { // 1 minute cache
+      return globalThis._cachedBlogPosts;
+    }
+    
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('is_published', true)
+      .order('published_date', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching blog posts:', error);
+      return [];
+    }
+
+    // Cache the results
+    globalThis._cachedBlogPosts = data || [];
+    globalThis._blogCacheTimestamp = Date.now();
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error in getAllBlogPosts:', error);
+    return [];
+  }
+}
+
+export async function getFeaturedBlogPosts(limit = 5) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('is_published', true)
+      .eq('is_featured', true)
+      .order('published_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching featured blog posts:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getFeaturedBlogPosts:', error);
+    return [];
+  }
+}
+
+export async function getBlogPostBySlug(slug: string) {
+  try {
+    // Use a static cache for frequently accessed data with slug as key
+    const cacheKey = `blog_${slug}`;
+    if (globalThis[cacheKey] && globalThis[`${cacheKey}_timestamp`] && 
+        (Date.now() - globalThis[`${cacheKey}_timestamp`] < 60000)) { // 1 minute cache
+      return globalThis[cacheKey];
+    }
+    
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return null;
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .single();
+
+    if (error) {
+      console.error('Supabase error fetching blog post by slug:', error);
+      return null;
+    }
+
+    // Cache the results
+    globalThis[cacheKey] = data;
+    globalThis[`${cacheKey}_timestamp`] = Date.now();
+    
+    return data;
+  } catch (error) {
+    console.error('Error in getBlogPostBySlug:', error);
+    return null;
+  }
+}
+
+export async function getBlogPostsByCategory(category: string, limit = 10) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('is_published', true)
+      .eq('category', category)
+      .order('published_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching blog posts by category:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getBlogPostsByCategory:', error);
+    return [];
+  }
+}
+
+export async function getRelatedBlogPosts(currentSlug: string, category: string, limit = 3) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('is_published', true)
+      .eq('category', category)
+      .neq('slug', currentSlug)
+      .order('published_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching related blog posts:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getRelatedBlogPosts:', error);
+    return [];
+  }
+}
+
+// Admin functions for blog management
+export async function createBlogPost(blogData: any) {
+  try {
+    console.log('Creating blog post with data:', blogData);
+    
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .insert([blogData])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error creating blog post:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Blog post created successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in createBlogPost:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function updateBlogPost(slug: string, updates: any) {
+  try {
+    console.log('Updating blog post with slug:', slug);
+    console.log('Update data:', updates);
+    
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .update(updates)
+      .eq('slug', slug)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error updating blog post:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Blog post updated successfully:', data);
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error in updateBlogPost:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
+export async function deleteBlogPost(slug: string) {
+  try {
+    console.log('Attempting to delete blog post with slug:', slug);
+
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return { success: false, error: 'Supabase credentials not available' };
+    }
+
+    // First, verify the blog post exists
+    const { data: existingPost, error: fetchError } = await supabase
+      .from('blog_posts')
+      .select('id')
+      .eq('slug', slug)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching blog post before deletion:', fetchError);
+      return { success: false, error: `Blog post not found: ${fetchError.message}` };
+    }
+
+    if (!existingPost) {
+      console.error('Blog post not found for deletion:', slug);
+      return { success: false, error: 'Blog post not found' };
+    }
+
+    console.log('Found blog post to delete:', existingPost.id);
+
+    // Perform the deletion
+    const { error } = await supabase
+      .from('blog_posts')
+      .delete()
+      .eq('slug', slug);
+
+    if (error) {
+      console.error('Supabase error deleting blog post with slug', slug, ':', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Blog post deleted successfully:', slug);
+    return { success: true };
+  } catch (error) {
+    console.error('Error in deleteBlogPost for slug', slug, ':', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+  }
+}
+
 // Publisher-related functions
 export async function getAllPublishers() {
   try {

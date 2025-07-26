@@ -1,0 +1,600 @@
+---
+// Reusable blog form component for both adding and editing blog posts
+export interface Props {
+  post?: any;
+  mode: 'create' | 'edit';
+}
+
+const { post, mode } = Astro.props;
+const isEdit = mode === 'edit';
+---
+
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
+  <div class="flex items-center justify-between mb-8">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+      {isEdit ? 'Edit Blog Post' : 'Add New Blog Post'}
+    </h2>
+    <div class="flex items-center gap-2">
+      <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+      <span class="text-sm text-gray-600 dark:text-gray-400">
+        {isEdit ? 'Editing Mode' : 'Creation Mode'}
+      </span>
+    </div>
+  </div>
+
+  <form id="blog-form" class="space-y-8">
+    <!-- Basic Information -->
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+        Basic Information
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Blog Title *
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value={post?.title || ''}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Enter blog title"
+          />
+        </div>
+
+        <div>
+          <label for="slug" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            URL Slug *
+          </label>
+          <input
+            type="text"
+            id="slug"
+            name="slug"
+            value={post?.slug || ''}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="blog-post-slug"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            URL-friendly version (e.g., how-to-install-mod-apks)
+          </p>
+        </div>
+
+        <div>
+          <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Category *
+          </label>
+          <select
+            id="category"
+            name="category"
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+          >
+            <option value="">Select Category</option>
+            <option value="Tutorials" selected={post?.category === 'Tutorials'}>Tutorials</option>
+            <option value="News" selected={post?.category === 'News'}>News</option>
+            <option value="Reviews" selected={post?.category === 'Reviews'}>Reviews</option>
+            <option value="Tips & Tricks" selected={post?.category === 'Tips & Tricks'}>Tips & Tricks</option>
+            <option value="Android" selected={post?.category === 'Android'}>Android</option>
+            <option value="Technology" selected={post?.category === 'Technology'}>Technology</option>
+            <option value="General" selected={post?.category === 'General'}>General</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="author" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Author *
+          </label>
+          <input
+            type="text"
+            id="author"
+            name="author"
+            value={post?.author || 'DexAPK Team'}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Author Name"
+          />
+        </div>
+
+        <div>
+          <label for="published_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Published Date *
+          </label>
+          <input
+            type="date"
+            id="published_date"
+            name="published_date"
+            value={post?.published_date || new Date().toISOString().split('T')[0]}
+            required
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+          />
+        </div>
+
+        <div>
+          <label for="reading_time" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Reading Time (minutes)
+          </label>
+          <input
+            type="number"
+            id="reading_time"
+            name="reading_time"
+            min="1"
+            max="60"
+            value={post?.reading_time || 5}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="5"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Leave empty to auto-calculate based on content
+          </p>
+        </div>
+      </div>
+
+      <!-- Excerpt -->
+      <div>
+        <label for="excerpt" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Excerpt
+        </label>
+        <textarea
+          id="excerpt"
+          name="excerpt"
+          rows="3"
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+          placeholder="Brief description of the blog post..."
+        >{post?.excerpt || ''}</textarea>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Short summary that appears in blog listings and social media shares
+        </p>
+      </div>
+
+      <!-- Thumbnail Image -->
+      <div>
+        <label for="thumbnail_image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Thumbnail Image URL
+        </label>
+        <input
+          type="url"
+          id="thumbnail_image"
+          name="thumbnail_image"
+          value={post?.thumbnail_image || ''}
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+          placeholder="https://example.com/thumbnail.jpg"
+        />
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Featured image for the blog post. Recommended size: 800x450px
+        </p>
+      </div>
+
+      <!-- Tags -->
+      <div>
+        <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Tags (comma-separated)
+        </label>
+        <input
+          type="text"
+          id="tags"
+          name="tags"
+          value={post?.tags ? post.tags.join(', ') : ''}
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+          placeholder="android, tutorial, mod apk, guide"
+        />
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Separate tags with commas (e.g., android, tutorial, guide)
+        </p>
+      </div>
+    </div>
+
+    <!-- Blog Content -->
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2 flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Blog Content
+      </h3>
+      
+      <div>
+        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Content (Markdown) *
+        </label>
+        <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">Markdown Support:</h4>
+          <div class="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+            <p><strong>Headings:</strong> # H1, ## H2, ### H3</p>
+            <p><strong>Text:</strong> **bold**, *italic*, `code`, ~~strikethrough~~</p>
+            <p><strong>Lists:</strong> - item or 1. item</p>
+            <p><strong>Links:</strong> [text](url)</p>
+            <p><strong>Images:</strong> ![alt text](image-url)</p>
+            <p><strong>Code blocks:</strong> ```language</p>
+            <p><strong>Quotes:</strong> > quote text</p>
+          </div>
+        </div>
+        <textarea
+          id="content"
+          name="content"
+          rows="20"
+          required
+          class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200 font-mono text-sm"
+          placeholder="# Blog Post Title
+
+Write your blog content here using Markdown syntax...
+
+## Introduction
+
+Your introduction here...
+
+## Main Content
+
+Your main content here...
+
+## Conclusion
+
+Your conclusion here..."
+        >{post?.content || ''}</textarea>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Write your blog content using Markdown syntax. This will be rendered on the blog detail page.
+        </p>
+      </div>
+
+      <!-- Content Preview -->
+      <div>
+        <button
+          type="button"
+          id="preview-content"
+          class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Preview Content
+        </button>
+        <div id="content-preview" class="hidden mt-4 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-200 dark:border-gray-600">
+          <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Content Preview:</h4>
+          <div id="preview-html" class="prose prose-gray dark:prose-invert max-w-none"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEO Settings -->
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+        SEO Settings
+      </h3>
+      
+      <div class="grid grid-cols-1 gap-6">
+        <div>
+          <label for="seo_title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            SEO Title
+          </label>
+          <input
+            type="text"
+            id="seo_title"
+            name="seo_title"
+            value={post?.seo_title || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Custom SEO title (leave empty for auto-generated)"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            If empty, will auto-generate: "{post?.title || 'Blog Title'} - DexAPK Blog"
+          </p>
+        </div>
+
+        <div>
+          <label for="seo_description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            SEO Description
+          </label>
+          <textarea
+            id="seo_description"
+            name="seo_description"
+            rows="3"
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="Custom SEO description (leave empty for auto-generated)"
+          >{post?.seo_description || ''}</textarea>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Recommended length: 150-160 characters. If empty, will use excerpt or auto-generate.
+          </p>
+        </div>
+
+        <div>
+          <label for="seo_keywords" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            SEO Keywords
+          </label>
+          <input
+            type="text"
+            id="seo_keywords"
+            name="seo_keywords"
+            value={post?.seo_keywords || ''}
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+            placeholder="keyword1, keyword2, keyword3"
+          />
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Comma-separated keywords. If empty, will auto-generate from title and tags.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Toggles -->
+    <div class="space-y-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+        Status Settings
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div>
+            <label for="is_featured" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Featured Post
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Show in featured section
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="is_featured"
+              name="is_featured"
+              checked={post?.is_featured || false}
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div>
+            <label for="is_published" class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Published Status
+            </label>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              Publicly visible
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="is_published"
+              name="is_published"
+              checked={post?.is_published !== false}
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700">
+      <button
+        type="button"
+        onclick="window.history.back()"
+        class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+      >
+        Cancel
+      </button>
+      
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          id="preview-btn"
+          class="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors duration-200"
+        >
+          Preview
+        </button>
+        
+        <button
+          type="submit"
+          id="submit-btn"
+          class="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 flex items-center gap-2"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+          {isEdit ? 'Update Post' : 'Create Post'}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm mx-4 text-center">
+    <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+      {isEdit ? 'Updating Post...' : 'Creating Post...'}
+    </h3>
+    <p class="text-gray-600 dark:text-gray-400">
+      Please wait while we process your request.
+    </p>
+  </div>
+</div>
+
+<!-- Success/Error Toast -->
+<div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+  <div class="flex items-center gap-3">
+    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+    </svg>
+    <span id="toast-message">Post saved successfully!</span>
+  </div>
+</div>
+
+<script>
+  import { createBlogPost, updateBlogPost } from '../../lib/supabase.js';
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('blog-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const previewBtn = document.getElementById('preview-btn');
+    const previewContentBtn = document.getElementById('preview-content');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    const isEdit = submitBtn.textContent.includes('Update');
+    const originalSlug = isEdit ? document.getElementById('slug').value : null;
+
+    // Auto-generate slug from title
+    const titleInput = document.getElementById('title');
+    const slugInput = document.getElementById('slug');
+    
+    titleInput.addEventListener('input', function() {
+      if (!isEdit || !slugInput.value) {
+        const slug = this.value
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim();
+        slugInput.value = slug;
+      }
+    });
+
+    // Content preview functionality
+    previewContentBtn.addEventListener('click', function() {
+      const content = document.getElementById('content').value;
+      const preview = document.getElementById('content-preview');
+      const previewHtml = document.getElementById('preview-html');
+      
+      if (content.trim()) {
+        // Simple markdown to HTML conversion for preview
+        const html = parseMarkdownPreview(content);
+        previewHtml.innerHTML = html;
+        preview.classList.remove('hidden');
+      } else {
+        alert('Please enter some content to preview.');
+      }
+    });
+
+    // Simple markdown parser for preview
+    function parseMarkdownPreview(markdown) {
+      return markdown
+        // Headers
+        .replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold mb-4">$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold mb-4">$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold mb-4">$1</h1>')
+        // Bold
+        .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+        // Italic
+        .replace(/\*(.*)\*/gim, '<em>$1</em>')
+        // Code
+        .replace(/`(.*?)`/gim, '<code class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">$1</code>')
+        // Links
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" class="text-blue-600 hover:underline">$1</a>')
+        // Lists
+        .replace(/^\* (.*$)/gim, '<li class="ml-4">• $1</li>')
+        .replace(/^\d+\. (.*$)/gim, '<li class="ml-4">$1</li>')
+        // Line breaks
+        .replace(/\n/gim, '<br>');
+    }
+
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      showLoading();
+      
+      try {
+        const formData = new FormData(form);
+        
+        // Process tags
+        const tagsText = formData.get('tags') || '';
+        const tags = tagsText ? tagsText.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+        
+        const blogData = {
+          slug: formData.get('slug'),
+          title: formData.get('title'),
+          content: formData.get('content'),
+          excerpt: formData.get('excerpt') || null,
+          thumbnail_image: formData.get('thumbnail_image') || null,
+          author: formData.get('author') || 'DexAPK Team',
+          category: formData.get('category'),
+          tags: tags,
+          reading_time: parseInt(formData.get('reading_time')) || null,
+          published_date: formData.get('published_date'),
+          is_published: formData.has('is_published'),
+          is_featured: formData.has('is_featured'),
+          seo_title: formData.get('seo_title') || null,
+          seo_description: formData.get('seo_description') || null,
+          seo_keywords: formData.get('seo_keywords') || null
+        };
+
+        console.log('Form data being submitted:', blogData);
+
+        let result;
+        if (isEdit) {
+          console.log('Updating blog post with slug:', originalSlug);
+          result = await updateBlogPost(originalSlug, blogData);
+        } else {
+          console.log('Creating new blog post');
+          result = await createBlogPost(blogData);
+        }
+
+        console.log('Operation result:', result);
+
+        hideLoading();
+
+        if (result.success) {
+          showToast(`Post ${isEdit ? 'updated' : 'created'} successfully!`, 'success');
+          
+          // Redirect after success
+          setTimeout(() => {
+            window.location.href = '/admin/blog';
+          }, 1500);
+        } else {
+          showToast(result.error || 'An error occurred', 'error');
+        }
+      } catch (error) {
+        hideLoading();
+        showToast('An unexpected error occurred', 'error');
+        console.error('Form submission error:', error);
+      }
+    });
+
+    // Preview functionality
+    previewBtn.addEventListener('click', function() {
+      const slug = document.getElementById('slug').value;
+      if (slug) {
+        window.open(`/blog/${slug}`, '_blank');
+      } else {
+        showToast('Please enter a slug first', 'error');
+      }
+    });
+
+    function showLoading() {
+      loadingOverlay.classList.remove('hidden');
+      loadingOverlay.classList.add('flex');
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.add('hidden');
+      loadingOverlay.classList.remove('flex');
+    }
+
+    function showToast(message, type = 'success') {
+      toastMessage.textContent = message;
+      
+      // Update toast styling based on type
+      if (type === 'error') {
+        toast.className = toast.className.replace('bg-green-600', 'bg-red-600');
+      } else {
+        toast.className = toast.className.replace('bg-red-600', 'bg-green-600');
+      }
+      
+      toast.classList.remove('translate-y-full');
+      toast.classList.add('translate-y-0');
+      
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0');
+        toast.classList.add('translate-y-full');
+      }, 3000);
+    }
+  });
+</script>

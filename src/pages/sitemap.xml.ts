@@ -86,6 +86,12 @@ export async function GET({ request }) {
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>${baseUrl}/blog</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
   
   <!-- Category Pages -->
   <url>
