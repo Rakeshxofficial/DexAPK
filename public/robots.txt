@@ -26,6 +26,7 @@ Allow: /*.svg$
 
 # Sitemap location
 Sitemap: https://dexapk.com/sitemap.xml
+Sitemap: https://dexapk.com/blog-sitemap.xml
 Sitemap: https://dexapk.com/image-sitemap.xml
 
 # Crawl delay to prevent server overload

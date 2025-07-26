@@ -365,7 +365,8 @@ export async function GET({ request }) {
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600'
+      'Cache-Control': 'public, max-age=3600',
+      'X-Robots-Tag': 'noindex'
     }
   });
 }
