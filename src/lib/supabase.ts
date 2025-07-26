@@ -1369,78 +1369,6 @@ export async function deleteBlogPost(slug: string) {
   }
 }
 
-export async function getAllBlogTags() {
-  try {
-    // Check if we have valid credentials before making the request
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase credentials not available');
-      return [];
-    }
-
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select('tags')
-      .eq('is_published', true);
-
-    if (error) {
-      console.error('Supabase error fetching blog tags:', error);
-      return [];
-    }
-
-    // Extract and flatten all tags from all posts
-    const allTags = new Set();
-    data.forEach(post => {
-      if (post.tags && Array.isArray(post.tags)) {
-        post.tags.forEach(tag => {
-          if (tag && tag.trim()) {
-            allTags.add(tag.trim());
-          }
-        });
-      }
-    });
-
-    // Convert to array and sort
-    return Array.from(allTags).sort();
-  } catch (error) {
-    console.error('Error in getAllBlogTags:', error);
-    return [];
-  }
-}
-
-export async function getAllBlogCategories() {
-  try {
-    // Check if we have valid credentials before making the request
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase credentials not available');
-      return [];
-    }
-
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select('category')
-      .eq('is_published', true);
-
-    if (error) {
-      console.error('Supabase error fetching blog categories:', error);
-      return [];
-    }
-
-    // Extract unique categories
-    const categories = new Set();
-    data.forEach(post => {
-      if (post.category && post.category.trim()) {
-        categories.add(post.category.trim());
-      }
-    });
-
-    // Convert to array and sort
-    return Array.from(categories).sort();
-  } catch (error) {
-    console.error('Error in getAllBlogCategories:', error);
-    return [];
-  }
-}
-
 export async function getBlogPostsByTag(tag: string, limit = 20) {
   try {
     // Check if we have valid credentials before making the request
@@ -1515,59 +1443,6 @@ export async function getBlogPostsByPublisher(publisher: string, limit = 20) {
     return data || [];
   } catch (error) {
     console.error('Error in getBlogPostsByPublisher:', error);
-    return [];
-  }
-}
-
-// Publisher-related functions
-export async function getAllPublishers() {
-  try {
-    // Check if we have valid credentials before making the request
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase credentials not available');
-      return [];
-    }
-
-    const { data, error } = await supabase
-      .from('apps')
-      .select('publisher')
-      .eq('is_active', true)
-      .order('publisher', { ascending: true });
-
-    if (error) {
-      console.error('Supabase error fetching publishers:', error);
-      return [];
-    }
-
-    // Get unique publishers and count their apps (case-insensitive grouping)
-    const publisherCounts = {};
-    data.forEach(app => {
-      if (app.publisher && app.publisher !== 'Unknown') {
-        // Normalize publisher name for grouping (case-insensitive)
-        const normalizedName = app.publisher.trim();
-        const lowerName = normalizedName.toLowerCase();
-        
-        // Use the first occurrence as the canonical name (preserves original casing)
-        if (!publisherCounts[lowerName]) {
-          publisherCounts[lowerName] = {
-            name: normalizedName,
-            count: 0
-          };
-        }
-        publisherCounts[lowerName].count++;
-      }
-    });
-
-    // Convert to array with consistent slugs
-    const publishers = Object.keys(publisherCounts).map(lowerName => ({
-      name: publisherCounts[lowerName].name,
-      slug: lowerName.replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-      appCount: publisherCounts[lowerName].count
-    }));
-
-    return publishers;
-  } catch (error) {
-    console.error('Error in getAllPublishers:', error);
     return [];
   }
 }
