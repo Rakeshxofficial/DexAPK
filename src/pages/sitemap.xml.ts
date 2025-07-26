@@ -1,11 +1,12 @@
 import { getAllApps } from '../lib/supabase';
-import { getAllBlogPosts, getAllBlogCategories, getAllBlogTags } from '../lib/supabase';
+import { getAllBlogPosts, getAllBlogCategories, getAllBlogTags, getAllPublishers } from '../lib/supabase';
 
 export async function GET({ request }) {
   const apps = await getAllApps();
   const blogPosts = await getAllBlogPosts();
   const blogCategories = await getAllBlogCategories();
   const blogTags = await getAllBlogTags();
+  const publishers = await getAllPublishers();
   
   // Base URL for the site
   const baseUrl = 'https://dexapk.com';
@@ -161,6 +162,14 @@ export async function GET({ request }) {
     <priority>0.7</priority>
   </url>
   
+  <!-- Blog Tags Page -->
+  <url>
+    <loc>${baseUrl}/blog/tags</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
   <!-- Blog Category Pages -->
   ${blogCategories.map(category => {
     const categorySlug = category.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -233,17 +242,14 @@ export async function GET({ request }) {
   </url>`).join('')}
   
   <!-- Publisher Detail Pages -->
-  ${[...new Set(apps.map(app => {
-    if (!app.publisher || app.publisher === 'Unknown') return null;
-    return app.publisher.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  }).filter(Boolean))].map(publisherSlug => {
+  ${publishers.map(publisher => {
     return `
   <url>
-    <loc>${baseUrl}/publisher/${publisherSlug}</loc>
+    <loc>${baseUrl}/publisher/${publisher.slug}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/publisher/${publisherSlug}"/>
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/publisher/${publisher.slug}"/>
   </url>`;
   }).join('')}
 </urlset>`;
