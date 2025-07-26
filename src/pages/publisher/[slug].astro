@@ -11,6 +11,20 @@ import { getAllPublishers, getPublisherBySlug, getAppsByPublisherSlug, getBlogPo
 export async function getStaticPaths() {
   try {
     const publishers = await getAllPublishers();
+    
+    // Add DexAPK Team as a special publisher for blog authors
+    const dexapkTeamPublisher = {
+      name: 'DexAPK Team',
+      slug: 'dexapk-team',
+      appCount: 0
+    };
+    
+    // Check if DexAPK Team is not already in the list
+    const hasDexAPKTeam = publishers.some(p => p.slug === 'dexapk-team');
+    if (!hasDexAPKTeam) {
+      publishers.push(dexapkTeamPublisher);
+    }
+    
     return publishers.map(publisher => ({
       params: { slug: publisher.slug },
       props: { 
@@ -38,7 +52,12 @@ if (!publisher) {
 // Get apps by this publisher
 let publisherApps = [];
 try {
-  publisherApps = await getAppsByPublisherSlug(slug);
+  if (slug === 'dexapk-team') {
+    // For DexAPK Team, we don't have apps, only blog posts
+    publisherApps = [];
+  } else {
+    publisherApps = await getAppsByPublisherSlug(slug);
+  }
 } catch (error) {
   console.error('Error loading publisher apps:', error);
 }
