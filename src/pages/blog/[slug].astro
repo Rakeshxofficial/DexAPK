@@ -308,7 +308,7 @@ const readingTime = post.reading_time || calculateReadingTime(post.content);
                   </a>
                   
                   <button 
-                    onclick="copyToClipboard()"
+                    id="copy-link-button"
                     class="inline-flex items-center justify-center w-12 h-12 bg-gray-600 text-white rounded-full hover:bg-gray-700 transition-all duration-200 transform hover:scale-110 shadow-lg hover:shadow-xl"
                     aria-label="Copy link to clipboard"
                     title="Copy Link"
@@ -433,6 +433,10 @@ const readingTime = post.reading_time || calculateReadingTime(post.content);
         document.body.removeChild(toast);
       }, 300);
     }, 2000);
+  }
+  
+  // Attach event listener to copy button
+  document.getElementById('copy-link-button')?.addEventListener('click', copyToClipboard);
 </script>
 
 <style>
