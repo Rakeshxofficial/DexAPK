@@ -1292,6 +1292,134 @@ export async function deleteBlogPost(slug: string) {
   }
 }
 
+export async function getAllBlogTags() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('tags')
+      .eq('is_published', true);
+
+    if (error) {
+      console.error('Supabase error fetching blog tags:', error);
+      return [];
+    }
+
+    // Extract and flatten all tags from all posts
+    const allTags = new Set();
+    data.forEach(post => {
+      if (post.tags && Array.isArray(post.tags)) {
+        post.tags.forEach(tag => {
+          if (tag && tag.trim()) {
+            allTags.add(tag.trim());
+          }
+        });
+      }
+    });
+
+    // Convert to array and sort
+    return Array.from(allTags).sort();
+  } catch (error) {
+    console.error('Error in getAllBlogTags:', error);
+    return [];
+  }
+}
+
+export async function getAllBlogCategories() {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('category')
+      .eq('is_published', true);
+
+    if (error) {
+      console.error('Supabase error fetching blog categories:', error);
+      return [];
+    }
+
+    // Extract unique categories
+    const categories = new Set();
+    data.forEach(post => {
+      if (post.category && post.category.trim()) {
+        categories.add(post.category.trim());
+      }
+    });
+
+    // Convert to array and sort
+    return Array.from(categories).sort();
+  } catch (error) {
+    console.error('Error in getAllBlogCategories:', error);
+    return [];
+  }
+}
+
+export async function getBlogPostsByTag(tag: string, limit = 20) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('is_published', true)
+      .contains('tags', [tag])
+      .order('published_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching blog posts by tag:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getBlogPostsByTag:', error);
+    return [];
+  }
+}
+
+export async function getBlogPostsByPublisher(publisher: string, limit = 20) {
+  try {
+    // Check if we have valid credentials before making the request
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase credentials not available');
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('is_published', true)
+      .eq('author', publisher)
+      .order('published_date', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Supabase error fetching blog posts by publisher:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('Error in getBlogPostsByPublisher:', error);
+    return [];
+  }
+}
+
 // Publisher-related functions
 export async function getAllPublishers() {
   try {
