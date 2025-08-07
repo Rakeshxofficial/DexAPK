@@ -9,6 +9,7 @@ import BreadcrumbNav from '../components/BreadcrumbNav.astro';
 import InternalLinkModule from '../components/InternalLinkModule.astro';
 import MarkdownRenderer from '../components/MarkdownRenderer.astro';
 import DynamicFAQ from '../components/DynamicFAQ.astro';
+import BlogsSection from '../components/BlogsSection.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 // Function to get trending apps
@@ -686,6 +687,13 @@ const dynamicFAQs = app ? [
                   </div>
                 </div>
               )}
+
+              <!-- Recent Blog Posts -->
+              <BlogsSection 
+                maxBlogs={6} 
+                headingText="📝 Recent Articles" 
+                showHeading={true}
+              />
 
             </div>
           </div>
