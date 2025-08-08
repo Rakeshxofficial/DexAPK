@@ -282,6 +282,42 @@ try {
       });
     }
     
+    // Clear loading states when page becomes visible again (user returns)
+    document.addEventListener('visibilitychange', function() {
+      if (!document.hidden) {
+        clearAllLoadingStates();
+      }
+    });
+    
+    // Clear loading states on page focus (when user returns from another tab/page)
+    window.addEventListener('focus', function() {
+      clearAllLoadingStates();
+    });
+    
+    // Clear loading states on page load (in case of browser back button)
+    window.addEventListener('pageshow', function(event) {
+      // This fires when page is loaded from cache (back button)
+      clearAllLoadingStates();
+    });
+    
+    // Function to clear all loading states
+    function clearAllLoadingStates() {
+      const loadingIndicators = document.querySelectorAll('.loading-indicator');
+      const appCards = document.querySelectorAll('.app-card');
+      
+      loadingIndicators.forEach(indicator => {
+        indicator.classList.add('hidden');
+        indicator.classList.remove('flex');
+      });
+      
+      appCards.forEach(card => {
+        card.classList.remove('scale-95', 'shadow-sm');
+      });
+      
+      // Hide any visible toasts
+      hideToast();
+    }
+    
     // Toast notification functions
     function showToast(title, message) {
       toastTitle.textContent = title;
