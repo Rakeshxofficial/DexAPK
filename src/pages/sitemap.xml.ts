@@ -7,21 +7,11 @@ export async function GET({ request }) {
   // Current timestamp for when sitemap was last updated - update this manually when needed
   const lastModified = '2025-07-26T07:30:00.000Z';
   
-  // Initialize arrays for all data
-  let apps = [];
+  // Initialize arrays for blog data only (apps moved to separate sitemap)
   let blogPosts = [];
   let blogCategories = [];
   let blogTags = [];
   let publishers = [];
-  
-  try {
-    // Try to fetch apps data
-    apps = await getAllApps();
-    console.log('Sitemap: Fetched apps:', apps.length);
-  } catch (error) {
-    console.error('Sitemap: Error fetching apps:', error);
-    apps = [];
-  }
   
   try {
     // Import blog functions dynamically to avoid build issues
@@ -151,7 +141,6 @@ export async function GET({ request }) {
   }
   
   console.log('Sitemap: Final counts:', {
-    apps: apps.length,
     blogPosts: blogPosts.length,
     blogCategories: blogCategories.length,
     blogTags: blogTags.length,
@@ -170,30 +159,6 @@ export async function GET({ request }) {
   </url>
   
   <!-- Main Pages -->
-  <url>
-    <loc>${baseUrl}/apps</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/trending</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/games</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
   <url>
     <loc>${baseUrl}/search</loc>
     <lastmod>${lastModified}</lastmod>
@@ -245,70 +210,6 @@ export async function GET({ request }) {
     <priority>0.7</priority>
   </url>
   
-  <!-- Publisher Main Page -->
-  <url>
-    <loc>${baseUrl}/publisher</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- App Category Pages -->
-  <url>
-    <loc>${baseUrl}/categories/productivity</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/music</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/video</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/entertainment</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/social</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/photography</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/games</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/media</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/categories/apps</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
   <!-- Blog Category Pages -->${blogCategories.map(category => {
     const categorySlug = category.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     return `
@@ -331,32 +232,10 @@ export async function GET({ request }) {
   </url>`;
   }).join('')}
   
-  <!-- Publisher Detail Pages -->${publishers.map(publisher => `
-  <url>
-    <loc>${baseUrl}/publisher/${publisher.slug}</loc>
-    <lastmod>${lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>`).join('')}
-  
   <!-- Blog Post Pages -->${blogPosts.map(post => `
   <url>
     <loc>${baseUrl}/blog/${post.slug}</loc>
     <lastmod>${post.updated_at || lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>`).join('')}
-  
-  <!-- App Detail Pages -->${apps.map(app => `
-  <url>
-    <loc>${baseUrl}/${app.slug}</loc>
-    <lastmod>${app.updated_at || lastModified}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/${app.slug}/download</loc>
-    <lastmod>${app.updated_at || lastModified}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`).join('')}
