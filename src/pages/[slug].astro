@@ -594,14 +594,6 @@ const dynamicFAQs = app ? [
             <!-- Dynamic FAQ -->
             <DynamicFAQ app={app} />
 
-            <!-- New Posts Section -->
-            <NewPosts 
-              maxApps={5} 
-              headingText="New Posts" 
-              showHeading={true}
-              currentSlug={app.slug}
-            />
-
           </div>
 
           <!-- Sidebar -->
@@ -723,6 +715,13 @@ const dynamicFAQs = app ? [
                 showHeading={true}
               />
 
+              <!-- New Posts Section -->
+              <NewPosts 
+                maxApps={5} 
+                headingText="New Posts" 
+                showHeading={true}
+                currentSlug={app.slug}
+              />
             </div>
           </div>
 
