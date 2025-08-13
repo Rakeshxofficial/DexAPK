@@ -1,0 +1,256 @@
+---
+// Top Publishers Component - Shows popular app publishers
+import { getAllApps } from '../lib/supabase.js';
+
+export interface Props {
+  maxPublishers?: number;
+  showHeading?: boolean;
+  headingText?: string;
+  currentPublisher?: string;
+}
+
+const { 
+  maxPublishers = 6,
+  showHeading = true,
+  headingText = "Top Publishers",
+  currentPublisher = ''
+} = Astro.props;
+
+// Get all apps to calculate publisher statistics
+let publisherStats = {};
+try {
+  const allApps = await getAllApps();
+  
+  // Calculate stats for each publisher
+  allApps.forEach(app => {
+    if (!publisherStats[app.publisher]) {
+      publisherStats[app.publisher] = {
+        name: app.publisher,
+        count: 0,
+        totalRating: 0,
+        totalVotes: 0,
+        apps: []
+      };
+    }
+    publisherStats[app.publisher].count++;
+    publisherStats[app.publisher].totalRating += app.rating;
+    publisherStats[app.publisher].totalVotes += app.votes;
+    publisherStats[app.publisher].apps.push(app);
+  });
+  
+  // Calculate averages and sort by popularity
+  Object.keys(publisherStats).forEach(publisher => {
+    const stats = publisherStats[publisher];
+    stats.averageRating = stats.totalRating / stats.count;
+    stats.popularityScore = (stats.averageRating * stats.totalVotes) + (stats.count * 10);
+  });
+  
+} catch (error) {
+  console.error('Error loading apps for publisher stats:', error);
+  publisherStats = {};
+}
+
+// Convert to array and sort by popularity
+const topPublishers = Object.values(publisherStats)
+  .filter(publisher => publisher.name !== currentPublisher && publisher.name !== 'Unknown') // Exclude current publisher and unknown
+  .sort((a, b) => b.popularityScore - a.popularityScore)
+  .slice(0, maxPublishers);
+
+// Function to get publisher slug
+function getPublisherSlug(publisherName) {
+  return publisherName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// Function to get publisher initials for avatar
+function getPublisherInitials(publisherName) {
+  return publisherName
+    .split(' ')
+    .map(word => word.charAt(0))
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
+}
+
+// Function to get publisher color based on name
+function getPublisherColor(publisherName) {
+  const colors = [
+    'from-blue-500 to-blue-600',
+    'from-purple-500 to-purple-600',
+    'from-green-500 to-green-600',
+    'from-red-500 to-red-600',
+    'from-yellow-500 to-yellow-600',
+    'from-pink-500 to-pink-600',
+    'from-indigo-500 to-indigo-600',
+    'from-teal-500 to-teal-600',
+    'from-orange-500 to-orange-600',
+    'from-cyan-500 to-cyan-600'
+  ];
+  
+  // Use publisher name to consistently assign a color
+  const hash = publisherName.split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  
+  return colors[Math.abs(hash) % colors.length];
+}
+---
+
+{topPublishers.length > 0 && (
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
+    {showHeading && (
+      <div class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        </svg>
+        {headingText}
+      </div>
+    )}
+    
+    <div class="space-y-3">
+      {topPublishers.map((publisher, index) => {
+        const publisherSlug = getPublisherSlug(publisher.name);
+        const publisherInitials = getPublisherInitials(publisher.name);
+        const publisherColor = getPublisherColor(publisher.name);
+        
+        return (
+          <article class="group">
+            <a 
+              href={`/publisher/${publisherSlug}`} 
+              class="flex items-center p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-100 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-600"
+            >
+              
+              <!-- Publisher Avatar -->
+              <div class={`w-12 h-12 bg-gradient-to-r ${publisherColor} rounded-xl flex items-center justify-center mr-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-200`}>
+                <span class="text-white text-sm font-bold">
+                  {publisherInitials}
+                </span>
+              </div>
+              
+              <!-- Publisher Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors duration-200 truncate">
+                    {publisher.name}
+                  </h3>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2.5 py-1 rounded-full flex-shrink-0 ml-3">
+                    #{index + 1}
+                  </span>
+                </div>
+                
+                <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="truncate">{publisher.count} apps</span>
+                    <span>•</span>
+                    <div class="flex items-center gap-1">
+                      <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                      </svg>
+                      <span class="text-sm font-medium">{publisher.averageRating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-1 leading-relaxed">
+                  {publisher.count > 1 ? 
+                    `Publisher of ${publisher.count} premium MOD APKs` : 
+                    'Premium MOD APK publisher'
+                  }
+                </p>
+              </div>
+              
+              <!-- Arrow Icon -->
+              <svg class="w-5 h-5 text-gray-400 group-hover:text-orange-500 dark:group-hover:text-orange-400 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+              </svg>
+            </a>
+          </article>
+        );
+      })}
+      
+      <!-- View All Publishers Link -->
+      <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <a 
+          href="/publisher" 
+          class="flex items-center justify-center w-full p-3 text-sm font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-xl transition-colors duration-200"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          View All Publishers
+          <svg class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+)}
+
+<style>
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    hyphens: auto;
+  }
+  
+  /* Ensure minimum touch target sizes */
+  a, button {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Improved focus styles */
+  a:focus, button:focus {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+  }
+  
+  /* Ensure proper text wrapping and overflow handling */
+  .publisher-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  /* Mobile-specific adjustments */
+  @media (max-width: 640px) {
+    .line-clamp-1 {
+      line-height: 1.3;
+    }
+    
+    /* Adjust spacing for mobile */
+    .publisher-item {
+      padding: 0.75rem;
+    }
+  }
+  
+  .bg-white.dark\\:bg-gray-800.rounded-2xl {
+    contain: layout;
+    overflow: hidden;
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* Ensure proper text wrapping and prevent overflow */
+  .publisher-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+  }
+</style>

@@ -12,6 +12,7 @@ import DynamicFAQ from '../components/DynamicFAQ.astro';
 import BlogsSection from '../components/BlogsSection.astro';
 import NewPosts from '../components/NewPosts.astro';
 import TopCategories from '../components/TopCategories.astro';
+import TopPublishers from '../components/TopPublishers.astro';
 import { getAllApps, getAppBySlug, getRelatedApps } from '../lib/supabase.js';
 
 // Function to get trending apps
@@ -731,6 +732,14 @@ const dynamicFAQs = app ? [
                 headingText="Top Categories" 
                 showHeading={true}
                 currentCategory={app.category}
+              />
+
+              <!-- Top Publishers Section -->
+              <TopPublishers 
+                maxPublishers={6} 
+                headingText="Top Publishers" 
+                showHeading={true}
+                currentPublisher={app.publisher}
               />
             </div>
           </div>
