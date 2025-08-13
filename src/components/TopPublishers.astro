@@ -23,24 +23,39 @@ try {
   
   // Calculate stats for each publisher
   allApps.forEach(app => {
-    if (!publisherStats[app.publisher]) {
-      publisherStats[app.publisher] = {
-        name: app.publisher,
+    // Normalize publisher name for grouping (case-insensitive)
+    const normalizedPublisher = app.publisher.toLowerCase().trim();
+    
+    if (!publisherStats[normalizedPublisher]) {
+      publisherStats[normalizedPublisher] = {
+        name: app.publisher, // Keep the original case for display
         count: 0,
         totalRating: 0,
         totalVotes: 0,
         apps: []
       };
+    } else {
+      // If we already have this publisher (case-insensitive), 
+      // use the version with better casing (prefer proper case over all caps)
+      const existing = publisherStats[normalizedPublisher].name;
+      const current = app.publisher;
+      
+      // Prefer proper case over all caps, and longer names over shorter ones
+      if ((existing === existing.toUpperCase() && current !== current.toUpperCase()) ||
+          (existing.length < current.length && current !== current.toUpperCase())) {
+        publisherStats[normalizedPublisher].name = current;
+      }
     }
-    publisherStats[app.publisher].count++;
-    publisherStats[app.publisher].totalRating += app.rating;
-    publisherStats[app.publisher].totalVotes += app.votes;
-    publisherStats[app.publisher].apps.push(app);
+    
+    publisherStats[normalizedPublisher].count++;
+    publisherStats[normalizedPublisher].totalRating += app.rating;
+    publisherStats[normalizedPublisher].totalVotes += app.votes;
+    publisherStats[normalizedPublisher].apps.push(app);
   });
   
   // Calculate averages and sort by popularity
-  Object.keys(publisherStats).forEach(publisher => {
-    const stats = publisherStats[publisher];
+  Object.keys(publisherStats).forEach(normalizedPublisher => {
+    const stats = publisherStats[normalizedPublisher];
     stats.averageRating = stats.totalRating / stats.count;
     stats.popularityScore = (stats.averageRating * stats.totalVotes) + (stats.count * 10);
   });
@@ -52,7 +67,12 @@ try {
 
 // Convert to array and sort by popularity
 const topPublishers = Object.values(publisherStats)
-  .filter(publisher => publisher.name !== currentPublisher && publisher.name !== 'Unknown') // Exclude current publisher and unknown
+  .filter(publisher => {
+    // Exclude current publisher (case-insensitive) and unknown publishers
+    const normalizedCurrent = currentPublisher.toLowerCase().trim();
+    const normalizedPublisher = publisher.name.toLowerCase().trim();
+    return normalizedPublisher !== normalizedCurrent && normalizedPublisher !== 'unknown';
+  })
   .sort((a, b) => b.popularityScore - a.popularityScore)
   .slice(0, maxPublishers);
 
