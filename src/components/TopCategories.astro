@@ -131,7 +131,7 @@ function getCategorySlug(categoryName) {
       </div>
     )}
     
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="space-y-3">
       {topCategories.map((category, index) => {
         const meta = categoryMeta[category.name] || categoryMeta['Apps'];
         const categorySlug = getCategorySlug(category.name);
@@ -140,11 +140,11 @@ function getCategorySlug(categoryName) {
           <article class="group">
             <a 
               href={`/categories/${categorySlug}`} 
-              class="flex items-center p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-100 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-600 min-h-[80px]"
+              class="flex items-center p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-100 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-600"
             >
               
               <!-- Category Icon -->
-              <div class={`w-10 h-10 bg-gradient-to-r ${meta.gradient} rounded-lg flex items-center justify-center mr-3 flex-shrink-0 group-hover:scale-110 transition-transform duration-200`}>
+              <div class={`w-12 h-12 bg-gradient-to-r ${meta.gradient} rounded-xl flex items-center justify-center mr-4 flex-shrink-0 group-hover:scale-110 transition-transform duration-200`}>
                 <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   {meta.icon === 'productivity' && (
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m0 0h2m-2 0v4a2 2 0 002 2h2a2 2 0 002-2v-4m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v0"/>
@@ -175,35 +175,35 @@ function getCategorySlug(categoryName) {
               
               <!-- Category Content -->
               <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between mb-1 overflow-hidden">
-                  <h3 class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200 truncate">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200 truncate">
                     {category.name}
                   </h3>
-                  <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2 py-0.5 rounded-full flex-shrink-0 ml-2">
+                  <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-600 px-2.5 py-1 rounded-full flex-shrink-0 ml-3">
                     #{index + 1}
                   </span>
                 </div>
                 
-                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                  <div class="flex items-center gap-1 min-w-0">
+                <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  <div class="flex items-center gap-2">
                     <span class="truncate">{category.count} apps</span>
                     <span>•</span>
                     <div class="flex items-center gap-1">
-                      <svg class="w-3 h-3 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                      <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                       </svg>
-                      <span class="text-xs">{category.averageRating}</span>
+                      <span class="text-sm font-medium">{category.averageRating}</span>
                     </div>
                   </div>
                 </div>
                 
-                <p class="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 leading-tight">
+                <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 leading-relaxed">
                   {meta.description}
                 </p>
               </div>
               
               <!-- Arrow Icon -->
-              <svg class="w-4 h-4 text-gray-400 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-5 h-5 text-gray-400 group-hover:text-purple-500 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all duration-200 flex-shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
               </svg>
             </a>
@@ -212,10 +212,10 @@ function getCategorySlug(categoryName) {
       })}
       
       <!-- View All Categories Link -->
-      <div class="sm:col-span-2 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
         <a 
           href="/categories" 
-          class="flex items-center justify-center w-full p-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors duration-200"
+          class="flex items-center justify-center w-full p-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors duration-200"
         >
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
@@ -264,7 +264,8 @@ function getCategorySlug(categoryName) {
   
   /* Mobile-specific adjustments */
   @media (max-width: 640px) {
-    .line-clamp-1 {
+    .line-clamp-2 {
+      -webkit-line-clamp: 1;
       line-height: 1.3;
     }
     
@@ -274,30 +275,6 @@ function getCategorySlug(categoryName) {
     }
   }
   
-  /* Desktop-specific adjustments */
-  @media (min-width: 1024px) {
-    .grid.grid-cols-1.sm\\:grid-cols-2 {
-      grid-template-columns: 1fr;
-    }
-    
-    .grid.grid-cols-1.sm\\:grid-cols-2 > article {
-      max-width: 100%;
-    }
-    
-    .grid.grid-cols-1.sm\\:grid-cols-2 > article a {
-      min-height: 70px;
-    }
-  }
-  
-  /* Ensure proper text wrapping and prevent overflow */
-  .category-content {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    max-width: 100%;
-  }
-  
-  /* Fix for container overflow */
   .bg-white.dark\\:bg-gray-800.rounded-2xl {
     contain: layout;
     overflow: hidden;
@@ -311,5 +288,13 @@ function getCategorySlug(categoryName) {
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+  
+  /* Ensure proper text wrapping and prevent overflow */
+  .category-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
   }
 </style>
