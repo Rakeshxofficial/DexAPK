@@ -23,7 +23,7 @@ try {
   
   // Calculate stats for each category
   allApps.forEach(app => {
-    if (!categoryStats[app.category]) {
+    if (app.category && !categoryStats[app.category]) {
       categoryStats[app.category] = {
         name: app.category,
         count: 0,
@@ -32,10 +32,12 @@ try {
         apps: []
       };
     }
-    categoryStats[app.category].count++;
-    categoryStats[app.category].totalRating += app.rating;
-    categoryStats[app.category].totalVotes += app.votes;
-    categoryStats[app.category].apps.push(app);
+    if (app.category) {
+      categoryStats[app.category].count++;
+      categoryStats[app.category].totalRating += app.rating;
+      categoryStats[app.category].totalVotes += app.votes;
+      categoryStats[app.category].apps.push(app);
+    }
   });
   
   // Calculate averages and sort by popularity
