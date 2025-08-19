@@ -2,10 +2,11 @@
 import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import netlify from '@astrojs/netlify';
+import amp from '@astrojs/amp';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind()],
+  integrations: [tailwind(), amp()],
   output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
   adapter: netlify({
     // Ensure case sensitivity is handled properly
