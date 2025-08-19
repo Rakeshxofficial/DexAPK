@@ -234,6 +234,11 @@ const websiteSchema = {
     <link rel="sitemap" type="application/xml" href="/apps-sitemap.xml" />
     <link rel="sitemap" type="application/xml" href="/blog-sitemap.xml" />
     
+    <!-- AMP Version Link -->
+    {Astro.url.pathname.includes('/') && !Astro.url.pathname.includes('/amp') && (
+      <link rel="amphtml" href={`${Astro.url.href}/amp`} />
+    )}
+    
     <!-- Theme Detection Script -->
     <script is:inline defer>
       const getThemePreference = () => {

@@ -17,6 +17,12 @@
   to = "/:slug/index.html"
   status = 200
 
+# Handle AMP pages
+[[redirects]]
+  from = "/:slug/amp"
+  to = "/:slug/amp/index.html"
+  status = 200
+
 # Handle 404s
 [[redirects]]
   from = "/*"

@@ -139,6 +139,12 @@ ${apps.map(app => `  <url>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>${baseUrl}/${app.slug}/amp</loc>
+    <lastmod>${app.updated_at || lastModified}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>${baseUrl}/${app.slug}/download</loc>
     <lastmod>${app.updated_at || lastModified}</lastmod>
     <changefreq>weekly</changefreq>

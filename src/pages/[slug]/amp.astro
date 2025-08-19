@@ -1,0 +1,403 @@
+---
+export const prerender = true;
+
+import AMPLayout from '../../layouts/AMPLayout.astro';
+import { getAllApps, getAppBySlug, getRelatedApps } from '../../lib/supabase.js';
+
+export async function getStaticPaths() {
+  try {
+    const apps = await getAllApps();
+    return apps.map(app => ({
+      params: { slug: app.slug },
+      props: { app }
+    }));
+  } catch (error) {
+    console.error('Error generating static paths for AMP:', error);
+    return [];
+  }
+}
+
+const { slug } = Astro.params;
+const { app } = Astro.props;
+
+// If app not found, return 404
+if (!app) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Get related apps
+let relatedApps = [];
+try {
+  relatedApps = await getRelatedApps(app.slug, app.category, 4);
+} catch (error) {
+  console.error('Error loading related apps:', error);
+}
+
+// SEO data with fallbacks
+const seoTitle = app.seo_title || `${app.name} v${app.version} MOD APK - Premium Features Unlocked`;
+const seoDescription = app.seo_description || `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 100)}...`;
+const seoKeywords = app.seo_keywords || `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
+const seoFeaturedImage = app.seo_featured_image || app.icon || '/favicon.svg';
+const canonicalUrl = app.seo_canonical_url || `https://dexapk.com/${app.slug}`;
+
+// Prepare SEO data for Layout
+const seoData = {
+  title: seoTitle,
+  description: seoDescription,
+  keywords: seoKeywords,
+  canonicalUrl: canonicalUrl,
+  featuredImage: seoFeaturedImage,
+  appName: app.name,
+  appVersion: app.version,
+  appCategory: app.category,
+  appRating: app.rating,
+  appVotes: app.votes,
+  appPublisher: app.publisher,
+  appSize: app.size,
+  lastUpdated: app.last_updated,
+  type: 'product'
+};
+
+// Generate dynamic FAQs for AMP
+const dynamicFAQs = [
+  {
+    question: `What is ${app.name} MOD APK?`,
+    answer: `${app.name} MOD APK is a modified version of the original ${app.name} app that provides premium features unlocked for free. It offers enhanced functionality and removes limitations present in the standard version.`
+  },
+  {
+    question: `Is ${app.name} MOD APK safe to download?`,
+    answer: `Yes, our ${app.name} MOD APK is thoroughly tested and scanned for malware. We ensure all our APK files are safe and secure for download and installation.`
+  },
+  {
+    question: `How do I install ${app.name} MOD APK?`,
+    answer: `To install ${app.name} MOD APK, first enable "Unknown Sources" in your Android settings, then download the APK file and tap to install it on your device.`
+  },
+  {
+    question: `What are the system requirements for ${app.name}?`,
+    answer: `${app.name} requires ${app.requirements} to run properly on your Android device.`
+  }
+];
+
+// Simple markdown to HTML converter for AMP
+function convertMarkdownToHTML(markdown) {
+  if (!markdown) return '';
+  
+  return markdown
+    .split('\n\n')
+    .map(paragraph => {
+      if (paragraph.startsWith('# ')) {
+        return `<h2>${paragraph.slice(2)}</h2>`;
+      } else if (paragraph.startsWith('## ')) {
+        return `<h3>${paragraph.slice(3)}</h3>`;
+      } else if (paragraph.startsWith('- ')) {
+        const items = paragraph.split('\n').map(item => 
+          item.startsWith('- ') ? `<li>${item.slice(2)}</li>` : item
+        ).join('');
+        return `<ul>${items}</ul>`;
+      } else {
+        return `<p>${paragraph}</p>`;
+      }
+    })
+    .join('');
+}
+
+const articleContent = app.article_content || `
+# Introduction
+
+${app.description}
+
+## Key Features
+
+${app.features && app.features.length > 0 ? app.features.map(feature => `- ${feature}`).join('\n') : '- Premium features unlocked\n- Enhanced user experience\n- No limitations'}
+
+## Installation Guide
+
+- Download the APK file
+- Enable Unknown Sources in Android settings
+- Install the APK file
+- Enjoy premium features
+
+## Conclusion
+
+${app.name} MOD APK offers an exceptional experience with all premium features unlocked for free.
+`;
+
+const htmlContent = convertMarkdownToHTML(articleContent);
+---
+
+<AMPLayout seoData={seoData}>
+  <!-- App Header -->
+  <div class="app-header">
+    <!-- App Icon -->
+    <div class="app-icon">
+      {app.icon ? (
+        <amp-img 
+          src={app.icon} 
+          alt={`${app.name} icon`}
+          width="128"
+          height="128"
+          layout="fixed"
+          style="border-radius: 1.5rem;"
+        ></amp-img>
+      ) : (
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="4" y="3" width="16" height="18" rx="2" ry="2"></rect>
+          <line x1="8" y1="9" x2="16" y2="9"></line>
+          <line x1="8" y1="13" x2="16" y2="13"></line>
+        </svg>
+      )}
+    </div>
+
+    <!-- App Title -->
+    <h1 class="app-title">
+      {app.custom_h1_title || `${app.name} v${app.version} MOD APK`}
+    </h1>
+
+    <!-- App Meta -->
+    <div class="app-meta">
+      <span>v{app.version}</span>
+      <span>•</span>
+      <span>{app.last_updated}</span>
+      <span>•</span>
+      <span>{app.size}</span>
+    </div>
+
+    <!-- Rating -->
+    <div class="rating-stars">
+      {[1,2,3,4,5].map(star => (
+        <svg class={`star ${star <= Math.floor(app.rating) ? '' : 'star-empty'}`} viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+        </svg>
+      ))}
+      <span style="margin-left: 0.75rem; font-weight: 600;">
+        {app.rating} ({app.votes.toLocaleString()} votes)
+      </span>
+    </div>
+
+    <!-- Download Button -->
+    <a
+      href={app.disable_download_page ? (app.download_url || '#') : `/${app.slug}/download`}
+      class="download-button"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.75rem;">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+        <polyline points="7,10 12,15 17,10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      Download Now
+    </a>
+  </div>
+
+  <!-- App Details Grid -->
+  <div class="app-details">
+    
+    <!-- Main Content -->
+    <div>
+      
+      <!-- App Info Cards -->
+      <div class="info-cards">
+        
+        <!-- Version -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: linear-gradient(to bottom right, #10b981, #059669);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                <polyline points="14,2 14,8 20,8"></polyline>
+              </svg>
+            </div>
+            <div>
+              <p class="info-card-label">Version</p>
+              <p class="info-card-value">v{app.version}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Publisher -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: linear-gradient(to bottom right, #f59e0b, #d97706);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 010 7.75"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="info-card-label">Publisher</p>
+              <p class="info-card-value">{app.publisher}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Requirements -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: linear-gradient(to bottom right, #ef4444, #dc2626);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+            </div>
+            <div>
+              <p class="info-card-label">Requirements</p>
+              <p class="info-card-value">{app.requirements}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category -->
+        <div class="info-card">
+          <div class="info-card-header">
+            <div class="info-card-icon" style="background: linear-gradient(to bottom right, #3b82f6, #2563eb);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div>
+              <p class="info-card-label">Category</p>
+              <p class="info-card-value">{app.category}</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Screenshots -->
+      {app.screenshots && app.screenshots.length > 0 && (
+        <div class="content-section">
+          <h2>Screenshots</h2>
+          <div class="screenshots-grid">
+            {app.screenshots.slice(0, 4).map((screenshot, index) => (
+              <div class="screenshot">
+                <amp-img 
+                  src={screenshot} 
+                  alt={`${app.name} screenshot ${index + 1}`}
+                  width="300"
+                  height="533"
+                  layout="responsive"
+                ></amp-img>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- MOD Info -->
+      {app.mod_info && app.mod_info.length > 0 && (
+        <div class="mod-info">
+          <div class="mod-info-title">MOD Features</div>
+          <ul class="mod-info-list">
+            {app.mod_info.map(info => (
+              <li class="mod-info-item">{info}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <!-- Article Content -->
+      <div class="content-section">
+        <div set:html={htmlContent} />
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="content-section">
+        <h2>Frequently Asked Questions</h2>
+        <amp-accordion>
+          {dynamicFAQs.map((faq, index) => (
+            <section>
+              <h3 class="faq-question">{faq.question}</h3>
+              <div class="faq-answer">
+                <p>{faq.answer}</p>
+              </div>
+            </section>
+          ))}
+        </amp-accordion>
+      </div>
+
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      
+      <!-- Related Apps -->
+      {relatedApps.length > 0 && (
+        <div class="sidebar-section">
+          <div class="sidebar-title">Related Apps</div>
+          <div>
+            {relatedApps.map(relatedApp => (
+              <a href={`/${relatedApp.slug}/amp`} class="related-app">
+                <div class="related-app-icon">
+                  {relatedApp.icon ? (
+                    <amp-img 
+                      src={relatedApp.icon} 
+                      alt={relatedApp.name}
+                      width="48"
+                      height="48"
+                      layout="fixed"
+                      style="border-radius: 0.75rem;"
+                    ></amp-img>
+                  ) : (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                      <rect x="4" y="3" width="16" height="18" rx="2" ry="2"></rect>
+                    </svg>
+                  )}
+                </div>
+                <div class="related-app-info">
+                  <p class="related-app-name">{relatedApp.name}</p>
+                  <p class="related-app-category">{relatedApp.category}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- App Stats -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">App Statistics</div>
+        <div style="space-y: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;">
+            <span style="color: #6b7280;">Rating</span>
+            <span style="font-weight: 600;">{app.rating}/5</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;">
+            <span style="color: #6b7280;">Downloads</span>
+            <span style="font-weight: 600;">{app.votes.toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;">
+            <span style="color: #6b7280;">Size</span>
+            <span style="font-weight: 600;">{app.size}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0;">
+            <span style="color: #6b7280;">Updated</span>
+            <span style="font-weight: 600;">{app.last_updated}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">Quick Links</div>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <a href="/categories" style="color: #3b82f6; text-decoration: none; padding: 0.5rem 0;">Browse Categories</a>
+          <a href="/trending" style="color: #3b82f6; text-decoration: none; padding: 0.5rem 0;">Trending Apps</a>
+          <a href="/publisher" style="color: #3b82f6; text-decoration: none; padding: 0.5rem 0;">All Publishers</a>
+          <a href="/help" style="color: #3b82f6; text-decoration: none; padding: 0.5rem 0;">Help Center</a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</AMPLayout>
