@@ -6,51 +6,24 @@
 <div 
   class="seo-backlink-footer"
   style="
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 9999;
+    position: relative;
+    width: 100%;
     background: transparent;
-    pointer-events: none;
-    height: 1px;
-    overflow: hidden;
+    padding: 8px 0;
+    text-align: center;
   "
 >
-  <!-- SEO-friendly backlink that remains intact -->
-  <div style="
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 1px;
-    height: 1px;
-    opacity: 0.01;
-    pointer-events: auto;
-    font-size: 1px;
-    line-height: 1px;
-    color: transparent;
-  ">
+  <!-- SEO-friendly visible backlink -->
+  <div class="text-center">
     <a 
       href="https://dexapk.com" 
       title="DexAPK - Premium MOD APKs Download Platform"
       rel="noopener"
       aria-label="DexAPK - Premium MOD APKs Download Platform"
-      style="
-        color: transparent;
-        text-decoration: none;
-        font-size: 1px;
-        line-height: 1px;
-        display: inline-block;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-      "
+      class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 font-mono"
     >
-      DexAPK MOD APK Download Platform
+      Powered by DexAPK Template
     </a>
-    <span style="display: none;">
-      Powered by DexAPK Template - Premium Android APK Download Website Template
-    </span>
   </div>
   
   <!-- Additional hidden attribution for template usage -->
@@ -89,7 +62,7 @@
 <style>
   /* Ensure the backlink doesn't interfere with layout */
   .seo-backlink-footer {
-    contain: strict;
+    contain: layout;
     will-change: auto;
   }
   
@@ -102,15 +75,23 @@
     background: transparent;
   }
   
-  /* Ensure accessibility compliance while keeping it hidden */
+  /* Ensure proper styling for visible backlink */
   .seo-backlink-footer a {
-    position: absolute;
-    clip: rect(1px, 1px, 1px, 1px);
-    clip-path: inset(50%);
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    white-space: nowrap;
+    display: inline-block;
+    text-decoration: none;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  .seo-backlink-footer a:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .dark .seo-backlink-footer a:hover {
+    background-color: rgba(255, 255, 255, 0.05);
   }
   
   /* Additional protection against removal */
@@ -134,17 +115,17 @@
     
     // Ensure backlink remains functional
     function ensureBacklink() {
-      const backlink = document.querySelector('.seo-backlink-footer a[href*="dexapk.com"]');
+      const backlink = document.querySelector('.seo-backlink-footer a[href="https://dexapk.com"]');
       if (!backlink) {
         // Recreate backlink if removed
-        const container = document.querySelector('.seo-backlink-footer');
+        const container = document.querySelector('.seo-backlink-footer div');
         if (container) {
           const link = document.createElement('a');
           link.href = templateSource;
           link.title = 'DexAPK - Premium MOD APKs Download Platform';
           link.rel = 'noopener';
-          link.textContent = 'DexAPK MOD APK Download Platform';
-          link.style.cssText = 'color: transparent; text-decoration: none; font-size: 1px; line-height: 1px; display: inline-block; width: 1px; height: 1px; overflow: hidden;';
+          link.textContent = 'Powered by DexAPK Template';
+          link.className = 'text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 font-mono';
           container.appendChild(link);
         }
       }
