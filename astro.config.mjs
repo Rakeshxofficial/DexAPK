@@ -6,7 +6,7 @@ import netlify from '@astrojs/netlify';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind()],
-  output: 'static',
+  output: 'hybrid',
   adapter: netlify({
     edgeMiddleware: false,
     functionPerRoute: false,
@@ -14,9 +14,10 @@ export default defineConfig({
   }),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'auto', // Allow inlining for critical CSS
+    inlineStylesheets: 'never', // Prevent CSS injection into AMP pages
     assets: '_astro',
-    assetsPrefix: '/'
+    assetsPrefix: '/',
+    excludeMiddleware: true
   },
   vite: {
     define: {
@@ -39,6 +40,13 @@ export default defineConfig({
       },
       assetsInlineLimit: 4096, // Reduce inline limit for better caching
       rollupOptions: {
+        external: (id) => {
+          // Exclude CSS from AMP pages
+          if (id.includes('/amp') && id.includes('.css')) {
+            return true;
+          }
+          return false;
+        },
         output: {
           // Ensure long-term caching with content hashing
           entryFileNames: '_astro/[name].[hash].js',

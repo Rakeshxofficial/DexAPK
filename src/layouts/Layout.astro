@@ -176,6 +176,13 @@ const websiteSchema = {
     <!-- Base Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+    
+    <!-- Conditional CSS loading - exclude for AMP pages -->
+    {!Astro.url.pathname.includes('/amp') && (
+      <Fragment>
+        <!-- Only load CSS for non-AMP pages -->
+      </Fragment>
+    )}
 
     <!-- App Structured Data -->
     {seoData?.appName && (
