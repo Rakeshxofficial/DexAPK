@@ -6,13 +6,14 @@ import netlify from '@astrojs/netlify';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind()],
-  output: 'static', // Change to static for better performance
+  output: 'hybrid', // Change back to hybrid to fix routing issues
   adapter: netlify({
-    trailingSlash: 'ignore'
+    trailingSlash: 'ignore',
+    edgeMiddleware: false
   }),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'never', // Don't inline CSS for better caching
+    inlineStylesheets: 'auto', // Allow inlining for critical CSS
   },
   vite: {
     define: {
