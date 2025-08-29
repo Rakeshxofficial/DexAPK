@@ -576,7 +576,7 @@ const htmlContent = markdownToHtml(articleContent);
         <!-- Related Apps -->
         {relatedApps.length > 0 && (
           <section class="card">
-            <h3 class="card-title">Related Apps</h3>
+            <h3 class="card-title">You May Also Like</h3>
             <div class="related-apps">
               {relatedApps.map(relatedApp => (
                 <a href={`/${relatedApp.slug}`} class="related-app">
@@ -603,15 +603,118 @@ const htmlContent = markdownToHtml(articleContent);
                   </div>
                 </a>
               ))}
+              
+              <!-- Additional Internal Links -->
+              <div class="internal-links">
+                <h4 class="internal-links-title">Popular in {app.category}</h4>
+                <div class="internal-links-grid">
+                  <a href={`/categories/${app.category.toLowerCase()}`} class="internal-link">
+                    All {app.category} Apps
+                  </a>
+                  <a href="/trending" class="internal-link">
+                    Trending MOD APKs
+                  </a>
+                  <a href="/games" class="internal-link">
+                    MOD Games
+                  </a>
+                  <a href={`/publisher/${app.publisher.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} class="internal-link">
+                    More by {app.publisher}
+                  </a>
+                </div>
+              </div>
             </div>
           </section>
         )}
+        
+        <!-- Popular Categories -->
+        <section class="card">
+          <h3 class="card-title">Popular Categories</h3>
+          <div class="category-links">
+            <a href="/categories/games" class="category-link">🎮 Games</a>
+            <a href="/categories/productivity" class="category-link">📊 Productivity</a>
+            <a href="/categories/music" class="category-link">🎵 Music</a>
+            <a href="/categories/social" class="category-link">📱 Social</a>
+            <a href="/categories/photography" class="category-link">📸 Photography</a>
+            <a href="/categories/video" class="category-link">🎬 Video</a>
+          </div>
+        </section>
 
       </aside>
 
     </div>
 
   </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3 class="footer-title">DexAPK</h3>
+        <p class="footer-description">Premium MOD APKs for Android</p>
+        <div class="footer-social">
+          <a href="https://t.me/dexapk_com" target="_blank" rel="noopener noreferrer" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.176-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.832z"/>
+            </svg>
+          </a>
+          <a href="https://www.instagram.com/dexapk" target="_blank" rel="noopener noreferrer" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+          </a>
+          <a href="https://youtube.com/@rakeshxofficiall" target="_blank" rel="noopener noreferrer" class="social-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+      
+      <div class="footer-section">
+        <h4 class="footer-subtitle">Quick Links</h4>
+        <nav class="footer-nav">
+          <a href="/" class="footer-link">Home</a>
+          <a href="/apps" class="footer-link">All Apps</a>
+          <a href="/categories" class="footer-link">Categories</a>
+          <a href="/trending" class="footer-link">Trending</a>
+          <a href="/blog" class="footer-link">Blog</a>
+        </nav>
+      </div>
+      
+      <div class="footer-section">
+        <h4 class="footer-subtitle">Categories</h4>
+        <nav class="footer-nav">
+          <a href="/categories/games" class="footer-link">Games</a>
+          <a href="/categories/productivity" class="footer-link">Productivity</a>
+          <a href="/categories/music" class="footer-link">Music</a>
+          <a href="/categories/social" class="footer-link">Social</a>
+          <a href="/categories/photography" class="footer-link">Photography</a>
+        </nav>
+      </div>
+      
+      <div class="footer-section">
+        <h4 class="footer-subtitle">Support</h4>
+        <nav class="footer-nav">
+          <a href="/help" class="footer-link">Help Center</a>
+          <a href="/contact" class="footer-link">Contact Us</a>
+          <a href="/about" class="footer-link">About</a>
+          <a href="/privacy" class="footer-link">Privacy Policy</a>
+          <a href="/terms" class="footer-link">Terms of Service</a>
+        </nav>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div class="footer-bottom-content">
+        <p class="footer-copyright">© 2025 DexAPK. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="/sitemap.xml" class="footer-bottom-link">Sitemap</a>
+          <a href="/apps-sitemap.xml" class="footer-bottom-link">Apps</a>
+          <a href="/blog-sitemap.xml" class="footer-bottom-link">Blog</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <!-- Sidebar Menu -->
   <amp-sidebar id="sidebar" layout="nodisplay" side="left" class="sidebar">
