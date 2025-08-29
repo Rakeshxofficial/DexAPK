@@ -1,0 +1,151 @@
+---
+export const prerender = false; // Enable server-side rendering for admin pages
+
+import Layout from '../../../layouts/Layout.astro';
+import DownloadTaskForm from '../../../components/admin/DownloadTaskForm.astro';
+
+const title = "Add New Download Task - Admin Dashboard";
+const description = "Create a new download task for MOD APKs in the admin dashboard";
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
+    <!-- Admin Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- Breadcrumb -->
+          <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <a href="/admin" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+              Admin
+            </a>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <a href="/admin/download-tasks" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+              Download Tasks
+            </a>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-gray-900 dark:text-white font-medium">New</span>
+          </nav>
+
+          <!-- User Menu -->
+          <div class="flex items-center space-x-4">
+            <div class="text-right">
+              <p class="text-sm font-medium text-gray-900 dark:text-white" id="user-email">Loading...</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+            </div>
+            <button
+              id="logout-btn"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Add New Download Task</h1>
+        <p class="text-gray-600 dark:text-gray-400 mt-2">Create a new task that users need to complete before downloading</p>
+      </div>
+
+      <!-- Task Form -->
+      <DownloadTaskForm mode="create" />
+
+    </main>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm mx-4 text-center">
+      <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Creating Task...</h3>
+      <p class="text-gray-600 dark:text-gray-400">Please wait while we process your request.</p>
+    </div>
+  </div>
+
+  <!-- Success/Error Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+      </svg>
+      <span id="toast-message">Task created successfully!</span>
+    </div>
+  </div>
+
+</Layout>
+
+<script>
+  import { getCurrentUser, signOut } from '../../../lib/auth.js';
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication
+    checkAuth();
+    
+    // Set up form
+    setupForm();
+    
+    // Set up logout functionality
+    setupLogout();
+  });
+
+  async function checkAuth() {
+    try {
+      const result = await getCurrentUser();
+      
+      if (!result.success || !result.user) {
+        window.location.href = '/admin/login';
+        return;
+      }
+      
+      // Display user email
+      document.getElementById('user-email').textContent = result.user.email;
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      window.location.href = '/admin/login';
+    }
+  }
+  
+  function setupForm() {
+    // Form setup is now handled in the DownloadTaskForm component
+  }
+
+  function setupLogout() {
+    document.getElementById('logout-btn')?.addEventListener('click', async function() {
+      try {
+        await signOut();
+        window.location.href = '/admin/login';
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    });
+  }
+</script>
+
+<style>
+  /* Ensure minimum touch target sizes */
+  button, a {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Improved focus styles */
+  button:focus, a:focus, input:focus, select:focus, textarea:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+</style>

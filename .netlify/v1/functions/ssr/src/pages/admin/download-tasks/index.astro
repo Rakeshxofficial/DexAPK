@@ -1,0 +1,995 @@
+---
+export const prerender = false; // Enable server-side rendering for admin pages
+
+import Layout from '../../../layouts/Layout.astro';
+
+const title = "Manage Download Tasks - Admin Dashboard";
+const description = "Manage download tasks for MOD APKs in the admin dashboard";
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    
+    <!-- Admin Header -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- Breadcrumb -->
+          <nav class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <a href="/admin" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+              Admin
+            </a>
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-gray-900 dark:text-white font-medium">Download Tasks</span>
+          </nav>
+
+          <!-- User Menu -->
+          <div class="flex items-center space-x-4">
+            <div class="text-right">
+              <p class="text-sm font-medium text-gray-900 dark:text-white" id="user-email">Loading...</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">Administrator</p>
+            </div>
+            <button
+              id="logout-btn"
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors duration-200"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+              </svg>
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      
+      <!-- Page Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Manage Download Tasks</h1>
+          <p class="text-gray-600 dark:text-gray-400 mt-2">Create and manage tasks that users need to complete before downloading</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <a
+            href="/admin/download-tasks/new"
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            Add New Task
+          </a>
+        </div>
+      </div>
+
+      <!-- Tasks Table -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              All Download Tasks (<span id="tasks-count">0</span>)
+            </h3>
+            <div class="flex items-center space-x-2">
+              <button
+                id="refresh-btn"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
+              >
+                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Refresh
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                  <input type="checkbox" id="select-all" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">URL</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Created</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tasks-table" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <!-- Table rows will be loaded here -->
+              <tr>
+                <td colspan="7" class="px-6 py-8 text-center">
+                  <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p class="text-gray-500 dark:text-gray-400">Loading tasks...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Task Assignment Section -->
+      <div class="mt-12 space-y-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Manage App Tasks</h2>
+        
+        <!-- Assign Tasks Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Assign Tasks to Apps</h3>
+          
+          <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Task Selection -->
+              <div>
+                <label for="task-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Select Task
+                </label>
+                <select
+                  id="task-select"
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                >
+                  <option value="">Select a task</option>
+                  <!-- Tasks will be loaded here -->
+                </select>
+              </div>
+              
+              <!-- App Selection -->
+              <div>
+                <label for="app-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Select App
+                </label>
+                <select
+                  id="app-select"
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                >
+                  <option value="">Select an app</option>
+                  <!-- Apps will be loaded here -->
+                </select>
+              </div>
+            </div>
+            
+            <!-- Deactivate Existing Tasks Checkbox -->
+            <div class="flex items-center">
+              <input
+                id="deactivate-existing"
+                name="deactivate-existing"
+                type="checkbox"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="deactivate-existing" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                Replace existing tasks (deactivate all current tasks for this app)
+              </label>
+            </div>
+            
+            <!-- Assign Button -->
+            <div class="text-right">
+              <button
+                id="assign-task-btn"
+                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 opacity-50 cursor-not-allowed"
+                disabled
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                Assign Task to App
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Current App Tasks Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Current App Tasks</h3>
+          
+          <div class="space-y-6">
+            <!-- App Selection for Viewing Tasks -->
+            <div>
+              <label for="view-app-select" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Select App to View/Manage Tasks
+              </label>
+              <select
+                id="view-app-select"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors duration-200"
+              >
+                <option value="">Select an app</option>
+                <!-- Apps with tasks will be loaded here -->
+              </select>
+            </div>
+            
+            <!-- Tasks List for Selected App -->
+            <div id="app-tasks-container" class="hidden">
+              <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                Tasks for <span id="selected-app-name">App Name</span>
+              </h4>
+              
+              <div id="app-tasks-list" class="space-y-3 mb-4">
+                <!-- Tasks will be loaded here -->
+                <div class="flex items-center justify-center py-4">
+                  <div class="animate-spin w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+                </div>
+              </div>
+              
+              <!-- Remove All Tasks Button -->
+              <div class="flex justify-end">
+                <button
+                  id="remove-all-tasks-btn"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                  </svg>
+                  Remove All Tasks
+                </button>
+              </div>
+            </div>
+            
+            <!-- No Tasks Message -->
+            <div id="no-app-selected" class="text-center py-4 text-gray-500 dark:text-gray-400">
+              Select an app to view and manage its tasks
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md mx-4">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Delete Task</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">
+          Are you sure you want to delete "<span id="delete-task-name"></span>"? This action cannot be undone.
+        </p>
+        <div class="flex items-center justify-center space-x-4">
+          <button
+            id="cancel-delete"
+            type="button"
+            class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            id="confirm-delete"
+            type="button"
+            class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors duration-200"
+          >
+            Delete Task
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div id="loading-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm mx-4 text-center">
+      <div class="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Processing...</h3>
+      <p class="text-gray-600 dark:text-gray-400">Please wait while we process your request.</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-green-600 text-white px-6 py-4 rounded-xl shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+    <div class="flex items-center gap-3">
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+      </svg>
+      <span id="toast-message">Action completed successfully!</span>
+    </div>
+  </div>
+
+</Layout>
+
+<script>
+  import { getCurrentUser, signOut } from '../../../lib/auth.js';
+  import { 
+    getAllDownloadTasks, 
+    deleteDownloadTask, 
+    getAppsWithTasks,
+    getAppWithTasks,
+    getAppsWithoutActiveTasks,
+    assignTaskToApp,
+    removeTaskFromApp,
+    removeAllTasksFromApp
+  } from '../../../lib/supabase.js';
+
+  let allTasks = [];
+  let appsWithTasks = [];
+  let taskToDelete = null;
+  let deleteInProgress = false;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication
+    checkAuth();
+    
+    // Load tasks
+    loadTasks();
+    
+    // Load apps data
+    loadAppsData();
+    
+    // Set up event listeners
+    setupEventListeners();
+  });
+
+  async function checkAuth() {
+    try {
+      const result = await getCurrentUser();
+      
+      if (!result.success || !result.user) {
+        window.location.href = '/admin/login';
+        return;
+      }
+      
+      // Display user email
+      document.getElementById('user-email').textContent = result.user.email;
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      window.location.href = '/admin/login';
+    }
+  }
+
+  async function loadTasks() {
+    try {
+      showLoading();
+      console.log('Loading tasks from server...');
+
+      const tasks = await getAllDownloadTasks();
+      console.log('Loaded tasks count:', tasks.length);
+
+      allTasks = tasks;
+
+      renderTasksTable();
+      updateTasksCount();
+      populateTaskSelect();
+
+      hideLoading();
+    } catch (error) {
+      console.error('Failed to load tasks:', error);
+      hideLoading();
+      showToast('Failed to load tasks', 'error');
+    }
+  }
+
+  async function loadAppsData() {
+    try {
+      // Load apps without tasks for assignment
+      const appsWithoutTasks = await getAppsWithoutActiveTasks();
+      console.log('Loaded apps without tasks count:', appsWithoutTasks.length);
+      populateAppSelect(appsWithoutTasks);
+
+      // Load apps with tasks for management
+      appsWithTasks = await getAppsWithTasks();
+      console.log('Loaded apps with tasks count:', appsWithTasks.length);
+      populateViewAppSelect(appsWithTasks);
+    } catch (error) {
+      console.error('Failed to load apps data:', error);
+      showToast('Failed to load apps', 'error');
+    }
+  }
+
+  function renderTasksTable() {
+    const tableBody = document.getElementById('tasks-table');
+    
+    if (!tableBody) {
+      console.error('Table body element not found!');
+      return;
+    }
+    
+    if (!allTasks || allTasks.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+            <svg class="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <p class="text-lg font-medium mb-2">No download tasks found</p>
+            <p>Try <a href="/admin/download-tasks/new" class="text-blue-600 dark:text-blue-400 hover:underline">creating a new task</a></p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+    
+    tableBody.innerHTML = allTasks.map(task => `
+      <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+        <td class="px-6 py-4 whitespace-nowrap text-center">
+          <input type="checkbox" class="task-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500" data-id="${task.id}">
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="flex items-center">
+            <div class="w-10 h-10 bg-gradient-to-br ${getTaskTypeGradient(task.task_type)} rounded-xl flex items-center justify-center mr-4">
+              ${getTaskTypeIcon(task.task_type)}
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-900 dark:text-white">${task.name || 'Unnamed Task'}</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">${task.description || ''}</div>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTaskTypeBadgeClass(task.task_type)}">
+            ${task.task_type || 'Unknown'}
+          </span>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+          <a href="${task.task_url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:underline truncate max-w-xs inline-block">
+            ${task.task_url || '#'}
+          </a>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="flex items-center">
+            <div class="flex items-center">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${task.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'}">
+                ${task.is_active ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+          ${new Date(task.created_at).toLocaleDateString()}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+          <div class="flex items-center space-x-2">
+            <a href="/admin/download-tasks/edit/${task.id}" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 transition-colors duration-200">
+              Edit
+            </a>
+            <button
+              type="button"
+              onclick="confirmDelete('${task.id}', '${(task.name || '').replace(/'/g, "\\'")}')"
+              class="delete-btn text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition-colors duration-200"
+            >
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function updateTasksCount() {
+    document.getElementById('tasks-count').textContent = allTasks.length;
+  }
+
+  function populateTaskSelect() {
+    const taskSelect = document.getElementById('task-select');
+    if (!taskSelect) return;
+    
+    // Clear existing options except the first one
+    while (taskSelect.options.length > 1) {
+      taskSelect.remove(1);
+    }
+    
+    // Add active tasks as options
+    const activeTasks = allTasks.filter(task => task.is_active);
+    activeTasks.forEach(task => {
+      const option = document.createElement('option');
+      option.value = task.id;
+      option.textContent = task.name;
+      taskSelect.appendChild(option);
+    });
+  }
+
+  function populateAppSelect(apps) {
+    const appSelect = document.getElementById('app-select');
+    if (!appSelect) return;
+    
+    // Clear existing options except the first one
+    while (appSelect.options.length > 1) {
+      appSelect.remove(1);
+    }
+    
+    // Add apps as options
+    apps.sort((a, b) => a.name.localeCompare(b.name)).forEach(app => {
+      const option = document.createElement('option');
+      option.value = app.id;
+      option.textContent = app.name;
+      appSelect.appendChild(option);
+    });
+  }
+
+  function setupEventListeners() {
+    // Logout button
+    document.getElementById('logout-btn').addEventListener('click', async function() {
+      try {
+        await signOut();
+        window.location.href = '/admin/login';
+      } catch (error) {
+        console.error('Logout failed:', error);
+      }
+    });
+
+    // Refresh button
+    document.getElementById('refresh-btn').addEventListener('click', function() {
+      loadTasks();
+      loadAppsData();
+    });
+
+    // Select all checkbox
+    document.getElementById('select-all').addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('.task-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+
+    // Delete modal
+    document.getElementById('cancel-delete').addEventListener('click', function() {
+      hideDeleteModal();
+    });
+
+    document.getElementById('confirm-delete').addEventListener('click', function() {
+      performDelete();
+    });
+
+    // Task and App select change events
+    const taskSelect = document.getElementById('task-select');
+    const appSelect = document.getElementById('app-select');
+    const assignBtn = document.getElementById('assign-task-btn');
+    const deactivateExistingCheckbox = document.getElementById('deactivate-existing');
+    const viewAppSelect = document.getElementById('view-app-select');
+    const appTasksContainer = document.getElementById('app-tasks-container');
+    const noAppSelected = document.getElementById('no-app-selected');
+    const selectedAppName = document.getElementById('selected-app-name');
+    const removeAllTasksBtn = document.getElementById('remove-all-tasks-btn');
+    
+    if (taskSelect && appSelect && assignBtn) {
+      const checkSelections = () => {
+        if (taskSelect.value && appSelect.value) {
+          assignBtn.disabled = false;
+          assignBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+          assignBtn.disabled = true;
+          assignBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+      };
+      
+      taskSelect.addEventListener('change', checkSelections);
+      appSelect.addEventListener('change', checkSelections);
+      
+      // Assign task button
+      assignBtn.addEventListener('click', async function() {
+        if (!taskSelect.value || !appSelect.value) {
+          return;
+        }
+        
+        try {
+          showLoading();
+          
+          const deactivateExisting = deactivateExistingCheckbox?.checked || false;
+          const result = await assignTaskToApp(appSelect.value, taskSelect.value, deactivateExisting);
+          
+          if (result.success) {
+            showToast('Task assigned to app successfully');
+            
+            // Reload apps data
+            await loadAppsData();
+            
+            // Reset selections
+            taskSelect.value = '';
+            appSelect.value = '';
+            assignBtn.disabled = true;
+            assignBtn.classList.add('opacity-50', 'cursor-not-allowed');
+          } else {
+            showToast(result.error || 'Failed to assign task', 'error');
+          }
+          
+          hideLoading();
+        } catch (error) {
+          console.error('Error assigning task:', error);
+          hideLoading();
+          showToast('An unexpected error occurred', 'error');
+        }
+      });
+    }
+    
+    // View app select change
+    if (viewAppSelect) {
+      viewAppSelect.addEventListener('change', async function() {
+        const appId = this.value;
+        
+        if (!appId) {
+          if (appTasksContainer) appTasksContainer.classList.add('hidden');
+          if (noAppSelected) noAppSelected.classList.remove('hidden');
+          return;
+        }
+        
+        try {
+          showLoading();
+          
+          const appWithTasks = await getAppWithTasks(appId);
+          
+          if (appWithTasks) {
+            // Update app name
+            if (selectedAppName) {
+              selectedAppName.textContent = appWithTasks.app.name;
+            }
+            
+            // Render tasks
+            renderAppTasks(appWithTasks.app, appWithTasks.tasks);
+            
+            // Show tasks container, hide no app message
+            if (appTasksContainer) appTasksContainer.classList.remove('hidden');
+            if (noAppSelected) noAppSelected.classList.add('hidden');
+          } else {
+            if (appTasksContainer) appTasksContainer.classList.add('hidden');
+            if (noAppSelected) noAppSelected.classList.remove('hidden');
+            showToast('Failed to load app tasks', 'error');
+          }
+          
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          console.error('Error loading app tasks:', error);
+          showToast('An unexpected error occurred', 'error');
+        }
+      });
+    }
+    
+    // Remove all tasks button
+    if (removeAllTasksBtn) {
+      removeAllTasksBtn.addEventListener('click', async function() {
+        const appId = viewAppSelect?.value;
+        if (!appId) return;
+        
+        if (!confirm('Are you sure you want to remove all tasks from this app?')) {
+          return;
+        }
+        
+        try {
+          showLoading();
+          
+          const result = await removeAllTasksFromApp(appId);
+          
+          if (result.success) {
+            showToast('All tasks removed from app successfully');
+            
+            // Reload apps data
+            await loadAppsData();
+            
+            // Reset view
+            viewAppSelect.value = '';
+            if (appTasksContainer) appTasksContainer.classList.add('hidden');
+            if (noAppSelected) noAppSelected.classList.remove('hidden');
+          } else {
+            showToast(result.error || 'Failed to remove tasks', 'error');
+          }
+          
+          hideLoading();
+        } catch (error) {
+          hideLoading();
+          console.error('Error removing tasks:', error);
+          showToast('An unexpected error occurred', 'error');
+        }
+      });
+    }
+  }
+  
+  function populateViewAppSelect(appsWithTasks) {
+    const viewAppSelect = document.getElementById('view-app-select');
+    if (!viewAppSelect) return;
+    
+    // Clear existing options except the first one
+    while (viewAppSelect.options.length > 1) {
+      viewAppSelect.remove(1);
+    }
+    
+    // Add apps as options
+    appsWithTasks.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.app.id;
+      option.textContent = `${item.app.name} (${item.tasks.length} task${item.tasks.length !== 1 ? 's' : ''})`;
+      viewAppSelect.appendChild(option);
+    });
+  }
+  
+  function renderAppTasks(app, tasks) {
+    const appTasksList = document.getElementById('app-tasks-list');
+    if (!appTasksList) return;
+    
+    if (!tasks || tasks.length === 0) {
+      appTasksList.innerHTML = `
+        <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+          No tasks assigned to this app
+        </div>
+      `;
+      return;
+    }
+    
+    appTasksList.innerHTML = tasks.map(item => `
+      <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-gradient-to-br ${getTaskTypeGradient(item.task.task_type)} rounded-xl flex items-center justify-center mr-4">
+            ${getTaskTypeIcon(item.task.task_type)}
+          </div>
+          <div>
+            <div class="text-sm font-medium text-gray-900 dark:text-white">${item.task.name}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">${item.task.task_type}</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick="removeTaskFromApp('${app.id}', '${item.task.id}')"
+          class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+        >
+          <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Remove
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function confirmDelete(id, name) {
+    taskToDelete = id;
+    document.getElementById('delete-task-name').textContent = name;
+    console.log('Confirming delete for task id:', id, 'name:', name);
+    showDeleteModal();
+  }
+
+  function showDeleteModal() {
+    document.getElementById('delete-modal').classList.remove('hidden');
+    document.getElementById('delete-modal').classList.add('flex');
+  }
+
+  function hideDeleteModal() {
+    document.getElementById('delete-modal').classList.add('hidden');
+    document.getElementById('delete-modal').classList.remove('flex');
+    taskToDelete = null;
+  }
+
+  async function performDelete() {
+    if (!taskToDelete) return;
+    if (deleteInProgress) return;
+
+    const idToDelete = taskToDelete;
+    console.log('Performing delete for task id:', idToDelete);
+    
+    try {
+      deleteInProgress = true;
+      showLoading();
+      hideDeleteModal();
+
+      const result = await deleteDownloadTask(idToDelete);
+      console.log('Delete result:', result);
+
+      if (result.success) {
+        showToast('Task deleted successfully', 'success');
+        
+        // Remove the deleted task from the array
+        allTasks = allTasks.filter(task => task.id !== idToDelete);
+        
+        // Update the UI
+        renderTasksTable();
+        updateTasksCount();
+        populateTaskSelect();
+      } else {
+        showToast(result.error || 'Failed to delete task', 'error');
+      }
+      
+      hideLoading();
+      taskToDelete = null;
+      deleteInProgress = false;
+    } catch (error) {
+      hideLoading();
+      deleteInProgress = false;
+      taskToDelete = null;
+      showToast('An unexpected error occurred', 'error');
+      console.error('Delete error:', error);
+    }
+  }
+
+  // Function to remove a task from an app
+  async function removeTaskFromAppHandler(appId, taskId) {
+    if (!appId || !taskId) return;
+    
+    try {
+      showLoading();
+      
+      const result = await removeTaskFromApp(appId, taskId);
+      
+      if (result.success) {
+        showToast('Task removed from app successfully');
+        
+        // Reload apps data
+        await loadAppsData();
+        
+        // Refresh current app view
+        const viewAppSelect = document.getElementById('view-app-select');
+        if (viewAppSelect && viewAppSelect.value === appId) {
+          const appWithTasks = await getAppWithTasks(appId);
+          if (appWithTasks) {
+            renderAppTasks(appWithTasks.app, appWithTasks.tasks);
+          }
+        }
+      } else {
+        showToast(result.error || 'Failed to remove task', 'error');
+      }
+      
+      hideLoading();
+    } catch (error) {
+      hideLoading();
+      console.error('Error removing task:', error);
+      showToast('An unexpected error occurred', 'error');
+    }
+  }
+
+  function showLoading() {
+    document.getElementById('loading-overlay').classList.remove('hidden');
+    document.getElementById('loading-overlay').classList.add('flex');
+  }
+
+  function hideLoading() {
+    document.getElementById('loading-overlay').classList.add('hidden');
+    document.getElementById('loading-overlay').classList.remove('flex');
+  }
+
+  function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    toastMessage.textContent = message;
+    
+    // Update toast styling based on type
+    if (type === 'error') {
+      toast.className = toast.className.replace('bg-green-600', 'bg-red-600');
+    } else {
+      toast.className = toast.className.replace('bg-red-600', 'bg-green-600');
+    }
+    
+    toast.classList.remove('translate-y-full');
+    toast.classList.add('translate-y-0');
+    
+    setTimeout(() => {
+      toast.classList.remove('translate-y-0');
+      toast.classList.add('translate-y-full');
+    }, 3000);
+  }
+
+  // Helper functions for task type styling
+  function getTaskTypeGradient(taskType) {
+    switch (taskType?.toLowerCase()) {
+      case 'telegram':
+        return 'from-blue-500 to-blue-600';
+      case 'instagram':
+        return 'from-purple-500 to-pink-600';
+      case 'youtube':
+        return 'from-red-500 to-red-600';
+      case 'twitter':
+      case 'x':
+        return 'from-gray-700 to-gray-900';
+      case 'facebook':
+        return 'from-blue-600 to-blue-800';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
+  }
+
+  function getTaskTypeBadgeClass(taskType) {
+    switch (taskType?.toLowerCase()) {
+      case 'telegram':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'instagram':
+        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
+      case 'youtube':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'twitter':
+      case 'x':
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case 'facebook':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  }
+
+  function getTaskTypeIcon(taskType) {
+    switch (taskType?.toLowerCase()) {
+      case 'telegram':
+        return `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.176-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.832z"/>
+        </svg>`;
+      case 'instagram':
+        return `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>`;
+      case 'youtube':
+        return `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>`;
+      case 'twitter':
+      case 'x':
+        return `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>`;
+      case 'facebook':
+        return `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>`;
+      default:
+        return `<svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>`;
+    }
+  }
+
+  // Make functions available globally
+  window.confirmDelete = confirmDelete;
+  window.removeTaskFromApp = removeTaskFromAppHandler;
+</script>
+
+<style>
+  /* Fix for delete button to ensure it's clickable */
+  button.delete-btn {
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 30px;
+    display: inline-block;
+    padding: 5px 10px;
+    position: relative;
+    z-index: 10;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+  
+  /* Enhanced hover effects */
+  .hover\:shadow-xl:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  /* Smooth transitions */
+  .transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+  
+  /* Task buttons */
+  .task-button {
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .task-button:hover {
+    transform: translateY(-2px);
+  }
+  
+  .task-button:active {
+    transform: translateY(0);
+  }
+</style>
