@@ -6,7 +6,7 @@ import netlify from '@astrojs/netlify';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind()],
-  output: 'hybrid', // Change back to hybrid to fix routing issues
+  output: 'static',
   adapter: netlify({
     trailingSlash: 'ignore',
     edgeMiddleware: false
