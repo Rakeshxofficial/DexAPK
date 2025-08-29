@@ -24,11 +24,16 @@ export const supabase = createClient(
 // App-related database functions
 export async function getAllApps() {
   try {
+    // Use a static cache for frequently accessed data
+    if (globalThis._cachedApps && globalThis._cacheTimestamp && 
+        (Date.now() - globalThis._cacheTimestamp < 60000)) { // 1 minute cache
+      return globalThis._cachedApps;
+    }
+    
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
-      // Return fallback data for development/demo
-      return getFallbackApps();
+      return [];
     }
 
     const { data, error } = await supabase
@@ -39,22 +44,32 @@ export async function getAllApps() {
 
     if (error) {
       console.error('Supabase error fetching apps:', error);
-      return getFallbackApps();
+      return [];
     }
 
+    // Cache the results
+    globalThis._cachedApps = data || [];
+    globalThis._cacheTimestamp = Date.now();
+    
     return data || [];
   } catch (error) {
     console.error('Error in getAllApps:', error);
-    return getFallbackApps();
+    return [];
   }
 }
 
 export async function getFeaturedApps(limit = 10) {
   try {
+    // Use a static cache for frequently accessed data
+    if (globalThis._cachedFeaturedApps && globalThis._featuredCacheTimestamp && 
+        (Date.now() - globalThis._featuredCacheTimestamp < 60000)) { // 1 minute cache
+      return globalThis._cachedFeaturedApps;
+    }
+    
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
-      return getFallbackApps().slice(0, limit);
+      return [];
     }
 
     const { data, error } = await supabase
@@ -67,18 +82,29 @@ export async function getFeaturedApps(limit = 10) {
 
     if (error) {
       console.error('Supabase error fetching featured apps:', error);
-      return getFallbackApps().slice(0, limit);
+      return [];
     }
 
+    // Cache the results
+    globalThis._cachedFeaturedApps = data || [];
+    globalThis._featuredCacheTimestamp = Date.now();
+    
     return data || [];
   } catch (error) {
     console.error('Error in getFeaturedApps:', error);
-    return getFallbackApps().slice(0, limit);
+    return [];
   }
 }
 
 export async function getAppBySlug(slug: string) {
   try {
+    // Use a static cache for frequently accessed data with slug as key
+    const cacheKey = `app_${slug}`;
+    if (globalThis[cacheKey] && globalThis[`${cacheKey}_timestamp`] && 
+        (Date.now() - globalThis[`${cacheKey}_timestamp`] < 60000)) { // 1 minute cache
+      return globalThis[cacheKey];
+    }
+    
     // Check if we have valid credentials before making the request
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase credentials not available');
@@ -96,67 +122,16 @@ export async function getAppBySlug(slug: string) {
       console.error('Supabase error fetching app by slug:', error);
       return null;
     }
+
+    // Cache the results
+    globalThis[cacheKey] = data;
+    globalThis[`${cacheKey}_timestamp`] = Date.now();
+    
     return data;
   } catch (error) {
     console.error('Error in getAppBySlug:', error);
     return null;
   }
-}
-
-// Fallback data for when Supabase is not available
-function getFallbackApps() {
-  return [
-    {
-      id: '1',
-      slug: 'chatgpt-premium',
-      name: 'ChatGPT Premium',
-      version: '1.2024.052',
-      size: '45.2 MB',
-      category: 'Productivity',
-      publisher: 'OpenAI',
-      requirements: 'Android 7.0+',
-      price: 'Free',
-      platform: 'Google Play',
-      last_updated: 'Jan 15, 2025',
-      rating: 4.8,
-      votes: 15420,
-      description: 'ChatGPT Premium MOD APK with unlimited access to GPT-4, no restrictions, and premium features unlocked.',
-      icon: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=96&h=96',
-      screenshots: [],
-      download_url: '#',
-      features: ['Unlimited GPT-4 Access', 'No Rate Limits', 'Premium Features Unlocked'],
-      mod_info: ['Premium Subscription Unlocked', 'No Ads', 'Unlimited Usage'],
-      is_featured: true,
-      is_active: true,
-      created_at: '2025-01-15T00:00:00Z',
-      updated_at: '2025-01-15T00:00:00Z'
-    },
-    {
-      id: '2',
-      slug: 'spotify-premium',
-      name: 'Spotify Premium',
-      version: '8.9.12.487',
-      size: '32.1 MB',
-      category: 'Music',
-      publisher: 'Spotify AB',
-      requirements: 'Android 5.0+',
-      price: 'Free',
-      platform: 'Google Play',
-      last_updated: 'Jan 12, 2025',
-      rating: 4.7,
-      votes: 28350,
-      description: 'Spotify Premium MOD APK with unlimited skips, no ads, and offline downloads.',
-      icon: 'https://images.pexels.com/photos/1763075/pexels-photo-1763075.jpeg?auto=compress&cs=tinysrgb&w=96&h=96',
-      screenshots: [],
-      download_url: '#',
-      features: ['Unlimited Skips', 'No Ads', 'Offline Downloads', 'High Quality Audio'],
-      mod_info: ['Premium Subscription Unlocked', 'Ad-Free Experience', 'Unlimited Downloads'],
-      is_featured: true,
-      is_active: true,
-      created_at: '2025-01-12T00:00:00Z',
-      updated_at: '2025-01-12T00:00:00Z'
-    }
-  ];
 }
 
 export async function getAppsByCategory(category: string, limit = 20) {

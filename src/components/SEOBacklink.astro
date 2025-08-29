@@ -1,0 +1,167 @@
+---
+// SEO Backlink Component - Provides attribution and backlink to DexAPK
+// This component should remain intact in all deployments and copies of this template
+---
+
+<div 
+  class="seo-backlink-footer"
+  style="
+    position: relative;
+    width: 100%;
+    background: transparent;
+    padding: 8px 0;
+    text-align: center;
+  "
+>
+  <!-- SEO-friendly visible backlink -->
+  <div class="text-center">
+    <a 
+      href="https://dexapk.com" 
+      title="DexAPK - Premium MOD APKs Download Platform"
+      rel="noopener"
+      aria-label="DexAPK - Premium MOD APKs Download Platform"
+      class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 font-mono"
+    >
+      Powered by DexAPK Template
+    </a>
+  </div>
+  
+  <!-- Additional hidden attribution for template usage -->
+  <div style="display: none; visibility: hidden;">
+    <!-- 
+      DexAPK Website Template
+      Original Source: https://dexapk.com
+      Template by: DexAPK Team
+      License: MIT License
+      
+      This attribution should remain intact when using this template.
+      For support and updates, visit: https://dexapk.com
+    -->
+    <meta name="template-source" content="https://dexapk.com" />
+    <meta name="template-author" content="DexAPK Team" />
+    <link rel="template-source" href="https://dexapk.com" />
+  </div>
+</div>
+
+<!-- Structured data for template attribution -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DexAPK Template",
+  "url": "https://dexapk.com",
+  "author": {
+    "@type": "Organization",
+    "name": "DexAPK Team",
+    "url": "https://dexapk.com"
+  },
+  "license": "https://opensource.org/licenses/MIT"
+}
+</script>
+
+<style>
+  /* Ensure the backlink doesn't interfere with layout */
+  .seo-backlink-footer {
+    contain: layout;
+    will-change: auto;
+  }
+  
+  /* Prevent any visual interference */
+  .seo-backlink-footer * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+  
+  /* Ensure proper styling for visible backlink */
+  .seo-backlink-footer a {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  
+  .seo-backlink-footer a:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .dark .seo-backlink-footer a:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  /* Additional protection against removal */
+  .seo-backlink-footer::before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+  }
+</style>
+
+<script>
+  // Template integrity check and backlink protection
+  (function() {
+    'use strict';
+    
+    // Template source verification
+    const templateSource = 'https://dexapk.com';
+    const templateAuthor = 'DexAPK Team';
+    
+    // Ensure backlink remains functional
+    function ensureBacklink() {
+      const backlink = document.querySelector('.seo-backlink-footer a[href="https://dexapk.com"]');
+      if (!backlink) {
+        // Recreate backlink if removed
+        const container = document.querySelector('.seo-backlink-footer div');
+        if (container) {
+          const link = document.createElement('a');
+          link.href = templateSource;
+          link.title = 'DexAPK - Premium MOD APKs Download Platform';
+          link.rel = 'noopener';
+          link.textContent = 'Powered by DexAPK Template';
+          link.className = 'text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors duration-200 font-mono';
+          container.appendChild(link);
+        }
+      }
+    }
+    
+    // Run integrity check
+    if (typeof window !== 'undefined') {
+      // Initial check
+      setTimeout(ensureBacklink, 1000);
+      
+      // Periodic check (every 30 seconds)
+      setInterval(ensureBacklink, 30000);
+      
+      // Check on DOM mutations
+      if (typeof MutationObserver !== 'undefined') {
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
+              setTimeout(ensureBacklink, 100);
+            }
+          });
+        });
+        
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+      }
+    }
+    
+    // Add template metadata to document
+    if (typeof document !== 'undefined') {
+      const meta = document.createElement('meta');
+      meta.name = 'generator';
+      meta.content = 'DexAPK Template by DexAPK Team';
+      document.head.appendChild(meta);
+    }
+  })();
+</script>

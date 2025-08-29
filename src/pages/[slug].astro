@@ -289,9 +289,6 @@ const dynamicFAQs = app ? [
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
-    <!-- AMP Version Link -->
-    <link rel="amphtml" href={`/${app.slug}/amp`} />
-    
     <!-- Enhanced Breadcrumbs with Schema.org markup -->
     <div class="breadcrumb-wrapper">
       <BreadcrumbNav 
@@ -409,6 +406,19 @@ const dynamicFAQs = app ? [
               Download
             </a>
           )}
+
+          <!-- Developer Note -->
+          <div class="mt-3">
+            <a 
+              href="https://github.com/Rakeshxofficial/DexAPK"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200 font-mono"
+              title="View DexAPK website template source code"
+            >
+              Download DexAPK Site Template
+            </a>
+          </div>
 
         </div>
       </div>
