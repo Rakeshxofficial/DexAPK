@@ -237,7 +237,7 @@ const htmlContent = markdownToHtml(articleContent);
 ---
 
 <!doctype html>
-<html ⚡ lang="en">
+<html ⚡ lang="en-US">
 <head>
   <meta charset="utf-8">
   <script async src="https://cdn.ampproject.org/v0.js"></script>
@@ -250,24 +250,23 @@ const htmlContent = markdownToHtml(articleContent);
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
   
   <!-- Canonical and AMP -->
-  <link rel="canonical" href={canonicalUrl}>
-  <link rel="amphtml" href={ampUrl}>
+  <link rel="canonical" href={canonicalUrl} />
   
   <!-- Open Graph -->
-  <meta property="og:title" content={seoTitle}>
-  <meta property="og:description" content={seoDescription}>
-  <meta property="og:url" content={ampUrl}>
-  <meta property="og:type" content="article">
-  <meta property="og:image" content={app.icon || "/web-app-manifest-512x512.png"}>
+  <meta property="og:title" content={seoTitle} />
+  <meta property="og:description" content={seoDescription} />
+  <meta property="og:url" content={ampUrl} />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content={app.icon || "/web-app-manifest-512x512.png"} />
   
   <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content={seoTitle}>
-  <meta name="twitter:description" content={seoDescription}>
-  <meta name="twitter:image" content={app.icon || "/web-app-manifest-512x512.png"}>
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={seoTitle} />
+  <meta name="twitter:description" content={seoDescription} />
+  <meta name="twitter:image" content={app.icon || "/web-app-manifest-512x512.png"} />
   
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" />
   
   <!-- AMP Boilerplate -->
   <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
@@ -1135,30 +1134,28 @@ const htmlContent = markdownToHtml(articleContent);
   </style>
   
   <!-- Structured Data -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "{app.name}",
-      "applicationCategory": "MobileApplication",
-      "operatingSystem": "Android",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "{app.rating}",
-        "ratingCount": "{app.votes}",
-        "bestRating": "5",
-        "worstRating": "1"
-      },
-      "softwareVersion": "{app.version}",
-      "fileSize": "{app.size}",
-      "description": "{app.description}"
-    }
-  </script>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": app.name,
+    "applicationCategory": "MobileApplication",
+    "operatingSystem": "Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": app.rating,
+      "ratingCount": app.votes,
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "softwareVersion": app.version,
+    "fileSize": app.size,
+    "description": app.description
+  })} />
 </head>
 
 <body>
@@ -1349,25 +1346,19 @@ const htmlContent = markdownToHtml(articleContent);
         {app.screenshots && app.screenshots.length > 0 && (
           <section class="card">
             <h2 class="card-title">Screenshots</h2>
-            <amp-carousel 
-              width="400" 
-              height="300" 
-              layout="responsive" 
-              type="slides"
-              class="screenshots"
-            >
-              {app.screenshots.map((screenshot, index) => (
+            <div class="screenshots-grid">
+              {app.screenshots.slice(0, 4).map((screenshot, index) => (
                 <div class="screenshot">
                   <amp-img 
                     src={screenshot} 
                     alt={`${app.name} screenshot ${index + 1}`}
-                    width="300" 
-                    height="533"
-                    layout="fill"
+                    width="150" 
+                    height="267"
+                    layout="responsive"
                   ></amp-img>
                 </div>
               ))}
-            </amp-carousel>
+            </div>
           </section>
         )}
 
@@ -1579,7 +1570,7 @@ const htmlContent = markdownToHtml(articleContent);
   <amp-sidebar id="sidebar" layout="nodisplay" side="left" class="sidebar">
     <div class="sidebar-header">
       <h2 class="sidebar-title">Menu</h2>
-      <button class="close-button" on="tap:sidebar.close" aria-label="Close menu">
+      <button class="close-button" on="tap:sidebar.close" aria-label="Close menu" tabindex="0">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
