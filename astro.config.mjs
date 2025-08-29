@@ -25,7 +25,7 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     build: {
-      cssCodeSplit: false, // Disable CSS code splitting to prevent MIME issues
+      cssCodeSplit: true, // Enable CSS code splitting for better performance
       minify: 'terser',
       outDir: 'dist',
       emptyOutDir: true,
@@ -37,13 +37,16 @@ export default defineConfig({
           pure_funcs: ['console.log', 'console.info', 'console.debug']
         }
       },
-      assetsInlineLimit: 8192, // Inline larger assets as data URLs
+      assetsInlineLimit: 4096, // Reduce inline limit for better caching
       rollupOptions: {
         output: {
           // Ensure long-term caching with content hashing
           entryFileNames: '_astro/[name].[hash].js',
           chunkFileNames: '_astro/[name].[hash].js',
-          assetFileNames: '_astro/[name].[hash].[ext]'
+          assetFileNames: '_astro/[name].[hash].[ext]',
+          manualChunks: {
+            vendor: ['@supabase/supabase-js']
+          }
         }
       }
     },

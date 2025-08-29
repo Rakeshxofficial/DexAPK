@@ -340,7 +340,7 @@ import Logo from './Logo.astro';
 
 <script>
   // Use passive event listeners to avoid forced reflow
-  document.addEventListener('DOMContentLoaded', function() {
+  function initializeHeader() {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const sidebarMenu = document.getElementById('sidebar-menu');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -561,7 +561,14 @@ import Logo from './Logo.astro';
 
     // Initialize
     updateFocusableElements();
-  });
+  }
+  
+  // Initialize header when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHeader);
+  } else {
+    initializeHeader();
+  }
 </script>
 
 <style>

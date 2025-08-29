@@ -226,7 +226,8 @@ try {
 
 <script>
   // Enhanced accessibility and interaction features
-  document.addEventListener('DOMContentLoaded', function() {
+  // Use requestIdleCallback for non-critical JavaScript
+  function initializeInteractions() {
     const appCards = document.querySelectorAll('.app-card');
     const toast = document.getElementById('accessibility-toast');
     const toastTitle = document.getElementById('toast-title');
@@ -434,7 +435,24 @@ try {
       `;
       document.head.appendChild(style);
     }
-  });
+  }
+  
+  // Initialize when page is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.requestIdleCallback) {
+        requestIdleCallback(initializeInteractions);
+      } else {
+        setTimeout(initializeInteractions, 100);
+      }
+    });
+  } else {
+    if (window.requestIdleCallback) {
+      requestIdleCallback(initializeInteractions);
+    } else {
+      initializeInteractions();
+    }
+  }
 </script>
 
 <style>

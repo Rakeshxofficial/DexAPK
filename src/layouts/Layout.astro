@@ -133,22 +133,12 @@ const websiteSchema = {
     <!-- Critical CSS inline for faster rendering -->
     <style>
       /* Critical CSS for immediate rendering */
-      /* Preload critical fonts */
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      
       body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         margin: 0;
         background-color: #f9fafb;
         color: #1f2937;
-        font-display: swap;
+        visibility: visible;
       }
       
       .dark body {
@@ -156,55 +146,9 @@ const websiteSchema = {
         color: #f9fafb;
       }
       
-      /* Header critical styles */
-      header {
-        background: white;
-        border-bottom: 1px solid #e5e7eb;
-        position: sticky;
-        top: 0;
-        z-index: 50;
-      }
-      
-      .dark header {
-        background: #1f2937;
-        border-bottom-color: #374151;
-      }
-      
-      /* Loading state */
-      .loading {
-        opacity: 0;
-        animation: fadeIn 0.2s ease-in-out forwards;
-      }
-      
-      @keyframes fadeIn {
-        to { opacity: 1; }
-      }
-      
-      /* Prevent layout shift */
-      .max-w-7xl {
-        max-width: 80rem;
-        margin: 0 auto;
-      }
-      
-      .px-4 {
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-      
-      .py-8 {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-      }
-      
-      /* Optimize images */
-      img {
-        content-visibility: auto;
-        contain-intrinsic-size: 1px 200px;
-      }
-      
-      /* Reduce layout shift */
-      .app-card {
-        contain: layout style;
+      /* Prevent flash of unstyled content */
+      html {
+        visibility: visible;
       }
     </style>
 
@@ -289,30 +233,33 @@ const websiteSchema = {
     <link rel="sitemap" type="application/xml" href="/blog-sitemap.xml" />
     
     <!-- Theme Detection Script -->
-    <script is:inline>
-      // Immediate theme detection without localStorage check
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.classList.add('dark');
-      }
+    <script>
+      // Non-blocking theme detection
+      (function() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
     </script>
     
     <!-- Preload critical font -->
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2" as="font" type="font/woff2" crossorigin>
     
-    <!-- Analytics loaded after page is interactive -->
-    <script is:inline>
-      window.addEventListener('DOMContentLoaded', function() {
-        // Google Analytics
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-SBX87GMGRB');
-        
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-SBX87GMGRB';
-        script.defer = true;
-        document.head.appendChild(script);
+    <!-- Analytics loaded after page is fully loaded -->
+    <script>
+      // Load analytics after everything else
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-SBX87GMGRB');
+          
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.googletagmanager.com/gtag/js?id=G-SBX87GMGRB';
+          document.head.appendChild(script);
+        }, 1000);
       });
     </script>
   </head>
@@ -335,6 +282,7 @@ const websiteSchema = {
     min-height: 100vh;
     line-height: 1.6;
     font-display: swap;
+    visibility: visible;
   }
   
   * {
@@ -349,7 +297,11 @@ const websiteSchema = {
   
   /* Reduce layout shift */
   .loading {
-    content-visibility: auto;
-    contain-intrinsic-size: 1px 500px;
+    opacity: 0;
+    animation: fadeIn 0.3s ease-in-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    to { opacity: 1; }
   }
 </style>
