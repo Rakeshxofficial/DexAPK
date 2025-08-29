@@ -76,8 +76,7 @@ const finalFetchpriority = isOffScreen ? 'low' : fetchpriority;
 <img 
   src={optimizedSrc}
   alt={alt}
-  class={`image-optimized ${className || ''}`}
-  style={placeholder !== 'none' ? `background-image: url(${placeholderUrl}); background-size: cover;` : ''}
+  class={`${className || ''}`}
   loading={finalLoading}
   fetchpriority={finalFetchpriority}
   width={width}
@@ -86,7 +85,6 @@ const finalFetchpriority = isOffScreen ? 'low' : fetchpriority;
   decoding={decoding}
   {...rest}
 />
-
 <!-- Preload critical images -->
 {fetchpriority === 'high' && (
   <link rel="preload" as="image" href={optimizedSrc} />
@@ -104,62 +102,3 @@ const finalFetchpriority = isOffScreen ? 'low' : fetchpriority;
     "encodingFormat": src.endsWith('.webp') ? "image/webp" : 
                       src.endsWith('.jpg') || src.endsWith('.jpeg') ? "image/jpeg" : 
                       src.endsWith('.png') ? "image/png" : "image/webp"
-  })} />
-)}
-
-<style>
-.image-optimized {
-  max-width: 100%;
-  height: auto;
-  transition: opacity 0.3s ease;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.image-optimized:not([loading="eager"]) {
-  opacity: 0;
-  animation: fadeIn 0.3s ease forwards;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
-}
-
-/* Reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
-  .image-optimized {
-    animation: none;
-    transition: none;
-  }
-}
-</style>
-
-<script>
-// Enhanced lazy loading with intersection observer for analytics
-document.addEventListener('DOMContentLoaded', () => {
-  const images = document.querySelectorAll('.image-optimized:not([loading="eager"])');
-  
-  const imageObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const img = entry.target as HTMLImageElement;
-        img.style.opacity = '1';
-        
-        // Track image load for analytics
-        img.addEventListener('load', () => {
-          // Silent load tracking
-        });
-        
-        imageObserver.unobserve(img);
-      }
-    });
-  }, { 
-    threshold: 0.01,
-    rootMargin: '200px 0px' // Load images when they're within 200px of viewport
-  });
-  
-  images.forEach(img => imageObserver.observe(img));
-});
-</script>

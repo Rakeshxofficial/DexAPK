@@ -6,14 +6,13 @@ import netlify from '@astrojs/netlify';
 // https://astro.build/config
 export default defineConfig({
   integrations: [tailwind()],
-  output: 'server', // Change from 'hybrid' to 'server' for Netlify deployment
+  output: 'static', // Change to static for better performance
   adapter: netlify({
-    // Ensure case sensitivity is handled properly
-    trailingSlash: 'always'
+    trailingSlash: 'ignore'
   }),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'always',
+    inlineStylesheets: 'never', // Don't inline CSS for better caching
   },
   vite: {
     define: {
@@ -22,9 +21,6 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     trailingSlash: 'ignore',
-    optimizeDeps: {
-      exclude: ['sharp'],
-    },
     build: {
       cssCodeSplit: false, // Combine CSS for fewer requests
       minify: 'terser',
