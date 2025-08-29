@@ -83,12 +83,9 @@ const finalFetchpriority = isOffScreen ? 'low' : fetchpriority;
   height={height}
   sizes={sizes}
   decoding={decoding}
+  style={aspectRatio ? `aspect-ratio: ${aspectRatio}` : ''}
   {...rest}
 />
-<!-- Preload critical images -->
-{fetchpriority === 'high' && (
-  <link rel="preload" as="image" href={optimizedSrc} />
-)}
 
 <!-- Add structured data for images -->
 {addStructuredData && (

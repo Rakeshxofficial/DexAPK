@@ -1,0 +1,13 @@
+# Netlify redirects file
+# Static assets should be served directly (highest priority)
+/_astro/*  /_astro/:splat  200
+/assets/*  /assets/:splat  200
+
+# Admin routes for client-side routing
+/admin/*  /admin/index.html  200
+
+# App detail pages
+/:slug  /:slug/index.html  200
+
+# Handle 404s (must be last)
+/*  /404.html  404
