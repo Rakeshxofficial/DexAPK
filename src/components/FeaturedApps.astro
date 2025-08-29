@@ -57,7 +57,7 @@ try {
 ---
 
 <section id="featured-apps" class="py-8 sm:py-12 bg-white dark:bg-gray-900">
-  <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 contain-content">
     <div class="text-center mb-8">
       <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
         Latest MOD APKs
@@ -67,7 +67,7 @@ try {
       </p>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 loading" aria-label="Featured MOD APKs">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4" aria-label="Featured MOD APKs">
       
       {featuredApps.length > 0 ? featuredApps.map((app, index) => (
         <article 
@@ -84,7 +84,7 @@ try {
             data-app-slug={app.slug} 
           >
             <div class="relative h-32 sm:h-40 bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform duration-300">
-              <!-- Status Badges - Load immediately -->
+              <!-- Status Badges -->
               <div class="absolute top-2 left-2 flex gap-1.5 z-10">
                 <span class="bg-blue-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
                   <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -102,7 +102,7 @@ try {
               <!-- App Icon - Much Larger -->
               <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white dark:bg-gray-800 rounded-2xl sm:rounded-3xl flex items-center justify-center shadow-lg overflow-hidden">
                 {app.icon ? (
-                  <div class="w-full h-full">
+                  <>
                     <ImageOptimized 
                       src={app.icon} 
                       alt={`${app.name} icon`}
@@ -110,11 +110,11 @@ try {
                       loading="lazy"
                       width={96}
                       height={96}
-                      isOffScreen={index > 2}
+                      isOffScreen={index > 4}
                       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                     />
                     <div class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300 hidden" set:html={getIconForCategory(app.category)} aria-hidden="true"></div>
-                  </div>
+                  </>
                 ) : (
                   <div set:html={getIconForCategory(app.category)} class="w-12 h-12 sm:w-16 sm:h-16 text-gray-700 dark:text-gray-300" aria-hidden="true"></div>
                 )}
@@ -233,12 +233,6 @@ try {
     
     // Use event delegation instead of attaching listeners to each card
     const cardsContainer = document.querySelector('.grid');
-    
-    // Remove loading class after DOM is ready
-    if (cardsContainer) {
-      cardsContainer.classList.remove('loading');
-    }
-    
     if (cardsContainer) {
       cardsContainer.addEventListener('click', function(event) {
         // Find the closest app card link
