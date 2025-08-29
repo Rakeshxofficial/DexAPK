@@ -3,13 +3,11 @@
 /assets/*  /assets/:splat  200
 /_astro/*  /_astro/:splat  200
 
-# Server-side routes (handled by Netlify Functions)
-/search  /.netlify/functions/render  200
-/*/download  /.netlify/functions/render  200
-/admin/*  /.netlify/functions/render  200
+# Admin routes for client-side routing
+/admin/*  /admin/index.html  200
 
-# Static pages and app detail pages
-/:slug  /.netlify/functions/render  200
+# App detail pages
+/:slug  /:slug/index.html  200
 
 # Handle 404s (must be last)
-/*  /.netlify/functions/render  404
+/*  /404.html  404

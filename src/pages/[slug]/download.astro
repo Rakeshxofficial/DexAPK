@@ -1,60 +1,128 @@
 ---
-export const prerender = false;
+export const prerender = false; // Server-side rendering for dynamic download pages
 
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import ImageOptimized from '../../components/ImageOptimized.astro';
 import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
-import DownloadTasksModal from '../../components/DownloadTasksModal.astro';
-import { getAppBySlug, getAppDownloadTasksBySlug } from '../../lib/supabase.js';
+import InternalLinkModule from '../../components/InternalLinkModule.astro';
+import { getAppBySlug, getRelatedApps, getAppDownloadTasksBySlug, getAppVersionsBySlug } from '../../lib/supabase.js';
 
+// Get app slug from URL parameters
 const { slug } = Astro.params;
 
-// Get app data
+// Fetch app data
 let app = null;
-try {
+if (slug) {
   app = await getAppBySlug(slug);
-} catch (error) {
-  console.error('Error loading app:', error);
 }
 
-// If app not found, return 404
-if (!app) {
-  return new Response(null, {
-    status: 404,
-    statusText: 'Not found'
-  });
+// If app not found or download page is disabled, redirect to app page
+if (!app || app.disable_download_page) {
+  return Astro.redirect(`/${slug}`, 301);
 }
 
-// Check if app has download page disabled
-if (app.disable_download_page) {
-  // Redirect directly to download URL
-  return Astro.redirect(app.download_url || `/${app.slug}`);
+// Defer non-critical data loading to improve TTFB
+const relatedApps = [];
+const downloadTasks = [];
+const appVersions = [];
+
+// SEO data with fallbacks
+const seoTitle = `Download ${app.name} v${app.version} MOD APK`;
+const seoDescription = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. Fast and secure download.`;
+const seoKeywords = `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
+const seoFeaturedImage = app.seo_featured_image || app.icon || '/favicon.svg';
+const canonicalUrl = `https://dexapk.com/${app.slug}/download`;
+
+// Prepare SEO data for Layout
+const seoData = {
+  title: seoTitle,
+  description: seoDescription,
+  keywords: seoKeywords,
+  canonicalUrl: canonicalUrl,
+  featuredImage: seoFeaturedImage,
+  appName: app.name,
+  appVersion: app.version,
+  appCategory: app.category,
+  appRating: app.rating,
+  appVotes: app.votes,
+  appPublisher: app.publisher,
+  appSize: app.size,
+  lastUpdated: app.last_updated,
+  type: 'product'
+};
+
+// Get MOD features as a string
+const modFeatures = app.mod_info && app.mod_info.length > 0 
+  ? app.mod_info[0] 
+  : 'Premium Unlocked';
+
+// Generate auto-tutorial based on app name
+function generateTutorial(appName) {
+  return [
+    `Download the ${appName} MOD APK file from the download button above.`,
+    `Before installing, make sure to enable "Unknown Sources" in your device settings.`,
+    `Locate the downloaded APK file in your device's Downloads folder.`,
+    `Tap on the APK file to begin the installation process.`,
+    `Follow the on-screen prompts to complete the installation.`,
+    `Once installed, open ${appName} and enjoy all premium features unlocked!`
+  ];
 }
 
-// Get download tasks for this app
-let downloadTasks = [];
-try {
-  downloadTasks = await getAppDownloadTasksBySlug(slug);
-} catch (error) {
-  console.error('Error loading download tasks:', error);
-}
+const tutorialSteps = generateTutorial(app.name);
 
-const title = `Download ${app.name} v${app.version} MOD APK - DexAPK`;
-const description = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. Fast and secure download.`;
+// Generate installation FAQs
+const installationFAQs = [
+  {
+    question: `Why does Google Play Protect show a warning when installing ${app.name}?`,
+    answer: `Google Play Protect often flags modified APKs because they're not from the official Play Store. This is normal and doesn't mean the app is harmful. You can safely tap "Install Anyway" to proceed with installation.`
+  },
+  {
+    question: `Do I need to uninstall the original ${app.name} first?`,
+    answer: `Yes, it's recommended to uninstall the original version before installing the MOD APK to avoid conflicts and ensure all features work properly.`
+  },
+  {
+    question: `Why is the ${app.name} MOD APK not installing on my device?`,
+    answer: `This could be due to several reasons: 1) Insufficient storage space, 2) Incompatible Android version (this MOD requires ${app.requirements}), 3) Corrupted download file, or 4) Security settings blocking installation. Try clearing space, checking compatibility, re-downloading, or reviewing your security settings.`
+  },
+  {
+    question: `Is it safe to use ${app.name} MOD APK?`,
+    answer: `All MOD APKs on DexAPK are thoroughly scanned for malware and viruses before being made available. However, as with any modified application, use at your own discretion. We recommend using a reliable antivirus app on your device.`
+  },
+  {
+    question: `Will I get banned for using ${app.name} MOD APK?`,
+    answer: `For single-player apps and offline features, there's minimal risk. However, for online services or multiplayer games, there's a possibility of account suspension if the service detects modified clients. Consider using a secondary account for online features.`
+  },
+  {
+    question: `How do I update ${app.name} MOD APK when a new version is available?`,
+    answer: `You'll need to manually download and install the latest version from DexAPK. We regularly update our MODs with the newest versions and features. Check back often or subscribe to our Telegram channel for updates.`
+  }
+];
+
+// Simplified version data for initial render
+const currentVersion = {
+  id: 'current',
+  version: `v${app.version}`,
+  size: app.size || '0 MB',
+  mod_info: app.mod_info && app.mod_info.length > 0 ? app.mod_info[0] : 'Premium Unlocked',
+  release_date: app.updated_at || new Date().toISOString(),
+  download_url: app.download_url || '#',
+  is_active: true,
+  isCurrent: true
+};
 ---
 
-<Layout title={title} description={description}>
+<Layout seoData={seoData}>
   <Header />
   
   <main class="min-h-screen bg-gray-50 dark:bg-gray-900">
     
-    <!-- Enhanced Breadcrumbs -->
+    <!-- Enhanced Breadcrumbs with Schema.org markup -->
     <div class="breadcrumb-wrapper">
       <BreadcrumbNav 
         items={[
           { label: 'Home', href: '/' },
-          { label: 'Apps', href: '/apps' },
           { label: app.category, href: `/categories/${app.category.toLowerCase()}` },
           { label: app.name, href: `/${app.slug}` },
           { label: 'Download', href: `/${app.slug}/download`, current: true }
@@ -62,237 +130,997 @@ const description = `Download ${app.name} MOD APK v${app.version} with premium f
       />
     </div>
 
-    <!-- Download Page Content -->
-    <section class="py-12">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- App Header -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 mb-8 text-center">
-          
-          <!-- App Icon -->
-          <div class="w-24 h-24 mx-auto mb-6 bg-white dark:bg-gray-700 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden">
+    <!-- Download Header -->
+    <section class="bg-gradient-to-r from-blue-600 to-purple-600 py-12">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="flex items-center justify-center mb-6">
+          <div class="w-24 h-24 sm:w-32 sm:h-32 bg-white dark:bg-gray-800 rounded-3xl shadow-lg flex items-center justify-center overflow-hidden">
             {app.icon ? (
-              <img 
+              <ImageOptimized 
                 src={app.icon} 
                 alt={`${app.name} icon`}
-                class="w-full h-full object-cover rounded-3xl"
+                class="w-full h-full object-cover"
+                width={128}
+                height={128}
                 loading="eager"
+                fetchpriority="high"
               />
             ) : (
-              <svg class="w-16 h-16 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-16 h-16 sm:w-20 sm:h-20 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
               </svg>
             )}
           </div>
-
-          <!-- App Title -->
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Download {app.name} v{app.version}
-          </h1>
-          <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
-            MOD APK with Premium Features Unlocked
-          </p>
-
-          <!-- App Meta -->
-          <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600 dark:text-gray-400 mb-8">
-            <div class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-              </svg>
-              <span>v{app.version}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
-              </svg>
-              <span>{app.size}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>{app.last_updated}</span>
-            </div>
-          </div>
-
-          <!-- Download Button -->
-          <button
+        </div>
+        
+        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">
+          {app.name} MOD APK v{app.version}
+        </h1>
+        <p class="text-xl text-blue-100 mb-8">
+          {modFeatures}
+        </p>
+        
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a
+            href={app.download_url || '#'}
+            target="_blank"
+            rel="noopener noreferrer"
             id="download-button"
-            data-app-slug={app.slug}
-            data-download-url={app.download_url}
-            class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+            class="inline-flex items-center px-8 py-4 bg-black dark:bg-white text-white dark:text-black text-lg font-semibold rounded-2xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer min-w-[200px] justify-center"
+            aria-label={`Download ${app.name} v${app.version} MOD APK`}
           >
             <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
             </svg>
             Download Now
+          </a>
+          
+          <div class="flex items-center text-white bg-white/20 px-4 py-2 rounded-xl backdrop-blur-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+            </svg>
+            <span>{app.size}</span>
+            <span class="mx-2">•</span>
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z"/>
+            </svg>
+            <span>{app.last_updated}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Thank You Section -->
+    <section class="py-12 bg-white dark:bg-gray-800">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          Thanks for downloading {app.name}!
+        </h2>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+          Your download should start automatically. If it doesn't, click the download button above.
+          We've included some helpful information below to get you started with {app.name}.
+        </p>
+      </div>
+    </section>
+
+    <!-- Current Version Section (Simplified) -->
+    <section class="py-12 bg-gray-50 dark:bg-gray-900" id="current-version">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Current Version
+        </h2>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-blue-300 dark:border-blue-700 overflow-hidden">
+          <div class="p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div class="flex items-center">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {app.name} {currentVersion.version}
+                  </h3>
+                  <span class="ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    Latest
+                  </span>
+                </div>
+                <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <span>{currentVersion.size}</span>
+                  <span class="mx-2">•</span>
+                  <span>{new Date(currentVersion.release_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
+                </div>
+                <div class="mt-2">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    {currentVersion.mod_info}
+                  </span>
+                </div>
+              </div>
+              
+              <div>
+                <a
+                  href={currentVersion.download_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="version-download-btn inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200"
+                  aria-label={`Download ${app.name} ${currentVersion.version}`}
+                  data-version={currentVersion.version}
+                  data-size={currentVersion.size}
+                  data-download-url={currentVersion.download_url || '#'}
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                  </svg>
+                  Download
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Load More Versions Button -->
+        <div class="text-center mt-6">
+          <button
+            id="load-versions-btn"
+            class="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+          >
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Load Previous Versions
           </button>
-
         </div>
+        
+        <!-- Additional Versions Container (Hidden Initially) -->
+        <div id="additional-versions" class="hidden space-y-4 mt-6">
+          <!-- Versions will be loaded here dynamically -->
+        </div>
+      </div>
+    </section>
 
-        <!-- Download Info -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Download Information</h2>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-4">
-              <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-4">
-                  <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="font-medium text-gray-900 dark:text-white">Safe & Secure</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">Scanned for malware</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center">
-                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-4">
-                  <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="font-medium text-gray-900 dark:text-white">Fast Download</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">High-speed servers</p>
-                </div>
-              </div>
-              
-              <div class="flex items-center">
-                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mr-4">
-                  <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                  </svg>
-                </div>
-                <div>
-                  <p class="font-medium text-gray-900 dark:text-white">Premium Unlocked</p>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">All features available</p>
-                </div>
-              </div>
+    <!-- Advanced Download Flow Section -->
+    <section id="engage-download" class="py-12 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 md:p-12">
+          <div class="mb-6">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+              </svg>
             </div>
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+              Ready to Download?
+            </h2>
+            <p id="selected-version-info" class="text-lg text-gray-600 dark:text-gray-400 mb-2">
+              Selected version: v{app.version}
+            </p>
+            <p class="text-gray-500 dark:text-gray-500 text-sm">
+              File size: {app.size} • Last updated: {app.last_updated}
+            </p>
+          </div>
+          
+          <!-- Download Button with States -->
+          <div class="space-y-4">
+            <button
+              id="engage-download-btn"
+              data-download-url={app.download_url || '#'}
+              data-app-name={app.name}
+              data-app-size={app.size}
+              class="w-full max-w-md mx-auto py-4 px-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 min-h-[64px] flex items-center justify-center"
+            >
+              <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+              </svg>
+              Get Download Link
+            </button>
             
-            <div class="space-y-4">
-              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                <h3 class="font-medium text-gray-900 dark:text-white mb-2">File Details</h3>
-                <div class="space-y-2 text-sm">
-                  <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Version:</span>
-                    <span class="text-gray-900 dark:text-white">v{app.version}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Size:</span>
-                    <span class="text-gray-900 dark:text-white">{app.size}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Category:</span>
-                    <span class="text-gray-900 dark:text-white">{app.category}</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Requirements:</span>
-                    <span class="text-gray-900 dark:text-white">{app.requirements}</span>
-                  </div>
+            <!-- Installation Tip (shown during countdown) -->
+            <div id="installation-tip" class="hidden bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+              <div class="flex items-start">
+                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
+                  <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                  </svg>
                 </div>
+                <div>
+                  <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-1 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                    Installation Tip
+                  </h4>
+                  <p class="text-sm text-blue-700 dark:text-blue-300" id="tip-text">
+                    Enable "Unknown Sources" in your Android settings before installing the APK file.
+                  </p>
+                  </div>
+                  
               </div>
             </div>
           </div>
         </div>
+        
+        <!-- Join Telegram Button -->
+        <div class="mt-4">
+          <a
+            href="tg://resolve?domain=dexapk_com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full inline-flex items-center justify-center px-6 py-3 bg-blue-500 text-white text-lg font-semibold rounded-2xl hover:bg-blue-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            aria-label="Join our Telegram channel for updates and support"
+          >
+            <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.176-.654-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.832z"/>
+            </svg>
+            Join Telegram
+          </a>
+        </div>
+      </div>
+    </section>
 
-        <!-- Installation Guide -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm border border-gray-200 dark:border-gray-700">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Installation Guide</h2>
-          
+    <!-- Tutorial Section -->
+    <section class="py-12 bg-white dark:bg-gray-800">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          How to Install {app.name}
+        </h2>
+        
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+          <ol class="space-y-6">
+            {tutorialSteps.map((step, index) => (
+              <li class="flex items-start">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mr-4 font-bold">
+                  {index + 1}
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 pt-1">{step}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Important Notes Section -->
+    <section class="py-12 bg-gray-50 dark:bg-gray-900">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Important Notes
+        </h2>
+        
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <ul class="space-y-4">
+            <li class="flex items-start">
+              <svg class="w-6 h-6 text-yellow-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <p class="text-gray-700 dark:text-gray-300">
+                <strong>Google Play Protect Warning:</strong> Google tries to block apps that aren't from the Play Store. To install {app.name} MOD APK, you'll need to tap "Install Anyway" when prompted. This is normal and doesn't mean the app is harmful.
+              </p>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-6 h-6 text-yellow-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+              </svg>
+              <p class="text-gray-700 dark:text-gray-300">
+                <strong>CPU/GPU Compatibility:</strong> This MOD APK is optimized for most Android devices. However, some features may work differently depending on your device's processor architecture. For best performance, ensure your device meets the requirements: {app.requirements}.
+              </p>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-6 h-6 text-yellow-500 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-gray-700 dark:text-gray-300">
+                <strong>Original App:</strong> It's recommended to uninstall the original version of {app.name} before installing this MOD APK to avoid conflicts and ensure all features work properly.
+              </p>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Installation Notes Section -->
+    <section class="py-12 bg-white dark:bg-gray-800">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Installation Notes
+        </h2>
+        
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
           <div class="space-y-6">
-            <div class="flex items-start">
-              <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">1</div>
-              <div>
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Download the APK</h3>
-                <p class="text-gray-600 dark:text-gray-400">Click the download button above to get the {app.name} MOD APK file.</p>
-              </div>
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Step-by-Step Installation</h3>
+              <ol class="list-decimal list-inside space-y-3 text-gray-700 dark:text-gray-300">
+                <li>Download the {app.name} MOD APK file using the download button above</li>
+                <li>Go to <strong>Settings</strong> on your Android device</li>
+                <li>Navigate to <strong>Security</strong> or <strong>Privacy</strong></li>
+                <li>Find and enable <strong>Unknown Sources</strong> or <strong>Install unknown apps</strong></li>
+                <li>On newer Android versions (8.0+), you may need to enable it per app (for your browser or file manager)</li>
+                <li>Open your device's <strong>File Manager</strong> or <strong>Downloads</strong> app</li>
+                <li>Locate the {app.name} APK file you just downloaded</li>
+                <li>Tap on the APK file to start the installation process</li>
+                <li>Review the permissions requested by the app</li>
+                <li>Tap <strong>Install</strong> to proceed with installation</li>
+                <li>Wait for the installation to complete</li>
+                <li>Tap <strong>Open</strong> to launch {app.name}</li>
+              </ol>
             </div>
             
-            <div class="flex items-start">
-              <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">2</div>
-              <div>
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Enable Unknown Sources</h3>
-                <p class="text-gray-600 dark:text-gray-400">Go to Settings > Security > Unknown Sources and enable it to allow APK installation.</p>
-              </div>
-            </div>
-            
-            <div class="flex items-start">
-              <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">3</div>
-              <div>
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Install the APK</h3>
-                <p class="text-gray-600 dark:text-gray-400">Locate the downloaded file and tap to install {app.name} on your device.</p>
-              </div>
-            </div>
-            
-            <div class="flex items-start">
-              <div class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold mr-4 flex-shrink-0">4</div>
-              <div>
-                <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Enjoy Premium Features</h3>
-                <p class="text-gray-600 dark:text-gray-400">Open the app and enjoy all premium features unlocked!</p>
+            <div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">Troubleshooting Common Issues</h3>
+              <div class="space-y-4">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">"App not installed" Error</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>Ensure you have enough storage space on your device</li>
+                    <li>Uninstall any previous version of the app first</li>
+                    <li>Try downloading the APK file again</li>
+                    <li>Restart your device and try installing again</li>
+                  </ul>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">"Parse Error" or "There was a problem parsing the package"</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>The APK file might be corrupted - try downloading again</li>
+                    <li>Ensure your device meets the minimum Android version requirement: {app.requirements}</li>
+                    <li>Check if the APK is compatible with your device architecture (ARM, x86, etc.)</li>
+                  </ul>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 class="font-medium text-gray-900 dark:text-white mb-2">"Install blocked" or Security Warning</h4>
+                  <ul class="list-disc list-inside text-gray-700 dark:text-gray-300 text-sm">
+                    <li>Make sure you've enabled installation from unknown sources</li>
+                    <li>On newer Android versions, grant permission to your browser or file manager to install apps</li>
+                    <li>Temporarily disable any antivirus apps that might be blocking installation</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
+    <!-- FAQs Section -->
+    <section class="py-12 bg-gray-50 dark:bg-gray-900">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Frequently Asked Questions
+        </h2>
+        
+        <div class="space-y-4">
+          {installationFAQs.map((faq) => (
+            <details class="group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <summary class="cursor-pointer p-6 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-open:text-blue-600 dark:group-open:text-blue-400 transition-colors duration-200">
+                  {faq.question}
+                </h3>
+                <svg class="w-6 h-6 text-gray-400 group-open:text-blue-500 group-open:rotate-180 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </summary>
+              <div class="px-6 pb-6 text-gray-700 dark:text-gray-300">
+                {faq.answer}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Related Posts Section (Lazy Loaded) -->
+    <section class="py-12 bg-white dark:bg-gray-800" id="related-apps">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-10">
+          Related Apps
+        </h2>
+        
+        <!-- Loading State -->
+        <div id="related-apps-loading" class="flex items-center justify-center py-8">
+          <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+        </div>
+        
+        <!-- Related Apps Container -->
+        <div id="related-apps-container" class="hidden">
+          <div class="relative px-16">
+            <!-- Scrollable Container -->
+            <div class="overflow-x-auto pb-4 scrollbar-hide">
+              <div id="related-apps-list" class="flex space-x-4 min-w-max">
+                <!-- Related apps will be loaded here -->
+              </div>
+            </div>
+            
+            <!-- Scroll Indicators -->
+            <div class="absolute left-0 top-1/2 transform -translate-y-1/2 z-10">
+              <button
+                id="scroll-left" 
+                class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+                aria-label="Scroll left"
+              >
+                <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </button>
+            </div>
+            <div class="absolute right-0 top-1/2 transform -translate-y-1/2 z-20">
+              <button 
+                id="scroll-right" 
+                class="bg-white dark:bg-gray-800 rounded-full p-2 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+                aria-label="Scroll right"
+              >
+                <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Additional internal links for SEO -->
+        <div class="mt-8">
+          <InternalLinkModule 
+            currentSlug={app.slug}
+            headingText="More Apps You Might Like" 
+          />
+        </div>
       </div>
     </section>
 
   </main>
-  
-  <!-- Download Tasks Modal -->
-  <DownloadTasksModal appSlug={app.slug} />
   
   <Footer />
 </Layout>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const downloadButton = document.getElementById('download-button');
+    // Advanced Download Flow Logic
+    setupAdvancedDownloadFlow();
     
-    if (downloadButton) {
-      downloadButton.addEventListener('click', function() {
-        const downloadUrl = this.getAttribute('data-download-url');
+    // Load non-critical content after initial render
+    loadNonCriticalContent();
+    
+    // Setup load versions button
+    setupLoadVersionsButton();
+  });
+  
+  // Load non-critical content after page load
+  async function loadNonCriticalContent() {
+    try {
+      // Load related apps
+      await loadRelatedApps();
+      
+      // Setup horizontal scrolling after content is loaded
+      setupHorizontalScrolling();
+    } catch (error) {
+      console.error('Error loading non-critical content:', error);
+    }
+  }
+  
+  // Load related apps dynamically
+  async function loadRelatedApps() {
+    try {
+      const { getRelatedApps } = await import('../../lib/supabase.js');
+      
+      // Get app slug from URL path
+      const pathParts = window.location.pathname.split('/');
+      const appSlug = pathParts[1]; // First part after domain
+      
+      // Get app category from the page data or breadcrumb
+      let appCategory = 'Apps'; // Default fallback
+      
+      // Try to get category from breadcrumb navigation
+      const breadcrumbLinks = document.querySelectorAll('nav[aria-label="Breadcrumb"] a');
+      if (breadcrumbLinks.length >= 2) {
+        // Second breadcrumb link should be the category
+        const categoryLink = breadcrumbLinks[1];
+        if (categoryLink && categoryLink.textContent) {
+          appCategory = categoryLink.textContent.trim();
+        }
+      }
+      
+      // Fallback: try to extract from page title
+      if (appCategory === 'Apps') {
+        const pageTitle = document.querySelector('h1');
+        if (pageTitle && pageTitle.textContent) {
+          const titleText = pageTitle.textContent;
+          // Look for common category keywords in the title
+          const categories = ['Games', 'Music', 'Video', 'Social', 'Photography', 'Productivity', 'Entertainment', 'Media'];
+          for (const cat of categories) {
+            if (titleText.toLowerCase().includes(cat.toLowerCase())) {
+              appCategory = cat;
+              break;
+            }
+          }
+        }
+      }
+      
+      console.log('Loading related apps for:', { appSlug, appCategory });
+      
+      const relatedApps = await getRelatedApps(appSlug, appCategory, 6);
+      console.log('Related apps loaded:', relatedApps);
+      
+      const relatedAppsContainer = document.getElementById('related-apps-container');
+      const relatedAppsLoading = document.getElementById('related-apps-loading');
+      const relatedAppsList = document.getElementById('related-apps-list');
+      
+      if (!relatedAppsContainer || !relatedAppsLoading || !relatedAppsList) {
+        console.error('Related apps DOM elements not found');
+        return;
+      }
+      
+      if (relatedApps && Array.isArray(relatedApps) && relatedApps.length > 0) {
+        console.log('Rendering', relatedApps.length, 'related apps');
         
-        if (downloadUrl && downloadUrl !== '#') {
-          // Direct download
-          window.open(downloadUrl, '_blank', 'noopener,noreferrer');
-        } else {
-          // Show tasks modal or fallback
-          console.log('No download URL available');
+        relatedAppsList.innerHTML = relatedApps.map(app => `
+          <div class="w-64 flex-shrink-0">
+            <a href="/${app.slug}" class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full">
+              <div class="p-4">
+                <div class="flex items-center mb-3">
+                  <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden mr-3">
+                    ${app.icon ? 
+                      `<img src="${app.icon}" alt="${app.name} icon" class="w-full h-full object-cover" loading="lazy" width="48" height="48" onerror="this.style.display='none';">` :
+                      `<svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                      </svg>`
+                    }
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">${app.name}</h3>
+                    <p class="text-xs text-blue-600 dark:text-blue-400">${app.category}</p>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                  <div class="flex items-center">
+                    <svg class="w-3 h-3 text-yellow-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    <span>${app.rating}</span>
+                  </div>
+                  <span>${app.size}</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        `).join('');
+        
+        relatedAppsLoading.classList.add('hidden');
+        relatedAppsContainer.classList.remove('hidden');
+      } else {
+        console.log('No related apps found, trying fallback approach');
+        
+        // Fallback: try to get any apps from the same category
+        try {
+          const { getAppsByCategory } = await import('../../lib/supabase.js');
+          const categoryApps = await getAppsByCategory(appCategory, 6);
+          
+          if (categoryApps && categoryApps.length > 0) {
+            // Filter out current app
+            const filteredApps = categoryApps.filter(app => app.slug !== appSlug);
+            
+            if (filteredApps.length > 0) {
+              console.log('Using category fallback apps:', filteredApps.length);
+              
+              relatedAppsList.innerHTML = filteredApps.slice(0, 6).map(app => `
+                <div class="w-64 flex-shrink-0">
+                  <a href="/${app.slug}" class="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow duration-200 h-full">
+                    <div class="p-4">
+                      <div class="flex items-center mb-3">
+                        <div class="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden mr-3">
+                          ${app.icon ? 
+                            `<img src="${app.icon}" alt="${app.name} icon" class="w-full h-full object-cover" loading="lazy" width="48" height="48" onerror="this.style.display='none';">` :
+                            `<svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>`
+                          }
+                        </div>
+                        <div>
+                          <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate">${app.name}</h3>
+                          <p class="text-xs text-blue-600 dark:text-blue-400">${app.category}</p>
+                        </div>
+                      </div>
+                      <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center">
+                          <svg class="w-3 h-3 text-yellow-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                          <span>${app.rating}</span>
+                        </div>
+                        <span>${app.size}</span>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              `).join('');
+              
+              relatedAppsLoading.classList.add('hidden');
+              relatedAppsContainer.classList.remove('hidden');
+              return;
+            }
+          }
+        } catch (fallbackError) {
+          console.error('Fallback category apps loading failed:', fallbackError);
+        }
+        
+        // Final fallback: show message
+        relatedAppsLoading.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Unable to load related apps</p>';
+      }
+    } catch (error) {
+      console.error('Error loading related apps:', error);
+      const loadingElement = document.getElementById('related-apps-loading');
+      if (loadingElement) {
+        loadingElement.innerHTML = '<p class="text-gray-500 dark:text-gray-400">Unable to load related apps</p>';
+      }
+    }
+  }
+  
+  // Setup horizontal scrolling for related apps
+  function setupHorizontalScrolling() {
+    const scrollContainer = document.querySelector('.overflow-x-auto');
+    const scrollLeftBtn = document.getElementById('scroll-left');
+    const scrollRightBtn = document.getElementById('scroll-right');
+    
+    if (scrollContainer && scrollLeftBtn && scrollRightBtn) {
+      updateScrollButtons();
+      
+      scrollLeftBtn.addEventListener('click', function() {
+        scrollContainer.scrollBy({ left: -300, behavior: 'smooth' });
+      });
+      
+      scrollRightBtn.addEventListener('click', function() {
+        scrollContainer.scrollBy({ left: 300, behavior: 'smooth' });
+      });
+      
+      scrollContainer.addEventListener('scroll', updateScrollButtons, { passive: true });
+      
+      function updateScrollButtons() {
+        requestAnimationFrame(() => {
+          if (scrollContainer.scrollLeft <= 0) {
+            scrollLeftBtn.classList.add('opacity-0', 'pointer-events-none');
+          } else {
+            scrollLeftBtn.classList.remove('opacity-0', 'pointer-events-none');
+          }
+          
+          if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10) {
+            scrollRightBtn.classList.add('opacity-0', 'pointer-events-none');
+          } else {
+            scrollRightBtn.classList.remove('opacity-0', 'pointer-events-none');
+          }
+        });
+      }
+    }
+  }
+  
+  // Setup load versions button
+  function setupLoadVersionsButton() {
+    const loadVersionsBtn = document.getElementById('load-versions-btn');
+    const additionalVersions = document.getElementById('additional-versions');
+    
+    if (loadVersionsBtn) {
+      loadVersionsBtn.addEventListener('click', async function() {
+        this.innerHTML = `
+          <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Loading Versions...
+        `;
+        this.disabled = true;
+        
+        try {
+          const { getAppVersionsBySlug } = await import('../../lib/supabase.js');
+          const appSlug = window.location.pathname.split('/')[1];
+          const versions = await getAppVersionsBySlug(appSlug, 10);
+          
+          if (versions && versions.length > 0) {
+            additionalVersions.innerHTML = versions.map(version => `
+              <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div class="p-6">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <div class="flex items-center">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${version.version}</h3>
+                      </div>
+                      <div class="mt-1 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                        <span>${version.size}</span>
+                        <span class="mx-2">•</span>
+                        <span>${new Date(version.release_date).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
+                      </div>
+                      <div class="mt-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                          ${version.mod_info}
+                        </span>
+                      </div>
+                    </div>
+                    <div>
+                      <a href="${version.download_url || '#'}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200">
+                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                        </svg>
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('');
+            
+            additionalVersions.classList.remove('hidden');
+            this.style.display = 'none';
+          } else {
+            this.innerHTML = 'No additional versions available';
+            this.disabled = true;
+          }
+        } catch (error) {
+          console.error('Error loading versions:', error);
+          this.innerHTML = 'Failed to load versions';
+          this.disabled = true;
         }
       });
     }
-  });
+  }
+  
+  // Advanced Download Flow Setup
+  function setupAdvancedDownloadFlow() {
+    const mainDownloadBtn = document.getElementById('download-button');
+    const engageDownloadBtn = document.getElementById('engage-download-btn');
+    const versionDownloadBtns = document.querySelectorAll('.version-download-btn');
+    const selectedVersionInfo = document.getElementById('selected-version-info');
+    const installationTip = document.getElementById('installation-tip');
+    const tipText = document.getElementById('tip-text');
+    
+    // Installation tips array
+    const tips = [
+      'Enable "Unknown Sources" in your Android settings before installing the APK file.',
+      'Make sure you have enough storage space on your device for the installation.',
+      'Close other apps to ensure smooth installation process.',
+      'Consider backing up your device before installing modified applications.',
+      'Check your device compatibility with the app requirements before installing.'
+    ];
+    
+    let currentDownloadUrl = engageDownloadBtn.dataset.downloadUrl;
+    let currentAppName = engageDownloadBtn.dataset.appName;
+    let currentAppSize = engageDownloadBtn.dataset.appSize;
+    let isProcessing = false;
+    
+    // Main download button scroll to engage section
+    if (mainDownloadBtn) {
+      mainDownloadBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        scrollToEngageSection();
+      });
+    }
+    
+    // Version download buttons
+    versionDownloadBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const version = this.dataset.version;
+        const size = this.dataset.size;
+        const downloadUrl = this.dataset.downloadUrl;
+        
+        // Update selected version info
+        if (selectedVersionInfo) {
+          selectedVersionInfo.textContent = `Selected version: ${version}`;
+        }
+        
+        // Update download URL and size
+        currentDownloadUrl = downloadUrl;
+        currentAppSize = size;
+        
+        // Scroll to engage section
+        scrollToEngageSection();
+      });
+    });
+    
+    // Engage download button logic
+    if (engageDownloadBtn) {
+      engageDownloadBtn.addEventListener('click', function() {
+        if (isProcessing) return;
+        
+        startDownloadProcess();
+      });
+    }
+    
+    function scrollToEngageSection() {
+      const engageSection = document.getElementById('engage-download');
+      if (engageSection) {
+        engageSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }
+    }
+    
+    function startDownloadProcess() {
+      isProcessing = true;
+      
+      // Show installation tip
+      if (installationTip && tipText) {
+        const randomTip = tips[Math.floor(Math.random() * tips.length)];
+        tipText.textContent = randomTip;
+        installationTip.classList.remove('hidden');
+      }
+      
+      // Update button to loading state
+      updateButtonState('loading');
+      
+      // Start 5-second countdown
+      let countdown = 5;
+      const countdownInterval = setInterval(() => {
+        countdown--;
+        updateButtonState('countdown', countdown);
+        
+        if (countdown <= 0) {
+          clearInterval(countdownInterval);
+          updateButtonState('ready');
+          
+          // Hide tip after download is ready
+          setTimeout(() => {
+            if (installationTip) {
+              installationTip.classList.add('hidden');
+            }
+          }, 2000);
+        }
+      }, 1000);
+    }
+    
+    function updateButtonState(state, countdown = 0) {
+      if (!engageDownloadBtn) return;
+      
+      switch (state) {
+        case 'loading':
+          engageDownloadBtn.innerHTML = `
+            <div class="flex items-center justify-center">
+              <svg class="animate-spin w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Getting download link, please wait...
+            </div>
+          `;
+          engageDownloadBtn.disabled = true;
+          engageDownloadBtn.classList.add('opacity-75', 'cursor-not-allowed');
+          break;
+          
+        case 'countdown':
+          engageDownloadBtn.innerHTML = `
+            <div class="flex items-center justify-center">
+              <div class="w-5 h-5 mr-3 relative">
+                <svg class="w-5 h-5 transform -rotate-90" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" opacity="0.3"/>
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-dasharray="62.83" stroke-dashoffset="${62.83 - (62.83 * (5 - countdown) / 5)}"
+                    class="transition-all duration-1000 ease-linear"/>
+                </svg>
+                <span class="absolute inset-0 flex items-center justify-center text-xs font-bold">${countdown}</span>
+              </div>
+              Preparing download... ${countdown}s
+            </div>
+          `;
+          break;
+          
+        case 'ready':
+          engageDownloadBtn.innerHTML = `
+            <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Download (${currentAppSize})
+          `;
+          engageDownloadBtn.disabled = false;
+          engageDownloadBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+          engageDownloadBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+          engageDownloadBtn.classList.remove('bg-gradient-to-r', 'from-blue-600', 'to-purple-600', 'hover:from-blue-700', 'hover:to-purple-700');
+          
+          // Add click handler for actual download
+          engageDownloadBtn.onclick = function() {
+            if (currentDownloadUrl && currentDownloadUrl !== '#') {
+              window.open(currentDownloadUrl, '_blank', 'noopener,noreferrer');
+              
+              // Show success message
+              this.innerHTML = `
+                <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                Download Started!
+              `;
+              
+              // Reset after 3 seconds
+              setTimeout(() => {
+                isProcessing = false;
+                this.innerHTML = `
+                  <svg class="w-6 h-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/>
+                  </svg>
+                  Get Download Link
+                `;
+                this.classList.remove('bg-green-600', 'hover:bg-green-700');
+                this.classList.add('bg-gradient-to-r', 'from-blue-600', 'to-purple-600', 'hover:from-blue-700', 'hover:to-purple-700');
+              }, 3000);
+            }
+          };
+          break;
+      }
+    }
+  }
 </script>
 
 <style>
-  /* Ensure minimum touch target sizes */
-  button, a {
-    min-width: 44px;
-    min-height: 44px;
-    display: inline-flex;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .relative {
+    position: relative;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  /* Add will-change for smoother animations */
+  #download-button {
+    will-change: transform;
+  }
+  
+  /* Optimize animations for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .transition-all, .transition-transform, .transition-colors {
+      transition: none !important;
+    }
+  }
+  
+  /* Screen reader only class */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+
+<style is:global>
+  /* Ensure scroll buttons don't overlap content */
+  #scroll-left {
+    width: 40px;
+    height: 40px;
+    display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 30;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    left: 0;
   }
   
-  /* Improved focus styles */
-  button:focus, a:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
+  #scroll-right {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    right: 0;
   }
   
-  /* Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
+  /* Add a semi-transparent background to ensure button visibility */
+  #scroll-left {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+
+  #scroll-right {
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  
+  /* Dark mode support */
+  .dark #scroll-left, .dark #scroll-right {
+    background-color: rgba(31, 41, 55, 0.95);
   }
 </style>
