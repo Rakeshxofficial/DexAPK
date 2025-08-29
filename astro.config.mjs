@@ -8,12 +8,13 @@ export default defineConfig({
   integrations: [tailwind()],
   output: 'static',
   adapter: netlify({
-    trailingSlash: 'ignore',
-    edgeMiddleware: false
+    edgeMiddleware: false,
+    functionPerRoute: false
   }),
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto', // Allow inlining for critical CSS
+    assets: '_astro'
   },
   vite: {
     define: {
@@ -21,11 +22,9 @@ export default defineConfig({
       'process.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(process.env.VITE_SUPABASE_ANON_KEY || ''),
     },
     envPrefix: 'VITE_',
-    trailingSlash: 'ignore',
     build: {
       cssCodeSplit: false, // Combine CSS for fewer requests
       minify: 'terser',
-      // Ensure URLs are lowercase
       outDir: 'dist',
       emptyOutDir: true,
       terserOptions: {
@@ -45,15 +44,11 @@ export default defineConfig({
               }
               return 'vendor';
             }
-            // Group critical CSS
-            if (id.includes('global.css')) {
-              return 'critical';
-            }
           },
           // Ensure long-term caching with content hashing
-          entryFileNames: 'assets/[name].[hash].js',
-          chunkFileNames: 'assets/[name].[hash].js',
-          assetFileNames: 'assets/[name].[hash].[ext]'
+          entryFileNames: '_astro/[name].[hash].js',
+          chunkFileNames: '_astro/[name].[hash].js',
+          assetFileNames: '_astro/[name].[hash].[ext]'
         }
       }
     },
