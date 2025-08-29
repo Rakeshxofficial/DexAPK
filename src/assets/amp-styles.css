@@ -281,6 +281,130 @@ body {
 /* Article Content */
 .article-content {
   line-height: 1.7;
+  max-width: none;
+}
+
+.article-content .paragraph {
+  margin-bottom: 1rem;
+  color: #4b5563;
+}
+
+.article-content .heading-1 {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin: 2rem 0 1rem;
+  color: #1f2937;
+}
+
+.article-content .heading-2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1.5rem 0 1rem;
+  color: #1f2937;
+}
+
+.article-content .heading-3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 1rem 0 0.5rem;
+  color: #1f2937;
+}
+
+.article-content .content-list {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.article-content .list-item {
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+}
+
+.article-content .quote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.article-content .code-block {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.article-content .divider {
+  border: none;
+  border-top: 2px solid #e5e7eb;
+  margin: 2rem 0;
+}
+
+.article-content .table-container {
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.article-content .content-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #e5e7eb;
+}
+
+.article-content .content-table th {
+  background: #f9fafb;
+  padding: 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+}
+
+.article-content .content-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
+}
+
+.article-content .content-table th:last-child,
+.article-content .content-table td:last-child {
+  border-right: none;
+}
+
+.article-content strong {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.article-content em {
+  font-style: italic;
+}
+
+.article-content code {
+  background: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+}
+
+.article-content a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.article-content a:hover {
+  color: #1d4ed8;
+}
+
+.article-content del {
+  text-decoration: line-through;
+  color: #6b7280;
 }
 
 .article-content h1 {
