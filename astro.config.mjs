@@ -9,12 +9,14 @@ export default defineConfig({
   output: 'static',
   adapter: netlify({
     edgeMiddleware: false,
-    functionPerRoute: false
+    functionPerRoute: false,
+    binaryMediaTypes: []
   }),
   compressHTML: true,
   build: {
     inlineStylesheets: 'auto', // Allow inlining for critical CSS
-    assets: '_astro'
+    assets: '_astro',
+    assetsPrefix: '/'
   },
   vite: {
     define: {
@@ -23,7 +25,7 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     build: {
-      cssCodeSplit: true, // Enable CSS code splitting for better caching
+      cssCodeSplit: false, // Disable CSS code splitting to prevent MIME issues
       minify: 'terser',
       outDir: 'dist',
       emptyOutDir: true,
@@ -38,22 +40,10 @@ export default defineConfig({
       assetsInlineLimit: 8192, // Inline larger assets as data URLs
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            // Group vendor dependencies
-            if (id.includes('node_modules')) {
-              if (id.includes('@supabase')) {
-                return 'vendor-supabase';
-              }
-              if (id.includes('astro')) {
-                return 'vendor-astro';
-              }
-              return 'vendor';
-            }
-          },
           // Ensure long-term caching with content hashing
-          entryFileNames: 'assets/[name].[hash].js',
-          chunkFileNames: 'assets/[name].[hash].js',
-          assetFileNames: 'assets/[name].[hash].[ext]'
+          entryFileNames: '_astro/[name].[hash].js',
+          chunkFileNames: '_astro/[name].[hash].js',
+          assetFileNames: '_astro/[name].[hash].[ext]'
         }
       }
     },
