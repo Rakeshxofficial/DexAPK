@@ -65,7 +65,4 @@ export default defineConfig({
     }
   },
   // Exclude AMP pages from normal processing
-  experimental: {
-    contentCollectionCache: true
-  }
 });
