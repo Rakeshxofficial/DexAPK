@@ -36,7 +36,7 @@
 [[headers]]
   for = "/*/amp"
   [headers.values]
-    Content-Security-Policy = "default-src 'none'; script-src https://cdn.ampproject.org; style-src 'unsafe-inline'; img-src https:; font-src https://fonts.gstatic.com; connect-src https:;"
+    Content-Security-Policy = "default-src 'none'; script-src https://cdn.ampproject.org; style-src 'unsafe-inline'; img-src https: data:; font-src https://fonts.gstatic.com; connect-src https:;"
     Cache-Control = "public, max-age=3600"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
