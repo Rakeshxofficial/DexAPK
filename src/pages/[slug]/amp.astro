@@ -813,6 +813,50 @@ const response = new Response(`<!doctype html>
         </a>
       </div>
       
+      <!-- Desktop Navigation -->
+      <nav class="nav-menu" role="navigation" aria-label="Main navigation">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/apps" class="nav-link">Apps</a>
+        <a href="/categories" class="nav-link">Categories</a>
+        <a href="/trending" class="nav-link">Trending</a>
+        <a href="/blog" class="nav-link">Blog</a>
+        <a href="/about" class="nav-link">About</a>
+      </nav>
+      
+      <!-- Mobile Menu Button -->
+      <button class="mobile-menu-button" on="tap:sidebar1.toggle" aria-label="Open navigation menu">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- AMP Sidebar for Mobile Menu -->
+  <amp-sidebar id="sidebar1" layout="nodisplay" side="left">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h3>DexAPK</h3>
+        <p>Navigation Menu</p>
+        <button class="sidebar-close" on="tap:sidebar1.close" aria-label="Close navigation menu">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <nav class="sidebar-nav" role="navigation" aria-label="Mobile navigation">
+        <a href="/">Home</a>
+        <a href="/apps">All Apps</a>
+        <a href="/categories">Categories</a>
+        <a href="/trending">Trending</a>
+        <a href="/games">Games</a>
+        <a href="/blog">Blog</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/help">Help</a>
+      </nav>
+    </div>
+  </amp-sidebar></parameter>
 
   <!-- Header -->
   <section class="header">
