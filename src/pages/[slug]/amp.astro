@@ -35,6 +35,143 @@ try {
   console.error('Error loading related apps for AMP:', error);
 }
 
+// Function to convert markdown to AMP-compatible HTML
+function markdownToAmpHtml(markdown) {
+  if (!markdown) return '';
+  
+  const lines = markdown.split('\n');
+  let html = '';
+  let inCodeBlock = false;
+  let inList = false;
+  let listType = '';
+  
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+    
+    // Handle code blocks
+    if (line.startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+      if (inCodeBlock) {
+        html += '<pre style="background: #f3f4f6; padding: 16px; border-radius: 8px; overflow-x: auto; margin: 16px 0;"><code>';
+      } else {
+        html += '</code></pre>';
+      }
+      continue;
+    }
+    
+    if (inCodeBlock) {
+      html += escapeHtml(line) + '\n';
+      continue;
+    }
+    
+    // Handle headings
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length;
+      const text = formatInlineMarkdown(headingMatch[2]);
+      html += `<h${level} style="font-size: ${level === 1 ? '28px' : level === 2 ? '24px' : level === 3 ? '20px' : '18px'}; font-weight: bold; margin: 24px 0 16px 0; color: #1f2937;">${text}</h${level}>`;
+      continue;
+    }
+    
+    // Handle horizontal rules
+    if (line.match(/^---+$/)) {
+      html += '<hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">';
+      continue;
+    }
+    
+    // Handle lists
+    const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.+)$/);
+    if (listMatch) {
+      const marker = listMatch[2];
+      const text = listMatch[3];
+      const isOrdered = /^\d+\./.test(marker);
+      
+      if (!inList) {
+        inList = true;
+        listType = isOrdered ? 'ol' : 'ul';
+        html += `<${listType} style="margin: 16px 0; padding-left: 24px;">`;
+      }
+      
+      html += `<li style="margin: 8px 0;">${formatInlineMarkdown(text)}</li>`;
+      continue;
+    } else if (inList) {
+      inList = false;
+      html += `</${listType}>`;
+    }
+    
+    // Handle blockquotes
+    if (line.startsWith('> ')) {
+      html += `<blockquote style="border-left: 4px solid #3b82f6; padding-left: 16px; margin: 16px 0; font-style: italic; color: #6b7280;">${formatInlineMarkdown(line.slice(2))}</blockquote>`;
+      continue;
+    }
+    
+    // Handle paragraphs
+    if (line.trim()) {
+      html += `<p style="margin: 16px 0; line-height: 1.6; color: #374151;">${formatInlineMarkdown(line)}</p>`;
+    }
+  }
+  
+  // Close any open lists
+  if (inList) {
+    html += `</${listType}>`;
+  }
+  
+  return html;
+}
+
+// Helper function to format inline markdown
+function formatInlineMarkdown(text) {
+  return text
+    // Bold
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600;">$1</strong>')
+    // Italic
+    .replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>')
+    // Code
+    .replace(/`(.*?)`/g, '<code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 14px;">$1</code>')
+    // Links (AMP-safe)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color: #3b82f6; text-decoration: underline;">$1</a>')
+    // Strikethrough
+    .replace(/~~(.*?)~~/g, '<del style="text-decoration: line-through;">$1</del>');
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Get article content (use existing or default)
+const articleContent = app.article_content || `# Introduction
+
+${app.description}
+
+## Key Features
+
+${app.features && app.features.length > 0 ? app.features.map(feature => `- ${feature}`).join('\n') : '- Premium features unlocked\n- Enhanced user experience\n- No limitations'}
+
+## What's New in v${app.version}
+
+- Enhanced performance and stability
+- Improved user interface
+- Bug fixes and optimizations
+- New premium features added
+- Better compatibility with latest Android versions
+
+## Installation Guide
+
+1. **Download the APK** - Click the download button to get the ${app.name} MOD APK file.
+2. **Enable Unknown Sources** - Go to Settings > Security > Unknown Sources and enable it.
+3. **Install the APK** - Locate the downloaded file and tap to install.
+4. **Enjoy Premium Features** - Open the app and enjoy all premium features unlocked!
+
+## Conclusion
+
+${app.name} MOD APK offers an exceptional experience with all premium features unlocked for free. Download now and experience the full potential of ${app.name} on your Android device.`;
+
 // AMP-specific meta data
 const ampTitle = `${app.name} v${app.version} MOD APK - Premium Features Unlocked`;
 const ampDescription = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 150)}...`;
@@ -269,6 +406,70 @@ const response = new Response(`<!doctype html>
       text-decoration: none;
     }
     
+    .article-content {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .article-content h1,
+    .article-content h2,
+    .article-content h3,
+    .article-content h4,
+    .article-content h5,
+    .article-content h6 {
+      color: #1f2937;
+      margin-top: 24px;
+      margin-bottom: 16px;
+    }
+    
+    .article-content p {
+      margin: 16px 0;
+      line-height: 1.6;
+      color: #374151;
+    }
+    
+    .article-content ul,
+    .article-content ol {
+      margin: 16px 0;
+      padding-left: 24px;
+    }
+    
+    .article-content li {
+      margin: 8px 0;
+    }
+    
+    .article-content code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    
+    .article-content pre {
+      background: #f3f4f6;
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    
+    .article-content blockquote {
+      border-left: 4px solid #3b82f6;
+      padding-left: 16px;
+      margin: 16px 0;
+      font-style: italic;
+      color: #6b7280;
+    }
+    
+    .article-content a {
+      color: #3b82f6;
+      text-decoration: underline;
+    }
+    
     @media (max-width: 640px) {
       .app-title {
         font-size: 24px;
@@ -356,20 +557,10 @@ const response = new Response(`<!doctype html>
       <p>${app.description}</p>
     </div>
 
-    ${app.features && app.features.length > 0 ? `
-    <!-- Features -->
-    <div class="card">
-      <h2 class="card-title">Features</h2>
-      <ul class="feature-list">
-        ${app.features.map(feature => `
-          <li class="feature-item">
-            <div class="feature-icon"></div>
-            <span>${feature}</span>
-          </li>
-        `).join('')}
-      </ul>
+    <!-- Article Content -->
+    <div class="article-content">
+      ${markdownToAmpHtml(articleContent)}
     </div>
-    ` : ''}
 
     ${app.mod_info && app.mod_info.length > 0 ? `
     <!-- MOD Info -->
