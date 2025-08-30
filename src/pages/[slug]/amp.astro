@@ -173,10 +173,27 @@ ${app.features && app.features.length > 0 ? app.features.map(feature => `- ${fea
 ${app.name} MOD APK offers an exceptional experience with all premium features unlocked for free. Download now and experience the full potential of ${app.name} on your Android device.`;
 
 // AMP-specific meta data
-const ampTitle = `${app.name} v${app.version} MOD APK - Premium Features Unlocked`;
-const ampDescription = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 150)}...`;
+// Use SEO data from Admin Panel with proper fallbacks
+const ampTitle = app.seo_title || `${app.name} v${app.version} MOD APK - Premium Features Unlocked`;
+const ampDescription = app.seo_description || `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 150)}...`;
+const ampKeywords = app.seo_keywords || `${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app, free download`;
+const ampFeaturedImage = app.seo_featured_image || app.icon || 'https://dexapk.com/web-app-manifest-512x512.png';
 const canonicalUrl = `https://dexapk.com/${app.slug}`;
 const ampUrl = `https://dexapk.com/${app.slug}/amp`;
+
+// Custom H1 title from Admin Panel
+const customH1Title = app.custom_h1_title || `${app.name} v${app.version} MOD APK`;
+
+// Function to escape HTML for safe rendering
+function escapeHtmlAttribute(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
 
 // Disable Astro's head injection for this page
 const response = new Response(`<!doctype html>
@@ -191,20 +208,41 @@ const response = new Response(`<!doctype html>
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
   
   <!-- Meta Tags -->
-  <meta name="description" content="${ampDescription}">
+  <meta name="description" content="${escapeHtmlAttribute(ampDescription)}">
+  <meta name="keywords" content="${escapeHtmlAttribute(ampKeywords)}">
+  <meta name="author" content="DexAPK">
+  <meta name="robots" content="index, follow">
   
   <!-- Open Graph -->
-  <meta property="og:title" content="${ampTitle}">
-  <meta property="og:description" content="${ampDescription}">
-  <meta property="og:image" content="${app.icon || 'https://dexapk.com/web-app-manifest-512x512.png'}">
+  <meta property="og:title" content="${escapeHtmlAttribute(ampTitle)}">
+  <meta property="og:description" content="${escapeHtmlAttribute(ampDescription)}">
+  <meta property="og:image" content="${escapeHtmlAttribute(ampFeaturedImage)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtmlAttribute(ampTitle)}">
   <meta property="og:url" content="${ampUrl}">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="DexAPK">
+  <meta property="og:locale" content="en_US">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${ampTitle}">
-  <meta name="twitter:description" content="${ampDescription}">
-  <meta name="twitter:image" content="${app.icon || 'https://dexapk.com/web-app-manifest-512x512.png'}">
+  <meta name="twitter:title" content="${escapeHtmlAttribute(ampTitle)}">
+  <meta name="twitter:description" content="${escapeHtmlAttribute(ampDescription)}">
+  <meta name="twitter:image" content="${escapeHtmlAttribute(ampFeaturedImage)}">
+  <meta name="twitter:image:alt" content="${escapeHtmlAttribute(ampTitle)}">
+  <meta name="twitter:site" content="@dexapk">
+  <meta name="twitter:creator" content="@dexapk">
+  
+  <!-- Additional SEO Meta Tags -->
+  <meta name="application-name" content="${escapeHtmlAttribute(app.name)}">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="${escapeHtmlAttribute(app.name)}">
+  
+  <!-- Canonical and AMP relationship -->
+  <link rel="amphtml" href="${ampUrl}">
   
   <!-- AMP Boilerplate - MANDATORY -->
   <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
@@ -506,6 +544,7 @@ const response = new Response(`<!doctype html>
       </div>
       
       <h1 class="app-title">${app.name}</h1>
+      <h1 class="app-title">${escapeHtmlAttribute(customH1Title)}</h1>
       <p class="app-version">Version ${app.version} • ${app.size}</p>
       
       <!-- Rating -->
