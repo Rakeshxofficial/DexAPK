@@ -79,6 +79,7 @@ function markdownToHtml(markdown) {
   let inCodeBlock = false;
   let inList = false;
   let listType = '';
+  let inTable = false;
   
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i];
@@ -115,6 +116,29 @@ function markdownToHtml(markdown) {
       
       html += `<h${level} id="${id}" class="heading-${level}">${text}</h${level}>`;
       continue;
+    }
+    
+    // Handle lists
+    const listMatch = line.match(/^(\s*)([-*+]|\d+\.)\s+(.+)$/);
+    if (listMatch) {
+      const indent = listMatch[1].length;
+      const marker = listMatch[2];
+      const text = listMatch[3];
+      const isOrdered = /^\d+\./.test(marker);
+      
+      if (!inList) {
+        inList = true;
+        listType = isOrdered ? 'ol' : 'ul';
+        html += `<${listType} class="content-list">`;
+      }
+      
+      html += `<li class="list-item">${formatInlineMarkdown(text)}</li>`;
+      continue;
+    } else if (inList) {
+      inList = false;
+      html += `</${listType}>`;
+    }
+    
     // Handle blockquotes
     if (line.startsWith('> ')) {
       html += `<blockquote class="quote">${formatInlineMarkdown(line.slice(2))}</blockquote>`;
