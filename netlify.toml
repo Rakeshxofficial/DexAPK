@@ -36,8 +36,10 @@
 [[headers]]
   for = "/*/amp"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src https://cdn.ampproject.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self';"
+    Content-Security-Policy = "default-src 'none'; script-src https://cdn.ampproject.org; style-src 'unsafe-inline'; img-src https:; font-src https://fonts.gstatic.com; connect-src https:;"
     Cache-Control = "public, max-age=3600"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
 
 # CSS files with correct MIME types
 [[headers]]
