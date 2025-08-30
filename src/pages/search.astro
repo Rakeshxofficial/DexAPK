@@ -10,10 +10,14 @@ import { getAllApps } from '../lib/supabase.js';
 const url = new URL(Astro.request.url);
 const searchQuery = url.searchParams.get('q') || '';
 
+console.log('Search page - URL:', Astro.request.url);
+console.log('Search page - Query:', searchQuery);
+
 // Fetch all apps for searching
 let allApps = [];
 try {
   allApps = await getAllApps();
+  console.log('Search page - Loaded apps:', allApps.length);
 } catch (error) {
   console.error('Error loading apps:', error);
   allApps = [];
@@ -120,6 +124,13 @@ function searchContent(query: string) {
 const searchResults = searchContent(searchQuery);
 const totalResults = searchResults.apps.length + searchResults.categories.length;
 
+console.log('Search page - Search results:', {
+  query: searchQuery,
+  totalResults: totalResults,
+  appsCount: searchResults.apps.length,
+  categoriesCount: searchResults.categories.length
+});
+
 const title = searchQuery ? `Search results for "${searchQuery}" - DexAPK` : "Search - DexAPK";
 const description = searchQuery ? 
   `Found ${totalResults} results for "${searchQuery}". Search MOD APKs, categories, and more on DexAPK.` :
@@ -220,7 +231,7 @@ const description = searchQuery ?
     <section class="py-8 sm:py-12">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {searchQuery ? (
+        {searchQuery && searchQuery.trim() ? (
           <div>
             <!-- Results Summary -->
             <div class="mb-8">
@@ -250,6 +261,7 @@ const description = searchQuery ?
               </div>
             </div>
 
+            <!-- Search Results Content -->
             {totalResults === 0 ? (
               <!-- No Results -->
               <div class="text-center py-12" role="status" aria-live="polite">
@@ -273,7 +285,8 @@ const description = searchQuery ?
                 </div>
               </div>
             ) : (
-              <div class="space-y-12">
+              <!-- Results Found -->
+              <div class="space-y-8">
                 
                 <!-- Categories Results -->
                 {searchResults.categories.length > 0 && (
@@ -516,13 +529,18 @@ const description = searchQuery ?
   <Footer />
 </Layout>
 
-<script>
+<script define:vars={{ searchQuery, totalResults, searchResults }}>
   document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search-input');
     
+    // Debug information
+    console.log('Search page client-side loaded');
+    console.log('Search query from server:', searchQuery);
+    console.log('Total results from server:', totalResults);
+    console.log('Search results from server:', searchResults);
+    
     // Focus search input on page load if no query
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('q') && searchInput) {
+    if (!searchQuery && searchInput) {
       searchInput.focus();
     }
     
@@ -537,11 +555,8 @@ const description = searchQuery ?
           return;
         }
         
-        // Ensure the form submits properly
         console.log('Search form submitted with query:', query);
-        
-        // Force navigation to search results
-        window.location.href = `/search?q=${encodeURIComponent(query)}`;
+        // Let the form submit naturally to /search?q=query
       });
     }
     
@@ -557,68 +572,6 @@ const description = searchQuery ?
       if (e.key === 'Escape' && document.activeElement === searchInput) {
         searchInput.value = '';
       }
-    });
-    
-    // Add real-time search functionality
-    if (searchInput) {
-      let searchTimeout;
-      searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-          const query = this.value.trim();
-          if (query.length >= 2) {
-            // Update URL without page reload for better UX
-            const newUrl = new URL(window.location);
-            newUrl.searchParams.set('q', query);
-            window.history.replaceState({}, '', newUrl);
-            
-            // Trigger search results update
-            updateSearchResults(query);
-          }
-        }, 300);
-      });
-    }
-    
-    // Function to update search results dynamically
-    function updateSearchResults(query) {
-      console.log('Updating search results for:', query);
-      // For now, just reload the page with the new query
-      // In a more advanced implementation, you could update results without page reload
-      if (query !== new URLSearchParams(window.location.search).get('q')) {
-        window.location.href = `/search?q=${encodeURIComponent(query)}`;
-      }
-    }
-    
-    // Announce search results to screen readers
-    const resultsCount = document.querySelector('[aria-live="polite"]');
-    if (resultsCount) {
-      // Delay announcement to ensure it's heard
-      setTimeout(() => {
-        const announcement = resultsCount.textContent;
-        if (announcement) {
-          const liveRegion = document.createElement('div');
-          liveRegion.setAttribute('aria-live', 'assertive');
-          liveRegion.setAttribute('aria-atomic', 'true');
-          liveRegion.className = 'sr-only';
-          liveRegion.textContent = announcement;
-          document.body.appendChild(liveRegion);
-          
-          setTimeout(() => {
-            document.body.removeChild(liveRegion);
-          }, 1000);
-        }
-      }, 500);
-    }
-    
-    // Debug search functionality
-    console.log('Search page loaded');
-    console.log('Current URL:', window.location.href);
-    console.log('Search query from URL:', new URLSearchParams(window.location.search).get('q'));
-    console.log('Search results data:', {
-      query: new URLSearchParams(window.location.search).get('q'),
-      totalResults: totalResults,
-      appsCount: searchResults.apps.length,
-      categoriesCount: searchResults.categories.length
     });
   });
 </script>
