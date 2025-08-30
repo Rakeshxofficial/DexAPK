@@ -435,8 +435,8 @@ const description = searchQuery ?
       </section>
     )}
 
-    <!-- Popular Searches / Suggestions (when no search query) -->
-    {!searchQuery && (
+    <!-- Popular Searches / Suggestions -->
+    <section class="py-8 sm:py-12">
       <section class="py-8 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
@@ -498,7 +498,7 @@ const description = searchQuery ?
 
         </div>
       </section>
-    )}
+    </section>
 
   </main>
   
@@ -525,6 +525,9 @@ const description = searchQuery ?
           searchInput.focus();
           return;
         }
+        
+        // Ensure the form submits properly
+        console.log('Search form submitted with query:', query);
       });
     }
     
@@ -562,6 +565,11 @@ const description = searchQuery ?
         }
       }, 500);
     }
+    
+    // Debug search functionality
+    console.log('Search page loaded');
+    console.log('Current URL:', window.location.href);
+    console.log('Search query from URL:', new URLSearchParams(window.location.search).get('q'));
   });
 </script>
 
