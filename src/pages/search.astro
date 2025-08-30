@@ -3,6 +3,9 @@ export const prerender = true; // Enable static generation for search functional
 
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getAllApps } from '../lib/supabase.js';
+
 // MANUAL TEST: Let's test with a hardcoded query first
 const testQuery = 'social';
 console.log('=== MANUAL SEARCH TEST ===');
