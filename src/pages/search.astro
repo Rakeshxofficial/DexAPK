@@ -616,9 +616,9 @@ const description = searchQuery ?
     console.log('Search query from URL:', new URLSearchParams(window.location.search).get('q'));
     console.log('Search results data:', {
       query: new URLSearchParams(window.location.search).get('q'),
-      totalResults: {totalResults},
-      appsCount: {searchResults.apps.length},
-      categoriesCount: {searchResults.categories.length}
+      totalResults: totalResults,
+      appsCount: searchResults.apps.length,
+      categoriesCount: searchResults.categories.length
     });
   });
 </script>
