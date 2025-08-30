@@ -868,145 +868,134 @@ const response = new Response(`<!doctype html>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "${escapeHtmlAttribute(app.name)}",
-    "applicationCategory": "MobileApplication",
-    "applicationSubCategory": "${escapeHtmlAttribute(app.category)}",
-    "operatingSystem": "Android",
-    "softwareVersion": "${escapeHtmlAttribute(app.version)}",
-    "fileSize": "${escapeHtmlAttribute(app.size)}",
-    "description": "${escapeHtmlAttribute(app.description)}",
-    "url": "${canonicalUrl}",
-    "downloadUrl": "${escapeHtmlAttribute(app.download_url || '#')}",
-    "datePublished": "${app.created_at || new Date().toISOString()}",
-    "dateModified": "${app.updated_at || new Date().toISOString()}",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "${app.rating}",
-      "ratingCount": "${app.votes}",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "priceValidUntil": "${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
-      "seller": {
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "#app",
+        "name": "${escapeHtmlAttribute(app.name)}",
+        "applicationCategory": "MobileApplication",
+        "applicationSubCategory": "${escapeHtmlAttribute(app.category)}",
+        "operatingSystem": "Android",
+        "softwareVersion": "${escapeHtmlAttribute(app.version)}",
+        "fileSize": "${escapeHtmlAttribute(app.size)}",
+        "description": "${escapeHtmlAttribute(app.description)}",
+        "url": "${canonicalUrl}",
+        "downloadUrl": "${escapeHtmlAttribute(app.download_url || '#')}",
+        "datePublished": "${app.created_at || new Date().toISOString()}",
+        "dateModified": "${app.updated_at || new Date().toISOString()}",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "${app.rating}",
+          "ratingCount": "${app.votes}",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock",
+          "priceValidUntil": "${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
+          "seller": {
+            "@type": "Organization",
+            "name": "DexAPK"
+          }
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "${escapeHtmlAttribute(app.publisher)}"
+        },
+        "author": {
+          "@type": "Organization", 
+          "name": "DexAPK",
+          "url": "https://dexapk.com"
+        },
+        "screenshot": ${app.screenshots && app.screenshots.length > 0 ? JSON.stringify(app.screenshots) : '[]'},
+        "featureList": ${app.features && app.features.length > 0 ? JSON.stringify(app.features) : '[]'},
+        "requirements": "${escapeHtmlAttribute(app.requirements)}",
+        "installUrl": "${escapeHtmlAttribute(app.download_url || '#')}",
+        "memoryRequirements": "${escapeHtmlAttribute(app.size)}",
+        "storageRequirements": "${escapeHtmlAttribute(app.size)}"
+      },
+      {
         "@type": "Organization",
-        "name": "DexAPK"
-      }
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "${escapeHtmlAttribute(app.publisher)}"
-    },
-    "author": {
-      "@type": "Organization", 
-      "name": "DexAPK",
-      "url": "https://dexapk.com"
-    },
-    "screenshot": ${app.screenshots && app.screenshots.length > 0 ? JSON.stringify(app.screenshots) : '[]'},
-    "featureList": ${app.features && app.features.length > 0 ? JSON.stringify(app.features) : '[]'},
-    "requirements": "${escapeHtmlAttribute(app.requirements)}",
-    "installUrl": "${escapeHtmlAttribute(app.download_url || '#')}",
-    "memoryRequirements": "${escapeHtmlAttribute(app.size)}",
-    "storageRequirements": "${escapeHtmlAttribute(app.size)}"
-  }
-  </script>
-  
-  <!-- Organization Schema -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "DexAPK",
-    "url": "https://dexapk.com",
-    "logo": "https://dexapk.com/web-app-manifest-512x512.png",
-    "description": "Premium MOD APKs for Android devices",
-    "sameAs": [
-      "https://t.me/dexapk_com",
-      "https://twitter.com/dexapk"
-    ]
-  }
-  </script>
-  
-  <!-- WebPage Schema -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "${escapeHtmlAttribute(ampTitle)}",
-    "description": "${escapeHtmlAttribute(ampDescription)}",
-    "url": "${ampUrl}",
-    "mainEntity": {
-      "@type": "SoftwareApplication",
-      "name": "${escapeHtmlAttribute(app.name)}"
-    },
-    "breadcrumb": {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://dexapk.com"
+        "@id": "#organization",
+        "name": "DexAPK",
+        "url": "https://dexapk.com",
+        "logo": "https://dexapk.com/web-app-manifest-512x512.png",
+        "description": "Premium MOD APKs for Android devices",
+        "sameAs": [
+          "https://t.me/dexapk_com",
+          "https://twitter.com/dexapk"
+        ]
+      },
+      {
+        "@type": "WebPage",
+        "@id": "#webpage",
+        "name": "${escapeHtmlAttribute(ampTitle)}",
+        "description": "${escapeHtmlAttribute(ampDescription)}",
+        "url": "${ampUrl}",
+        "mainEntity": {
+          "@id": "#app"
         },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Apps",
-          "item": "https://dexapk.com/apps"
+        "about": {
+          "@id": "#app"
         },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "${escapeHtmlAttribute(app.category)}",
-          "item": "https://dexapk.com/categories/${app.category.toLowerCase()}"
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://dexapk.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Apps",
+              "item": "https://dexapk.com/apps"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "${escapeHtmlAttribute(app.category)}",
+              "item": "https://dexapk.com/categories/${app.category.toLowerCase()}"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "${escapeHtmlAttribute(app.name)}",
+              "item": "${ampUrl}"
+            }
+          ]
         },
-        {
-          "@type": "ListItem",
-          "position": 4,
-          "name": "${escapeHtmlAttribute(app.name)}",
-          "item": "${ampUrl}"
+        "publisher": {
+          "@id": "#organization"
         }
-      ]
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "DexAPK"
-    }
-  }
-  </script>
-  
-  <!-- Review Schema -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Review",
-    "itemReviewed": {
-      "@type": "SoftwareApplication",
-      "name": "${escapeHtmlAttribute(app.name)}",
-      "applicationCategory": "MobileApplication",
-      "operatingSystem": "Android"
-    },
-    "reviewRating": {
-      "@type": "Rating",
-      "ratingValue": "${app.rating}",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
-    "author": {
-      "@type": "Organization",
-      "name": "DexAPK"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "DexAPK"
-    },
-    "datePublished": "${app.created_at || new Date().toISOString()}",
-    "reviewBody": "${escapeHtmlAttribute(app.description)}"
+      },
+      {
+        "@type": "Review",
+        "@id": "#review",
+        "itemReviewed": {
+          "@id": "#app"
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": "${app.rating}",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "author": {
+          "@id": "#organization"
+        },
+        "publisher": {
+          "@id": "#organization"
+        },
+        "datePublished": "${app.created_at || new Date().toISOString()}",
+        "reviewBody": "${escapeHtmlAttribute(app.description)}"
+      }
+    ]
   }
   </script>
   
