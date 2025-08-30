@@ -14,7 +14,7 @@ export default defineConfig({
   }),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'never', // Prevent CSS injection into AMP pages
+    inlineStylesheets: 'auto',
     assets: '_astro',
     assetsPrefix: '/',
     excludeMiddleware: true
@@ -40,13 +40,6 @@ export default defineConfig({
       },
       assetsInlineLimit: 4096, // Reduce inline limit for better caching
       rollupOptions: {
-        external: (id) => {
-          // Exclude CSS from AMP pages
-          if (id.includes('/amp') && id.includes('.css')) {
-            return true;
-          }
-          return false;
-        },
         output: {
           // Ensure long-term caching with content hashing
           entryFileNames: '_astro/[name].[hash].js',
