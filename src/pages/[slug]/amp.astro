@@ -880,6 +880,24 @@ const response = new Response(`<!doctype html>
     "downloadUrl": "${escapeHtmlAttribute(app.download_url || '#')}",
     "datePublished": "${app.created_at || new Date().toISOString()}",
     "dateModified": "${app.updated_at || new Date().toISOString()}",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "${app.rating}",
+      "ratingCount": "${app.votes}",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "priceValidUntil": "${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
+      "seller": {
+        "@type": "Organization",
+        "name": "DexAPK"
+      }
+    },
     "publisher": {
       "@type": "Organization",
       "name": "${escapeHtmlAttribute(app.publisher)}"
@@ -889,67 +907,12 @@ const response = new Response(`<!doctype html>
       "name": "DexAPK",
       "url": "https://dexapk.com"
     },
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock"
-      "priceValidUntil": "${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
-      "seller": {
-        "@type": "Organization",
-        "name": "DexAPK"
-      },
-      "shippingDetails": {
-        "@type": "OfferShippingDetails",
-        "shippingRate": {
-          "@type": "MonetaryAmount",
-          "value": "0",
-          "currency": "USD"
-        },
-        "deliveryTime": {
-          "@type": "ShippingDeliveryTime",
-          "handlingTime": {
-            "@type": "QuantitativeValue",
-            "minValue": 0,
-            "maxValue": 0,
-            "unitCode": "DAY"
-          },
-          "transitTime": {
-            "@type": "QuantitativeValue",
-            "minValue": 0,
-            "maxValue": 0,
-            "unitCode": "DAY"
-          }
-        }
-      },
-      "hasMerchantReturnPolicy": {
-        "@type": "MerchantReturnPolicy",
-        "applicableCountry": "US",
-        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-        "merchantReturnDays": 30,
-        "returnMethod": "https://schema.org/ReturnByMail",
-        "returnFees": "https://schema.org/FreeReturn"
-      }
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "${app.rating}",
-      "ratingCount": "${app.votes}",
-      "bestRating": "5",
-      "worstRating": "1"
-    },
     "screenshot": ${app.screenshots && app.screenshots.length > 0 ? JSON.stringify(app.screenshots) : '[]'},
     "featureList": ${app.features && app.features.length > 0 ? JSON.stringify(app.features) : '[]'},
     "requirements": "${escapeHtmlAttribute(app.requirements)}",
     "installUrl": "${escapeHtmlAttribute(app.download_url || '#')}",
     "memoryRequirements": "${escapeHtmlAttribute(app.size)}",
-    "storageRequirements": "${escapeHtmlAttribute(app.size)}",
-    "supportingData": {
-      "@type": "DataDownload",
-      "name": "${escapeHtmlAttribute(app.name)} MOD APK",
-      "description": "Modified Android application package with premium features unlocked",
-      "encodingFormat": "application/vnd.android.package-archive"
-    }
+    "storageRequirements": "${escapeHtmlAttribute(app.size)}"
   }
   </script>
   
@@ -1108,13 +1071,7 @@ const response = new Response(`<!doctype html>
         "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
         "merchantReturnDays": 30,
         "returnMethod": "https://schema.org/ReturnByMail",
-        "returnFees": "https://schema.org/FreeReturn",
-        "returnPolicySeasonalOverride": {
-          "@type": "MerchantReturnPolicySeasonalOverride",
-          "startDate": "2024-11-01",
-          "endDate": "2025-01-31",
-          "merchantReturnDays": 60
-        }
+        "returnFees": "https://schema.org/FreeReturn"
       }
     },
     "aggregateRating": {
