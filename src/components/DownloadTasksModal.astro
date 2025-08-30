@@ -107,10 +107,6 @@ const { appSlug } = Astro.props;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-  }
-      requestAnimationFrame(() => {
-        downloadNowBtn.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-400', 'dark:text-gray-500', 'cursor-not-allowed');
-        downloadNowBtn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
       });
   @media (prefers-reduced-motion: reduce) {
     .transition-all,
