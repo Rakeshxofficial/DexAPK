@@ -210,7 +210,7 @@ const description = searchQuery ?
 
         <!-- Search Form -->
         <div class="max-w-2xl mx-auto">
-          <form method="GET" action="/search" class="relative" role="search">
+          <form id="search-form" method="GET" action="/search" class="relative" role="search">
             <label for="search-input" class="sr-only">Search for MOD APKs and content</label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -228,10 +228,12 @@ const description = searchQuery ?
                 aria-label="Search for MOD APKs and content"
                 autocomplete="off"
                 spellcheck="false"
+                minlength="1"
               />
               <div class="absolute inset-y-0 right-0 flex items-center pr-2">
                 <button
                   type="submit"
+                  id="search-submit-btn"
                   class="inline-flex items-center px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 min-w-[44px] min-h-[44px]"
                   aria-label="Search"
                 >
@@ -553,6 +555,7 @@ const description = searchQuery ?
   document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('input[name="q"]');
     const searchForm = document.querySelector('form[action="/search"]');
+    const searchSubmitBtn = document.getElementById('search-submit-btn');
     
     // Debug information
     console.log('Search page client-side loaded');
@@ -561,6 +564,37 @@ const description = searchQuery ?
     console.log('Search results from server:', searchResults);
     console.log('Current URL:', window.location.href);
     console.log('URL search params:', window.location.search);
+    
+    // Test form submission manually
+    if (searchForm && searchInput && searchSubmitBtn) {
+      searchForm.addEventListener('submit', function(e) {
+        const query = searchInput.value.trim();
+        console.log('Form submission triggered with query:', query);
+        
+        if (!query) {
+          e.preventDefault();
+          console.log('Empty query prevented submission');
+          searchInput.focus();
+          return false;
+        }
+        
+        // Let the form submit naturally
+        console.log('Form submitting to:', `/search?q=${encodeURIComponent(query)}`);
+        console.log('Form method:', searchForm.method);
+        console.log('Form action:', searchForm.action);
+      });
+      
+      // Also handle direct button click
+      searchSubmitBtn.addEventListener('click', function(e) {
+        const query = searchInput.value.trim();
+        console.log('Search button clicked with query:', query);
+        
+        if (!query) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+    }
     
     // Focus search input on page load if no query
     if (!searchQuery && searchInput) {
