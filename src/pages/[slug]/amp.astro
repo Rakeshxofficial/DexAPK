@@ -638,6 +638,71 @@ const response = new Response(`<!doctype html>
       text-decoration: underline;
     }
     
+    /* MOD Info Section Styles */
+    .mod-info-container {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 20px;
+      border: 2px solid #e2e8f0;
+    }
+    
+    .mod-info-description {
+      font-size: 16px;
+      color: #475569;
+      margin: 0 0 16px 0;
+      font-weight: 500;
+    }
+    
+    .feature-text {
+      font-size: 15px;
+      color: #334155;
+      font-weight: 500;
+    }
+    
+    .mod-info-notice {
+      background: #dbeafe;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 20px;
+    }
+    
+    .mod-info-notice p {
+      margin: 0;
+      font-size: 14px;
+      color: #1e40af;
+      line-height: 1.4;
+    }
+    
+    .mod-info-notice strong {
+      font-weight: 600;
+      color: #1e3a8a;
+    }
+    
+    /* Mobile Responsive for MOD Info */
+    @media (max-width: 640px) {
+      .mod-info-container {
+        padding: 16px;
+        border-radius: 8px;
+      }
+      
+      .mod-info-description {
+        font-size: 15px;
+      }
+      
+      .feature-text {
+        font-size: 14px;
+      }
+      
+      .mod-info-notice {
+        padding: 10px 12px;
+      }
+      
+      .mod-info-notice p {
+        font-size: 13px;
+      }
+    }
+    
     @media (max-width: 640px) {
       .app-title {
         font-size: 24px;
@@ -758,6 +823,27 @@ const response = new Response(`<!doctype html>
         </div>
       </div>
     </div>
+
+    ${app.mod_info && app.mod_info.length > 0 ? `
+    <!-- MOD Info Section -->
+    <div class="card">
+      <h2 class="card-title">MOD Information</h2>
+      <div class="mod-info-container">
+        <p class="mod-info-description">This modified version includes the following enhancements:</p>
+        <ul class="feature-list">
+          ${app.mod_info.map(info => `
+            <li class="feature-item">
+              <div class="feature-icon"></div>
+              <span class="feature-text">${escapeHtml(info)}</span>
+            </li>
+          `).join('')}
+        </ul>
+        <div class="mod-info-notice">
+          <p><strong>Note:</strong> This is a modified version with premium features unlocked. All modifications are safe and tested.</p>
+        </div>
+      </div>
+    </div>
+    ` : ''}
 
     <!-- Description -->
     <!-- App Article Content -->
