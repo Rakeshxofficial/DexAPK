@@ -7,8 +7,7 @@ import Footer from '../components/Footer.astro';
 import { getAllApps } from '../lib/supabase.js';
 
 // Get search query from URL parameters
-const url = new URL(Astro.request.url);
-const searchQuery = url.searchParams.get('q') || '';
+const searchQuery = Astro.url.searchParams.get('q') || '';
 
 console.log('Search page - URL:', Astro.request.url);
 console.log('Search page - Query:', searchQuery);
