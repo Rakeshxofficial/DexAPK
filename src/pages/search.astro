@@ -7,12 +7,13 @@ import Footer from '../components/Footer.astro';
 import { getAllApps } from '../lib/supabase.js';
 
 // Get search query from URL parameters
-const searchQuery = Astro.url.searchParams.get('q')?.trim() || '';
+const url = new URL(Astro.request.url);
+const searchQuery = url.searchParams.get('q')?.trim() || '';
 
-console.log('Search page - URL:', Astro.request.url);
-console.log('Search page - Full URL object:', Astro.url);
-console.log('Search page - Search params:', Astro.url.searchParams);
-console.log('Search page - All params:', Array.from(Astro.url.searchParams.entries()));
+console.log('Search page - Request URL:', Astro.request.url);
+console.log('Search page - Parsed URL:', url.href);
+console.log('Search page - Search params:', url.searchParams.toString());
+console.log('Search page - All params:', Array.from(url.searchParams.entries()));
 console.log('Search page - Query:', searchQuery);
 
 // Fetch all apps for searching
@@ -99,6 +100,7 @@ function searchContent(query: string) {
   }
 
   const searchTerm = query.toLowerCase().trim();
+  console.log('Searching for term:', searchTerm);
   
   // Search apps
   const matchingApps = allApps.filter(app => {
@@ -120,6 +122,11 @@ function searchContent(query: string) {
     );
   });
 
+  console.log('Search results found:', {
+    searchTerm,
+    appsFound: matchingApps.length,
+    categoriesFound: matchingCategories.length
+  });
   return { apps: matchingApps, categories: matchingCategories };
 }
 
@@ -192,7 +199,7 @@ const description = searchQuery ?
 
         <!-- Search Form -->
         <div class="max-w-2xl mx-auto">
-          <form method="GET" action="/search" class="relative" role="search" id="search-form">
+          <form method="GET" action="/search" class="relative" role="search">
             <label for="search-input" class="sr-only">Search for MOD APKs and content</label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -210,7 +217,6 @@ const description = searchQuery ?
                 aria-label="Search for MOD APKs and content"
                 autocomplete="off"
                 spellcheck="false"
-                required
               />
               <div class="absolute inset-y-0 right-0 flex items-center pr-2">
                 <button
@@ -265,7 +271,7 @@ const description = searchQuery ?
             </div>
 
             <!-- Search Results Content -->
-            {totalResults === 0 ? (
+            {searchQuery && totalResults === 0 ? (
               <!-- No Results -->
               <div class="text-center py-12" role="status" aria-live="polite">
                 <div class="text-gray-500 dark:text-gray-400">
@@ -287,7 +293,7 @@ const description = searchQuery ?
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : searchQuery && totalResults > 0 ? (
               <!-- Results Found -->
               <div class="space-y-8">
                 
@@ -447,7 +453,7 @@ const description = searchQuery ?
                 )}
 
               </div>
-            )}
+            ) : null}
           </div>
         ) : (
           <!-- Default search page content when no query -->
@@ -534,43 +540,23 @@ const description = searchQuery ?
 
 <script define:vars={{ searchQuery, totalResults, searchResults }}>
   document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('search-input');
-    const searchForm = document.getElementById('search-form');
+    const searchInput = document.querySelector('input[name="q"]');
+    const searchForm = document.querySelector('form[action="/search"]');
     
     // Debug information
     console.log('Search page client-side loaded');
     console.log('Search query from server:', searchQuery);
     console.log('Total results from server:', totalResults);
     console.log('Search results from server:', searchResults);
+    console.log('Current URL:', window.location.href);
+    console.log('URL search params:', window.location.search);
     
     // Focus search input on page load if no query
     if (!searchQuery && searchInput) {
       searchInput.focus();
     }
     
-    // Handle search form submission
-    if (searchForm) {
-      searchForm.addEventListener('submit', function(e) {
-        const query = searchInput.value.trim();
-        console.log('Form submission - Query value:', query);
-        
-        if (!query) {
-          e.preventDefault();
-          console.log('Form submission prevented - empty query');
-          searchInput.focus();
-          return;
-        }
-        
-        console.log('Search form submitted with query:', query);
-        
-        // Ensure the form action includes the query
-        const formAction = `/search?q=${encodeURIComponent(query)}`;
-        console.log('Form action URL:', formAction);
-        
-        // Update the form action to include the query
-        this.action = formAction;
-      });
-    }
+    // Let the form submit naturally - don't interfere with JavaScript
     
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
