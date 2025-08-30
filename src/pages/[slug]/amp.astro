@@ -561,6 +561,25 @@ const response = new Response(`<!doctype html>
       color: #6b7280;
     }
     
+    /* Internal Link Styles */
+    .info-value a {
+      transition: color 0.2s ease;
+    }
+    
+    .info-value a:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+    
+    .related-app {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .related-app:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
     .footer {
       text-align: center;
       padding: 32px 16px;
@@ -807,11 +826,19 @@ const response = new Response(`<!doctype html>
       <div class="info-grid">
         <div class="info-item">
           <div class="info-label">Category</div>
-          <div class="info-value">${app.category}</div>
+          <div class="info-value">
+            <a href="/categories/${app.category.toLowerCase()}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+              ${app.category}
+            </a>
+          </div>
         </div>
         <div class="info-item">
           <div class="info-label">Publisher</div>
-          <div class="info-value">${app.publisher}</div>
+          <div class="info-value">
+            <a href="/publisher/${app.publisher.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+              ${app.publisher}
+            </a>
+          </div>
         </div>
         <div class="info-item">
           <div class="info-label">Requirements</div>
@@ -877,7 +904,7 @@ const response = new Response(`<!doctype html>
       <h2 class="card-title">Related Apps</h2>
       <div class="related-apps">
         ${relatedApps.map(relatedApp => `
-          <a href="/${relatedApp.slug}/amp" class="related-app">
+          <a href="/${relatedApp.slug}" class="related-app">
             ${relatedApp.icon ? `
               <amp-img 
                 src="${relatedApp.icon}" 
@@ -913,6 +940,9 @@ const response = new Response(`<!doctype html>
       <p>
         <a href="/" class="footer-link">Home</a> • 
         <a href="/apps" class="footer-link">All Apps</a> • 
+        <a href="/categories" class="footer-link">Categories</a> • 
+        <a href="/trending" class="footer-link">Trending</a> • 
+        <a href="/blog" class="footer-link">Blog</a> • 
         <a href="/about" class="footer-link">About</a> • 
         <a href="/contact" class="footer-link">Contact</a>
       </p>
