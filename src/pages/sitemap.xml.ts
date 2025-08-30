@@ -148,6 +148,14 @@ export async function GET() {
     <priority>0.4</priority>
   </url>
   
+  <!-- AMP App Pages Sitemap -->
+  <url>
+    <loc>${baseUrl}/amp-app-page-sitemap.xml</loc>
+    <lastmod>${lastModified}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
   <!-- Blog Pages -->
   <url>
     <loc>${baseUrl}/blog</loc>

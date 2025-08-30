@@ -28,6 +28,7 @@ Allow: /*.svg$
 Sitemap: https://dexapk.com/sitemap.xml
 Sitemap: https://dexapk.com/blog-sitemap.xml
 Sitemap: https://dexapk.com/image-sitemap.xml
+Sitemap: https://dexapk.com/amp-app-page-sitemap.xml
 
 # Crawl delay to prevent server overload
 Crawl-delay: 1
