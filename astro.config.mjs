@@ -5,7 +5,16 @@ import netlify from '@astrojs/netlify';
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind()],
+  integrations: [
+    tailwind({
+      // Disable Tailwind for AMP pages
+      applyBaseStyles: false,
+      config: {
+        // Exclude AMP pages from Tailwind processing
+        content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}', '!./src/pages/**/amp.astro']
+      }
+    })
+  ],
   output: 'static',
   adapter: netlify({
     edgeMiddleware: false,
@@ -14,7 +23,7 @@ export default defineConfig({
   }),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'auto',
+    inlineStylesheets: 'never', // Prevent automatic stylesheet inlining
     assets: '_astro',
     assetsPrefix: '/',
     excludeMiddleware: true
@@ -55,4 +64,8 @@ export default defineConfig({
       noExternal: ['sharp']
     }
   },
+  // Exclude AMP pages from normal processing
+  experimental: {
+    contentCollectionCache: true
+  }
 });
