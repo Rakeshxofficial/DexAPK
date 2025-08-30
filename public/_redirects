@@ -3,6 +3,9 @@
 /assets/*  /assets/:splat  200
 /_astro/*  /_astro/:splat  200
 
+# AMP pages
+/:slug/amp  /:slug/amp/index.html  200
+
 # Admin routes for client-side routing
 /admin/*  /admin/index.html  200
 

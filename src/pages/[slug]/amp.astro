@@ -1,0 +1,492 @@
+---
+export const prerender = true;
+
+import { getAllApps, getAppBySlug, getRelatedApps } from '../../lib/supabase.js';
+
+export async function getStaticPaths() {
+  try {
+    const apps = await getAllApps();
+    return apps.map(app => ({
+      params: { slug: app.slug },
+      props: { app }
+    }));
+  } catch (error) {
+    console.error('Error generating static paths for AMP pages:', error);
+    return [];
+  }
+}
+
+const { slug } = Astro.params;
+const { app } = Astro.props;
+
+// If app not found, return 404
+if (!app) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not found'
+  });
+}
+
+// Get related apps
+let relatedApps = [];
+try {
+  relatedApps = await getRelatedApps(app.slug, app.category, 3);
+} catch (error) {
+  console.error('Error loading related apps for AMP:', error);
+}
+
+// AMP-specific meta data
+const ampTitle = `${app.name} v${app.version} MOD APK - Premium Features Unlocked`;
+const ampDescription = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 150)}...`;
+const canonicalUrl = `https://dexapk.com/${app.slug}`;
+const ampUrl = `https://dexapk.com/${app.slug}/amp`;
+---
+
+<!doctype html>
+<html ⚡ lang="en">
+<head>
+  <meta charset="utf-8">
+  <script async src="https://cdn.ampproject.org/v0.js"></script>
+  <script async custom-element="amp-img" src="https://cdn.ampproject.org/v0/amp-img-0.1.js"></script>
+  <script async custom-element="amp-carousel" src="https://cdn.ampproject.org/v0/amp-carousel-0.1.js"></script>
+  
+  <title>{ampTitle}</title>
+  <link rel="canonical" href={canonicalUrl}>
+  <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+  
+  <!-- Meta Tags -->
+  <meta name="description" content={ampDescription}>
+  <meta name="keywords" content={`${app.name.toLowerCase()}, ${app.category.toLowerCase()}, mod apk, premium unlocked, android app`}>
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content={ampTitle}>
+  <meta property="og:description" content={ampDescription}>
+  <meta property="og:image" content={app.icon || '/web-app-manifest-512x512.png'}>
+  <meta property="og:url" content={ampUrl}>
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content={ampTitle}>
+  <meta name="twitter:description" content={ampDescription}>
+  <meta name="twitter:image" content={app.icon || '/web-app-manifest-512x512.png'}>
+  
+  <!-- AMP Boilerplate -->
+  <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+  
+  <!-- Custom AMP Styles -->
+  <style amp-custom>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9fafb;
+      color: #1f2937;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      padding: 32px 16px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .app-icon {
+      width: 96px;
+      height: 96px;
+      border-radius: 24px;
+      margin: 0 auto 16px;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .app-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 0 0 8px;
+    }
+    
+    .app-version {
+      font-size: 18px;
+      opacity: 0.9;
+      margin: 0 0 16px;
+    }
+    
+    .download-btn {
+      display: inline-block;
+      background: #000;
+      color: white;
+      padding: 16px 32px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 18px;
+      margin-top: 16px;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 0 0 16px;
+      color: #1f2937;
+    }
+    
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .info-item {
+      background: #f3f4f6;
+      padding: 16px;
+      border-radius: 12px;
+    }
+    
+    .info-label {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    
+    .info-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .feature-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .feature-item:last-child {
+      border-bottom: none;
+    }
+    
+    .feature-icon {
+      width: 20px;
+      height: 20px;
+      background: #10b981;
+      border-radius: 50%;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    
+    .rating {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0;
+    }
+    
+    .star {
+      width: 24px;
+      height: 24px;
+      margin: 0 2px;
+    }
+    
+    .star.filled {
+      color: #fbbf24;
+    }
+    
+    .star.empty {
+      color: #d1d5db;
+    }
+    
+    .rating-text {
+      margin-left: 12px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .screenshots {
+      margin: 24px 0;
+    }
+    
+    .related-apps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    
+    .related-app {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .related-app:hover {
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .related-app-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 8px 0 4px;
+      color: #1f2937;
+    }
+    
+    .related-app-category {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 32px 16px;
+      background: #1f2937;
+      color: white;
+      margin-top: 48px;
+    }
+    
+    .footer-link {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    
+    @media (max-width: 640px) {
+      .app-title {
+        font-size: 24px;
+      }
+      
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .related-apps {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "{app.name}",
+    "applicationCategory": "MobileApplication",
+    "operatingSystem": "Android",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "{app.rating}",
+      "ratingCount": "{app.votes}",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "softwareVersion": "{app.version}",
+    "fileSize": "{app.size}",
+    "description": "{app.description}"
+  }
+  </script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="app-icon">
+        {app.icon ? (
+          <amp-img 
+            src={app.icon} 
+            alt={`${app.name} icon`}
+            width="96" 
+            height="96"
+            layout="fixed"
+          ></amp-img>
+        ) : (
+          <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+        )}
+      </div>
+      
+      <h1 class="app-title">{app.name}</h1>
+      <p class="app-version">Version {app.version} • {app.size}</p>
+      
+      <!-- Rating -->
+      <div class="rating">
+        {[1,2,3,4,5].map(star => (
+          <svg class={`star ${star <= Math.floor(app.rating) ? 'filled' : 'empty'}`} fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+        ))}
+        <span class="rating-text">{app.rating} ({app.votes.toLocaleString()} votes)</span>
+      </div>
+      
+      <!-- Download Button -->
+      <a href={app.download_url || '#'} class="download-btn">
+        Download MOD APK
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    
+    <!-- App Information -->
+    <div class="card">
+      <h2 class="card-title">App Information</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Category</div>
+          <div class="info-value">{app.category}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Publisher</div>
+          <div class="info-value">{app.publisher}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Requirements</div>
+          <div class="info-value">{app.requirements}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Last Updated</div>
+          <div class="info-value">{app.last_updated}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="card">
+      <h2 class="card-title">Description</h2>
+      <p>{app.description}</p>
+    </div>
+
+    <!-- Features -->
+    {app.features && app.features.length > 0 && (
+      <div class="card">
+        <h2 class="card-title">Features</h2>
+        <ul class="feature-list">
+          {app.features.map(feature => (
+            <li class="feature-item">
+              <div class="feature-icon"></div>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <!-- MOD Info -->
+    {app.mod_info && app.mod_info.length > 0 && (
+      <div class="card">
+        <h2 class="card-title">MOD Features</h2>
+        <ul class="feature-list">
+          {app.mod_info.map(info => (
+            <li class="feature-item">
+              <div class="feature-icon"></div>
+              <span>{info}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <!-- Screenshots -->
+    {app.screenshots && app.screenshots.length > 0 && (
+      <div class="card">
+        <h2 class="card-title">Screenshots</h2>
+        <div class="screenshots">
+          <amp-carousel width="400" height="300" layout="responsive" type="slides">
+            {app.screenshots.map((screenshot, index) => (
+              <amp-img 
+                src={screenshot} 
+                alt={`${app.name} screenshot ${index + 1}`}
+                width="400" 
+                height="300"
+                layout="responsive"
+              ></amp-img>
+            ))}
+          </amp-carousel>
+        </div>
+      </div>
+    )}
+
+    <!-- Related Apps -->
+    {relatedApps.length > 0 && (
+      <div class="card">
+        <h2 class="card-title">Related Apps</h2>
+        <div class="related-apps">
+          {relatedApps.map(relatedApp => (
+            <a href={`/${relatedApp.slug}/amp`} class="related-app">
+              {relatedApp.icon && (
+                <amp-img 
+                  src={relatedApp.icon} 
+                  alt={`${relatedApp.name} icon`}
+                  width="48" 
+                  height="48"
+                  layout="fixed"
+                ></amp-img>
+              )}
+              <div class="related-app-title">{relatedApp.name}</div>
+              <div class="related-app-category">{relatedApp.category}</div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Download Section -->
+    <div class="card" style="text-align: center;">
+      <h2 class="card-title">Download {app.name} MOD APK</h2>
+      <p>Get the latest version with premium features unlocked</p>
+      <a href={app.download_url || '#'} class="download-btn">
+        Download v{app.version}
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 DexAPK. All rights reserved.</p>
+      <p>
+        <a href="/" class="footer-link">Home</a> • 
+        <a href="/apps" class="footer-link">All Apps</a> • 
+        <a href="/about" class="footer-link">About</a> • 
+        <a href="/contact" class="footer-link">Contact</a>
+      </p>
+      <p style="margin-top: 16px;">
+        <a href={canonicalUrl} class="footer-link">View Full Version</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
