@@ -5,7 +5,6 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import BreadcrumbNav from '../../components/BreadcrumbNav.astro';
-import DownloadTasksModal from '../../components/DownloadTasksModal.astro';
 import { getAllApps, getAppBySlug, getAppDownloadTasksBySlug } from '../../lib/supabase.js';
 
 export async function getStaticPaths() {
@@ -231,9 +230,6 @@ const seoData = {
   </main>
   
   <Footer />
-  
-  <!-- Download Tasks Modal -->
-  <DownloadTasksModal appSlug={app.slug} />
 </Layout>
 
 <script>
