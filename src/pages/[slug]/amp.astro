@@ -299,6 +299,7 @@ const response = new Response(`<!doctype html>
       height: 45px;
       width: 45px;
       object-fit: contain;
+      border-radius: 8px;
     }
     
     .nav-menu {
@@ -331,7 +332,7 @@ const response = new Response(`<!doctype html>
     }
     
     /* Mobile Navigation */
-    .mobile-menu-toggle {
+    .mobile-menu-button {
       display: none;
       background: none;
       border: none;
@@ -344,11 +345,11 @@ const response = new Response(`<!doctype html>
       justify-content: center;
     }
     
-    .mobile-menu-toggle:hover {
+    .mobile-menu-button:hover {
       background-color: #f3f4f6;
     }
     
-    .mobile-menu-toggle svg {
+    .mobile-menu-button svg {
       width: 24px;
       height: 24px;
       stroke: #374151;
@@ -402,11 +403,6 @@ const response = new Response(`<!doctype html>
       align-items: center;
       justify-content: center;
       cursor: pointer;
-    }
-    
-    .sidebar-close svg {
-      width: 18px;
-      height: 18px;
     }</parameter>
     }
     
@@ -416,14 +412,13 @@ const response = new Response(`<!doctype html>
         display: none;
       }
       
-      .mobile-menu-toggle {
-        display: block;
+      .mobile-menu-button {
         display: flex;
       }
       
       .logo {
-        height: 40px;
-        width: 40px;
+        height: 45px;
+        width: 45px;
       }
       
       .amp-header {
@@ -811,8 +806,8 @@ const response = new Response(`<!doctype html>
           <amp-img 
             src="/dexapk-logo.svg" 
             alt="DexAPK Logo"
-            width="120" 
-            height="40"
+            width="45" 
+            height="45"
             class="logo">
           </amp-img>
         </a>
@@ -829,13 +824,39 @@ const response = new Response(`<!doctype html>
       </nav>
       
       <!-- Mobile Menu Button -->
-      <button class="mobile-menu-button" aria-label="Open navigation menu">
-        <svg class="hamburger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <button class="mobile-menu-button" on="tap:sidebar1.toggle" aria-label="Open navigation menu">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
     </div>
   </header>
+
+  <!-- AMP Sidebar for Mobile Menu -->
+  <amp-sidebar id="sidebar1" layout="nodisplay" side="left">
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h3>DexAPK</h3>
+        <p>Navigation Menu</p>
+        <button class="sidebar-close" on="tap:sidebar1.close" aria-label="Close navigation menu">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <nav class="sidebar-nav" role="navigation" aria-label="Mobile navigation">
+        <a href="/">Home</a>
+        <a href="/apps">All Apps</a>
+        <a href="/categories">Categories</a>
+        <a href="/trending">Trending</a>
+        <a href="/games">Games</a>
+        <a href="/blog">Blog</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/help">Help</a>
+      </nav>
+    </div>
+  </amp-sidebar></parameter>
 
   <!-- Header -->
   <section class="header">
