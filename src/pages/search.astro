@@ -6,15 +6,26 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getAllApps } from '../lib/supabase.js';
 
-// Get search query from URL parameters
-const url = new URL(Astro.request.url);
-const searchQuery = url.searchParams.get('q')?.trim() || '';
+// Get search query from URL parameters - Multiple methods for debugging
+console.log('=== SEARCH DEBUG START ===');
+console.log('Astro.request.url:', Astro.request.url);
+console.log('Astro.url:', Astro.url);
+console.log('Astro.url.search:', Astro.url.search);
+console.log('Astro.url.searchParams:', Astro.url.searchParams);
 
-console.log('Search page - Request URL:', Astro.request.url);
-console.log('Search page - Parsed URL:', url.href);
-console.log('Search page - Search params:', url.searchParams.toString());
-console.log('Search page - All params:', Array.from(url.searchParams.entries()));
-console.log('Search page - Query:', searchQuery);
+// Try multiple methods to get the query parameter
+const searchQuery1 = Astro.url.searchParams.get('q')?.trim() || '';
+const searchQuery2 = new URL(Astro.request.url).searchParams.get('q')?.trim() || '';
+const searchQuery3 = new URL(Astro.url).searchParams.get('q')?.trim() || '';
+
+console.log('Method 1 (Astro.url.searchParams):', searchQuery1);
+console.log('Method 2 (new URL(Astro.request.url)):', searchQuery2);
+console.log('Method 3 (new URL(Astro.url)):', searchQuery3);
+
+// Use the first non-empty result
+const searchQuery = searchQuery1 || searchQuery2 || searchQuery3 || '';
+console.log('Final searchQuery:', searchQuery);
+console.log('=== SEARCH DEBUG END ===');
 
 // Fetch all apps for searching
 let allApps = [];
