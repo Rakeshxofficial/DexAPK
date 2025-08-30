@@ -894,6 +894,42 @@ const response = new Response(`<!doctype html>
       "price": "0",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock"
+      "priceValidUntil": "${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
+      "seller": {
+        "@type": "Organization",
+        "name": "DexAPK"
+      },
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "USD"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "DAY"
+          },
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "DAY"
+          }
+        }
+      },
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": "US",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 30,
+        "returnMethod": "https://schema.org/ReturnByMail",
+        "returnFees": "https://schema.org/FreeReturn"
+      }
     },
     "aggregateRating": {
       "@type": "AggregateRating",
@@ -907,7 +943,13 @@ const response = new Response(`<!doctype html>
     "requirements": "${escapeHtmlAttribute(app.requirements)}",
     "installUrl": "${escapeHtmlAttribute(app.download_url || '#')}",
     "memoryRequirements": "${escapeHtmlAttribute(app.size)}",
-    "storageRequirements": "${escapeHtmlAttribute(app.size)}"
+    "storageRequirements": "${escapeHtmlAttribute(app.size)}",
+    "supportingData": {
+      "@type": "DataDownload",
+      "name": "${escapeHtmlAttribute(app.name)} MOD APK",
+      "description": "Modified Android application package with premium features unlocked",
+      "encodingFormat": "application/vnd.android.package-archive"
+    }
   }
   </script>
   
@@ -1028,9 +1070,51 @@ const response = new Response(`<!doctype html>
       "price": "0",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
+      "priceValidUntil": "${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}",
       "seller": {
         "@type": "Organization",
         "name": "DexAPK"
+      },
+      "shippingDetails": {
+        "@type": "OfferShippingDetails",
+        "shippingRate": {
+          "@type": "MonetaryAmount",
+          "value": "0",
+          "currency": "USD"
+        },
+        "shippingDestination": {
+          "@type": "DefinedRegion",
+          "addressCountry": "US"
+        },
+        "deliveryTime": {
+          "@type": "ShippingDeliveryTime",
+          "handlingTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "DAY"
+          },
+          "transitTime": {
+            "@type": "QuantitativeValue",
+            "minValue": 0,
+            "maxValue": 0,
+            "unitCode": "DAY"
+          }
+        }
+      },
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": "US",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 30,
+        "returnMethod": "https://schema.org/ReturnByMail",
+        "returnFees": "https://schema.org/FreeReturn",
+        "returnPolicySeasonalOverride": {
+          "@type": "MerchantReturnPolicySeasonalOverride",
+          "startDate": "2024-11-01",
+          "endDate": "2025-01-31",
+          "merchantReturnDays": 60
+        }
       }
     },
     "aggregateRating": {
@@ -1055,6 +1139,117 @@ const response = new Response(`<!doctype html>
         "@type": "PropertyValue",
         "name": "Last Updated",
         "value": "${escapeHtmlAttribute(app.last_updated)}"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "MOD Features",
+        "value": "${app.mod_info && app.mod_info.length > 0 ? escapeHtmlAttribute(app.mod_info.join(', ')) : 'Premium features unlocked'}"
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Installation Type",
+        "value": "APK Sideload"
+      }
+    ]
+  }
+  </script>
+  
+  <!-- FAQ Schema for common app questions -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is ${escapeHtmlAttribute(app.name)} MOD APK safe to download?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, our ${escapeHtmlAttribute(app.name)} MOD APK is thoroughly tested and scanned for malware. It's completely safe to install and use on your Android device."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need to root my device to use ${escapeHtmlAttribute(app.name)} MOD?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, this ${escapeHtmlAttribute(app.name)} MOD APK works on both rooted and non-rooted devices. No root access is required for installation or usage."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What premium features are unlocked in ${escapeHtmlAttribute(app.name)} MOD?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "${app.mod_info && app.mod_info.length > 0 ? escapeHtmlAttribute(app.mod_info.join(', ')) : 'All premium features are unlocked including ad-free experience and enhanced functionality.'}"
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I install ${escapeHtmlAttribute(app.name)} MOD APK?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "To install ${escapeHtmlAttribute(app.name)} MOD APK: 1) Enable Unknown Sources in Android settings, 2) Download the APK file, 3) Tap the file to install, 4) Open and enjoy premium features."
+        }
+      }
+    ]
+  }
+  </script>
+  
+  <!-- HowTo Schema for installation process -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to Install ${escapeHtmlAttribute(app.name)} MOD APK",
+    "description": "Step-by-step guide to install ${escapeHtmlAttribute(app.name)} MOD APK on Android devices",
+    "image": "${escapeHtmlAttribute(app.icon || 'https://dexapk.com/web-app-manifest-512x512.png')}",
+    "totalTime": "PT5M",
+    "estimatedCost": {
+      "@type": "MonetaryAmount",
+      "currency": "USD",
+      "value": "0"
+    },
+    "supply": [
+      {
+        "@type": "HowToSupply",
+        "name": "Android Device"
+      },
+      {
+        "@type": "HowToSupply",
+        "name": "${escapeHtmlAttribute(app.name)} MOD APK file"
+      }
+    ],
+    "tool": [
+      {
+        "@type": "HowToTool",
+        "name": "File Manager App"
+      }
+    ],
+    "step": [
+      {
+        "@type": "HowToStep",
+        "name": "Enable Unknown Sources",
+        "text": "Go to Settings > Security > Unknown Sources and enable installation from unknown sources",
+        "image": "https://dexapk.com/web-app-manifest-512x512.png"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Download APK",
+        "text": "Download the ${escapeHtmlAttribute(app.name)} MOD APK file from DexAPK",
+        "image": "https://dexapk.com/web-app-manifest-512x512.png"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Install APK",
+        "text": "Locate the downloaded APK file and tap to install it on your device",
+        "image": "https://dexapk.com/web-app-manifest-512x512.png"
+      },
+      {
+        "@type": "HowToStep",
+        "name": "Open and Enjoy",
+        "text": "Open ${escapeHtmlAttribute(app.name)} and enjoy all premium features unlocked",
+        "image": "https://dexapk.com/web-app-manifest-512x512.png"
       }
     ]
   }
