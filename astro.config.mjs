@@ -7,12 +7,8 @@ import netlify from '@astrojs/netlify';
 export default defineConfig({
   integrations: [
     tailwind({
-      // Disable Tailwind for AMP pages
-      applyBaseStyles: false,
-      config: {
-        // Exclude AMP pages from Tailwind processing
-        content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}', '!./src/pages/**/amp.astro']
-      }
+      // Keep Tailwind enabled for all pages except AMP
+      applyBaseStyles: true
     })
   ],
   output: 'static',
@@ -23,7 +19,8 @@ export default defineConfig({
   }),
   compressHTML: true,
   build: {
-    inlineStylesheets: 'never', // Prevent automatic stylesheet inlining
+    // Re-enable stylesheet inlining for normal pages
+    inlineStylesheets: 'auto',
     assets: '_astro',
     assetsPrefix: '/',
     excludeMiddleware: true
@@ -35,22 +32,21 @@ export default defineConfig({
     },
     envPrefix: 'VITE_',
     build: {
-      cssCodeSplit: true, // Enable CSS code splitting for better performance
+      cssCodeSplit: true,
       minify: 'terser',
       outDir: 'dist',
       emptyOutDir: true,
-      sourcemap: false, // Disable sourcemaps in production
+      sourcemap: false,
       terserOptions: {
         compress: {
-          drop_console: true, // Remove console logs in production
+          drop_console: true,
           drop_debugger: true,
           pure_funcs: ['console.log', 'console.info', 'console.debug']
         }
       },
-      assetsInlineLimit: 4096, // Reduce inline limit for better caching
+      assetsInlineLimit: 4096,
       rollupOptions: {
         output: {
-          // Ensure long-term caching with content hashing
           entryFileNames: '_astro/[name].[hash].js',
           chunkFileNames: '_astro/[name].[hash].js',
           assetFileNames: '_astro/[name].[hash].[ext]',
@@ -63,6 +59,5 @@ export default defineConfig({
     ssr: {
       noExternal: ['sharp']
     }
-  },
-  // Exclude AMP pages from normal processing
+  }
 });

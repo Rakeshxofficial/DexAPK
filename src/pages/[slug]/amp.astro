@@ -40,9 +40,9 @@ const ampTitle = `${app.name} v${app.version} MOD APK - Premium Features Unlocke
 const ampDescription = `Download ${app.name} MOD APK v${app.version} with premium features unlocked. ${app.description.substring(0, 150)}...`;
 const canonicalUrl = `https://dexapk.com/${app.slug}`;
 const ampUrl = `https://dexapk.com/${app.slug}/amp`;
----
 
-<!doctype html>
+// Disable Astro's head injection for this page
+const response = new Response(`<!doctype html>
 <html ⚡ lang="en">
 <head>
   <meta charset="utf-8">
@@ -50,25 +50,25 @@ const ampUrl = `https://dexapk.com/${app.slug}/amp`;
   <script async custom-element="amp-img" src="https://cdn.ampproject.org/v0/amp-img-0.1.js"></script>
   <script async custom-element="amp-carousel" src="https://cdn.ampproject.org/v0/amp-carousel-0.1.js"></script>
   
-  <title>{ampTitle}</title>
-  <link rel="canonical" href={canonicalUrl}>
+  <title>${ampTitle}</title>
+  <link rel="canonical" href="${canonicalUrl}">
   <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
   
   <!-- Meta Tags -->
-  <meta name="description" content={ampDescription}>
+  <meta name="description" content="${ampDescription}">
   
   <!-- Open Graph -->
-  <meta property="og:title" content={ampTitle}>
-  <meta property="og:description" content={ampDescription}>
-  <meta property="og:image" content={app.icon || 'https://dexapk.com/web-app-manifest-512x512.png'}>
-  <meta property="og:url" content={ampUrl}>
+  <meta property="og:title" content="${ampTitle}">
+  <meta property="og:description" content="${ampDescription}">
+  <meta property="og:image" content="${app.icon || 'https://dexapk.com/web-app-manifest-512x512.png'}">
+  <meta property="og:url" content="${ampUrl}">
   <meta property="og:type" content="website">
   
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content={ampTitle}>
-  <meta name="twitter:description" content={ampDescription}>
-  <meta name="twitter:image" content={app.icon || 'https://dexapk.com/web-app-manifest-512x512.png'}>
+  <meta name="twitter:title" content="${ampTitle}">
+  <meta name="twitter:description" content="${ampDescription}">
+  <meta name="twitter:image" content="${app.icon || 'https://dexapk.com/web-app-manifest-512x512.png'}">
   
   <!-- AMP Boilerplate - MANDATORY -->
   <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
@@ -290,36 +290,36 @@ const ampUrl = `https://dexapk.com/${app.slug}/amp`;
   <header class="header">
     <div class="container">
       <div class="app-icon">
-        {app.icon ? (
+        ${app.icon ? `
           <amp-img 
-            src={app.icon} 
-            alt={`${app.name} icon`}
+            src="${app.icon}" 
+            alt="${app.name} icon"
             width="96" 
             height="96"
-            layout="fixed"
-          ></amp-img>
-        ) : (
+            layout="fixed">
+          </amp-img>
+        ` : `
           <svg width="48" height="48" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
           </svg>
-        )}
+        `}
       </div>
       
-      <h1 class="app-title">{app.name}</h1>
-      <p class="app-version">Version {app.version} • {app.size}</p>
+      <h1 class="app-title">${app.name}</h1>
+      <p class="app-version">Version ${app.version} • ${app.size}</p>
       
       <!-- Rating -->
       <div class="rating">
-        {[1,2,3,4,5].map(star => (
-          <svg class={`star ${star <= Math.floor(app.rating) ? 'filled' : 'empty'}`} fill="currentColor" viewBox="0 0 20 20">
+        ${[1,2,3,4,5].map(star => `
+          <svg class="star ${star <= Math.floor(app.rating) ? 'filled' : 'empty'}" fill="currentColor" viewBox="0 0 20 20">
             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
           </svg>
-        ))}
-        <span class="rating-text">{app.rating} ({app.votes.toLocaleString()} votes)</span>
+        `).join('')}
+        <span class="rating-text">${app.rating} (${app.votes.toLocaleString()} votes)</span>
       </div>
       
       <!-- Download Button -->
-      <a href={app.download_url || '#'} class="download-btn">
+      <a href="${app.download_url || '#'}" class="download-btn">
         Download MOD APK
       </a>
     </div>
@@ -334,19 +334,19 @@ const ampUrl = `https://dexapk.com/${app.slug}/amp`;
       <div class="info-grid">
         <div class="info-item">
           <div class="info-label">Category</div>
-          <div class="info-value">{app.category}</div>
+          <div class="info-value">${app.category}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Publisher</div>
-          <div class="info-value">{app.publisher}</div>
+          <div class="info-value">${app.publisher}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Requirements</div>
-          <div class="info-value">{app.requirements}</div>
+          <div class="info-value">${app.requirements}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Last Updated</div>
-          <div class="info-value">{app.last_updated}</div>
+          <div class="info-value">${app.last_updated}</div>
         </div>
       </div>
     </div>
@@ -354,89 +354,89 @@ const ampUrl = `https://dexapk.com/${app.slug}/amp`;
     <!-- Description -->
     <div class="card">
       <h2 class="card-title">Description</h2>
-      <p>{app.description}</p>
+      <p>${app.description}</p>
     </div>
 
+    ${app.features && app.features.length > 0 ? `
     <!-- Features -->
-    {app.features && app.features.length > 0 && (
-      <div class="card">
-        <h2 class="card-title">Features</h2>
-        <ul class="feature-list">
-          {app.features.map(feature => (
-            <li class="feature-item">
-              <div class="feature-icon"></div>
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+    <div class="card">
+      <h2 class="card-title">Features</h2>
+      <ul class="feature-list">
+        ${app.features.map(feature => `
+          <li class="feature-item">
+            <div class="feature-icon"></div>
+            <span>${feature}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+    ` : ''}
 
+    ${app.mod_info && app.mod_info.length > 0 ? `
     <!-- MOD Info -->
-    {app.mod_info && app.mod_info.length > 0 && (
-      <div class="card">
-        <h2 class="card-title">MOD Features</h2>
-        <ul class="feature-list">
-          {app.mod_info.map(info => (
-            <li class="feature-item">
-              <div class="feature-icon"></div>
-              <span>{info}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+    <div class="card">
+      <h2 class="card-title">MOD Features</h2>
+      <ul class="feature-list">
+        ${app.mod_info.map(info => `
+          <li class="feature-item">
+            <div class="feature-icon"></div>
+            <span>${info}</span>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+    ` : ''}
 
+    ${app.screenshots && app.screenshots.length > 0 ? `
     <!-- Screenshots -->
-    {app.screenshots && app.screenshots.length > 0 && (
-      <div class="card">
-        <h2 class="card-title">Screenshots</h2>
-        <div class="screenshots">
-          <amp-carousel width="400" height="300" layout="responsive" type="slides">
-            {app.screenshots.map((screenshot, index) => (
-              <amp-img 
-                src={screenshot} 
-                alt={`${app.name} screenshot ${index + 1}`}
-                width="400" 
-                height="300"
-                layout="responsive"
-              ></amp-img>
-            ))}
-          </amp-carousel>
-        </div>
+    <div class="card">
+      <h2 class="card-title">Screenshots</h2>
+      <div class="screenshots">
+        <amp-carousel width="400" height="300" layout="responsive" type="slides">
+          ${app.screenshots.map((screenshot, index) => `
+            <amp-img 
+              src="${screenshot}" 
+              alt="${app.name} screenshot ${index + 1}"
+              width="400" 
+              height="300"
+              layout="responsive">
+            </amp-img>
+          `).join('')}
+        </amp-carousel>
       </div>
-    )}
+    </div>
+    ` : ''}
 
+    ${relatedApps.length > 0 ? `
     <!-- Related Apps -->
-    {relatedApps.length > 0 && (
-      <div class="card">
-        <h2 class="card-title">Related Apps</h2>
-        <div class="related-apps">
-          {relatedApps.map(relatedApp => (
-            <a href={`/${relatedApp.slug}/amp`} class="related-app">
-              {relatedApp.icon && (
-                <amp-img 
-                  src={relatedApp.icon} 
-                  alt={`${relatedApp.name} icon`}
-                  width="48" 
-                  height="48"
-                  layout="fixed"
-                ></amp-img>
-              )}
-              <div class="related-app-title">{relatedApp.name}</div>
-              <div class="related-app-category">{relatedApp.category}</div>
-            </a>
-          ))}
-        </div>
+    <div class="card">
+      <h2 class="card-title">Related Apps</h2>
+      <div class="related-apps">
+        ${relatedApps.map(relatedApp => `
+          <a href="/${relatedApp.slug}/amp" class="related-app">
+            ${relatedApp.icon ? `
+              <amp-img 
+                src="${relatedApp.icon}" 
+                alt="${relatedApp.name} icon"
+                width="48" 
+                height="48"
+                layout="fixed">
+              </amp-img>
+            ` : ''}
+            <div class="related-app-title">${relatedApp.name}</div>
+            <div class="related-app-category">${relatedApp.category}</div>
+          </a>
+        `).join('')}
       </div>
-    )}
+    </div>
+    ` : ''}
 
     <!-- Download Section -->
     <div class="card">
-      <h2 class="card-title">Download {app.name} MOD APK</h2>
+      <h2 class="card-title">Download ${app.name} MOD APK</h2>
       <p>Get the latest version with premium features unlocked</p>
-      <a href={app.download_url || '#'} class="download-btn">
-        Download v{app.version}
+      <a href="${app.download_url || '#'}" class="download-btn">
+        Download v${app.version}
       </a>
     </div>
 
@@ -453,9 +453,17 @@ const ampUrl = `https://dexapk.com/${app.slug}/amp`;
         <a href="/contact" class="footer-link">Contact</a>
       </p>
       <p>
-        <a href={canonicalUrl} class="footer-link">View Full Version</a>
+        <a href="${canonicalUrl}" class="footer-link">View Full Version</a>
       </p>
     </div>
   </footer>
 </body>
-</html>
+</html>`, {
+  headers: {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'public, max-age=3600'
+  }
+});
+
+return response;
+---
