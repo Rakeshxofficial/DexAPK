@@ -3,29 +3,19 @@ export const prerender = true; // Enable static generation for search functional
 
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import { getAllApps } from '../lib/supabase.js';
+// MANUAL TEST: Let's test with a hardcoded query first
+const testQuery = 'social';
+console.log('=== MANUAL SEARCH TEST ===');
+console.log('Testing with hardcoded query:', testQuery);
 
-// Get search query from URL parameters - Multiple methods for debugging
-console.log('=== SEARCH DEBUG START ===');
-console.log('Astro.request.url:', Astro.request.url);
-console.log('Astro.url:', Astro.url);
-console.log('Astro.url.search:', Astro.url.search);
-console.log('Astro.url.searchParams:', Astro.url.searchParams);
+// Get search query from URL parameters
+const searchQuery = Astro.url.searchParams.get('q')?.trim() || '';
+console.log('Actual URL query:', searchQuery);
+console.log('Using query for search:', searchQuery || testQuery);
 
-// Try multiple methods to get the query parameter
-const searchQuery1 = Astro.url.searchParams.get('q')?.trim() || '';
-const searchQuery2 = new URL(Astro.request.url).searchParams.get('q')?.trim() || '';
-const searchQuery3 = new URL(Astro.url).searchParams.get('q')?.trim() || '';
-
-console.log('Method 1 (Astro.url.searchParams):', searchQuery1);
-console.log('Method 2 (new URL(Astro.request.url)):', searchQuery2);
-console.log('Method 3 (new URL(Astro.url)):', searchQuery3);
-
-// Use the first non-empty result
-const searchQuery = searchQuery1 || searchQuery2 || searchQuery3 || '';
-console.log('Final searchQuery:', searchQuery);
-console.log('=== SEARCH DEBUG END ===');
+// Use test query if no real query (for testing)
+const finalSearchQuery = searchQuery || testQuery;
+console.log('Final search query:', finalSearchQuery);
 
 // Fetch all apps for searching
 let allApps = [];
@@ -141,19 +131,19 @@ function searchContent(query: string) {
   return { apps: matchingApps, categories: matchingCategories };
 }
 
-const searchResults = searchContent(searchQuery);
+const searchResults = searchContent(finalSearchQuery);
 const totalResults = searchResults.apps.length + searchResults.categories.length;
 
 console.log('Search page - Search results:', {
-  query: searchQuery,
+  query: finalSearchQuery,
   totalResults: totalResults,
   appsCount: searchResults.apps.length,
   categoriesCount: searchResults.categories.length
 });
 
-const title = searchQuery ? `Search results for "${searchQuery}" - DexAPK` : "Search - DexAPK";
-const description = searchQuery ? 
-  `Found ${totalResults} results for "${searchQuery}". Search MOD APKs, categories, and more on DexAPK.` :
+const title = finalSearchQuery ? `Search results for "${finalSearchQuery}" - DexAPK` : "Search - DexAPK";
+const description = finalSearchQuery ? 
+  `Found ${totalResults} results for "${finalSearchQuery}". Search MOD APKs, categories, and more on DexAPK.` :
   "Search for MOD APKs, categories, and content on DexAPK. Find your favorite modified Android applications.";
 ---
 
@@ -179,7 +169,7 @@ const description = searchQuery ?
               <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
             </svg>
             <span class="ml-2 font-medium text-gray-900 dark:text-white" aria-current="page">
-              {searchQuery ? `Search: "${searchQuery}"` : 'Search'}
+              {finalSearchQuery ? `Search: "${finalSearchQuery}"` : 'Search'}
             </span>
           </li>
         </ol>
@@ -198,11 +188,11 @@ const description = searchQuery ?
             </div>
           </div>
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
-            {searchQuery ? 'Search Results' : 'Search DexAPK'}
+            {finalSearchQuery ? 'Search Results' : 'Search DexAPK'}
           </h1>
           <p class="text-xl text-blue-100 max-w-3xl mx-auto">
-            {searchQuery ? 
-              `Found ${totalResults} results for "${searchQuery}"` :
+            {finalSearchQuery ? 
+              `Found ${totalResults} results for "${finalSearchQuery}"` :
               'Find MOD APKs, categories, and content across our entire collection'
             }
           </p>
@@ -210,7 +200,7 @@ const description = searchQuery ?
 
         <!-- Search Form -->
         <div class="max-w-2xl mx-auto">
-          <form id="search-form" method="GET" action="/search" class="relative" role="search">
+          <form method="GET" action="/search" class="relative" role="search">
             <label for="search-input" class="sr-only">Search for MOD APKs and content</label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -228,12 +218,10 @@ const description = searchQuery ?
                 aria-label="Search for MOD APKs and content"
                 autocomplete="off"
                 spellcheck="false"
-                minlength="1"
               />
               <div class="absolute inset-y-0 right-0 flex items-center pr-2">
                 <button
                   type="submit"
-                  id="search-submit-btn"
                   class="inline-flex items-center px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 min-w-[44px] min-h-[44px]"
                   aria-label="Search"
                 >
@@ -264,7 +252,7 @@ const description = searchQuery ?
                   </h2>
                   <p class="text-gray-600 dark:text-gray-400" aria-live="polite">
                     Found <span class="font-semibold">{totalResults}</span> results for 
-                    <span class="font-semibold">"{searchQuery}"</span>
+                    <span class="font-semibold">"{finalSearchQuery}"</span>
                     {totalResults > 0 && (
                       <span> - {searchResults.apps.length} apps and {searchResults.categories.length} categories</span>
                     )}
@@ -284,7 +272,7 @@ const description = searchQuery ?
             </div>
 
             <!-- Search Results Content -->
-            {searchQuery && totalResults === 0 ? (
+            {finalSearchQuery && totalResults === 0 ? (
               <!-- No Results -->
               <div class="text-center py-12" role="status" aria-live="polite">
                 <div class="text-gray-500 dark:text-gray-400">
@@ -293,7 +281,7 @@ const description = searchQuery ?
                   </svg>
                   <h3 class="text-xl font-medium mb-2">No results found</h3>
                   <p class="text-sm mb-6">
-                    We couldn't find anything matching "<span class="font-semibold">{searchQuery}</span>"
+                    We couldn't find anything matching "<span class="font-semibold">{finalSearchQuery}</span>"
                   </p>
                   <div class="space-y-2 text-sm">
                     <p class="font-medium">Try:</p>
@@ -306,7 +294,7 @@ const description = searchQuery ?
                   </div>
                 </div>
               </div>
-            ) : searchQuery && totalResults > 0 ? (
+            ) : finalSearchQuery && totalResults > 0 ? (
               <!-- Results Found -->
               <div class="space-y-8">
                 
@@ -551,71 +539,41 @@ const description = searchQuery ?
   <Footer />
 </Layout>
 
-<script define:vars={{ searchQuery, totalResults, searchResults }}>
+<script>
   document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('input[name="q"]');
     const searchForm = document.querySelector('form[action="/search"]');
-    const searchSubmitBtn = document.getElementById('search-submit-btn');
+    const searchInput = document.getElementById('search-input');
     
-    // Debug information
-    console.log('Search page client-side loaded');
-    console.log('Search query from server:', searchQuery);
-    console.log('Total results from server:', totalResults);
-    console.log('Search results from server:', searchResults);
+    console.log('=== CLIENT-SIDE DEBUG ===');
+    console.log('Form found:', !!searchForm);
+    console.log('Input found:', !!searchInput);
     console.log('Current URL:', window.location.href);
-    console.log('URL search params:', window.location.search);
+    console.log('Current search params:', window.location.search);
     
-    // Test form submission manually
-    if (searchForm && searchInput && searchSubmitBtn) {
+    if (searchForm && searchInput) {
       searchForm.addEventListener('submit', function(e) {
+        console.log('=== FORM SUBMISSION DEBUG ===');
         const query = searchInput.value.trim();
-        console.log('Form submission triggered with query:', query);
+        console.log('Query value:', query);
+        console.log('Form method:', this.method);
+        console.log('Form action:', this.action);
         
         if (!query) {
           e.preventDefault();
-          console.log('Empty query prevented submission');
+          console.log('Prevented empty submission');
           searchInput.focus();
-          return false;
+          return;
         }
         
-        // Let the form submit naturally
-        console.log('Form submitting to:', `/search?q=${encodeURIComponent(query)}`);
-        console.log('Form method:', searchForm.method);
-        console.log('Form action:', searchForm.action);
-      });
-      
-      // Also handle direct button click
-      searchSubmitBtn.addEventListener('click', function(e) {
-        const query = searchInput.value.trim();
-        console.log('Search button clicked with query:', query);
-        
-        if (!query) {
-          e.preventDefault();
-          searchInput.focus();
-        }
+        console.log('Allowing form submission with query:', query);
+        console.log('Target URL will be:', `${this.action}?q=${encodeURIComponent(query)}`);
       });
     }
     
-    // Focus search input on page load if no query
-    if (!searchQuery && searchInput) {
+    // Focus search input on page load
+    if (searchInput) {
       searchInput.focus();
     }
-    
-    // Let the form submit naturally - don't interfere with JavaScript
-    
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-      // Focus search with Ctrl/Cmd + K
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        searchInput?.focus();
-      }
-      
-      // Clear search with Escape
-      if (e.key === 'Escape' && document.activeElement === searchInput) {
-        searchInput.value = '';
-      }
-    });
   });
 </script>
 
