@@ -562,21 +562,6 @@ const response = new Response(`<!doctype html>
       ${markdownToAmpHtml(articleContent)}
     </div>
 
-    ${app.mod_info && app.mod_info.length > 0 ? `
-    <!-- MOD Info -->
-    <div class="card">
-      <h2 class="card-title">MOD Features</h2>
-      <ul class="feature-list">
-        ${app.mod_info.map(info => `
-          <li class="feature-item">
-            <div class="feature-icon"></div>
-            <span>${info}</span>
-          </li>
-        `).join('')}
-      </ul>
-    </div>
-    ` : ''}
-
     ${app.screenshots && app.screenshots.length > 0 ? `
     <!-- Screenshots -->
     <div class="card">
