@@ -1,7 +1,7 @@
 ---
 export const prerender = true; // Enable prerendering for static generation
 
-import { getAllApps, getAppBySlug, getRelatedApps } from '../../lib/supabase.js';
+import { getAllApps, getAppBySlug, getRelatedApps } from '../../../lib/supabase.js';
 
 export async function getStaticPaths() {
   try {
@@ -134,7 +134,10 @@ function markdownToHtml(markdown) {
       
       html += `<li class="list-item">${formatInlineMarkdown(text)}</li>`;
       continue;
-    } else if (inList) {
+    }
+    
+    // Close list if we're in one and current line doesn't match list pattern
+    if (inList && !listMatch) {
       inList = false;
       html += `</${listType}>`;
     }
@@ -155,14 +158,16 @@ function markdownToHtml(markdown) {
         if (!inTable && nextLine && nextLine.includes('|') && nextLine.includes('---')) {
           // Table header
           inTable = true;
-          html += '<div class="overflow-x-auto my-6"><table class="table-style"><thead><tr>';
+          html += '<div class="table-container"><table class="table-style"><thead><tr>';
           cells.forEach(cell => {
             html += `<th class="table-header">${formatInlineMarkdown(cell)}</th>`;
           });
           html += '</tr></thead><tbody>';
           i++; // Skip separator line
           continue;
-        } else if (inTable) {
+        }
+        
+        if (inTable) {
           // Table row
           html += '<tr>';
           cells.forEach(cell => {
@@ -174,6 +179,7 @@ function markdownToHtml(markdown) {
       }
     }
     
+    // Close table if we're in one and current line doesn't contain |
     if (inTable && !line.includes('|')) {
       html += '</tbody></table></div>';
       inTable = false;
@@ -613,6 +619,44 @@ const htmlContent = markdownToHtml(articleContent);
       margin: 2rem 0;
     }
 
+    /* Table Styles */
+    .table-container {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+    }
+
+    .table-style {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    .table-header {
+      background: #f9fafb;
+      padding: 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #374151;
+      border-bottom: 2px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    .table-cell {
+      padding: 0.75rem;
+      border-bottom: 1px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+      color: #1f2937;
+      font-size: 0.875rem;
+    }
+
+    .table-header:last-child,
+    .table-cell:last-child {
+      border-right: none;
+    }
+
     /* Footer Styles */
     .footer {
       background: #1f2937;
@@ -985,79 +1029,6 @@ const htmlContent = markdownToHtml(articleContent);
     .article-content del {
       text-decoration: line-through;
       color: #6b7280;
-    }
-
-    /* Table styles */
-    .table-style {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1.5rem 0;
-      border: 1px solid #e5e7eb;
-    }
-
-    .table-header {
-      background: #f9fafb;
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: #374151;
-      border-bottom: 2px solid #e5e7eb;
-      border-right: 1px solid #e5e7eb;
-    }
-
-    .table-cell {
-      padding: 12px;
-      border-bottom: 1px solid #e5e7eb;
-      border-right: 1px solid #e5e7eb;
-      color: #1f2937;
-      font-size: 0.875rem;
-    }
-
-    .table-header:last-child,
-    .table-cell:last-child {
-      border-right: none;
-    }
-
-    .article-content h1 {
-      font-size: 1.875rem;
-      font-weight: bold;
-      margin: 2rem 0 1rem;
-      color: #1f2937;
-    }
-
-    .article-content h2 {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin: 1.5rem 0 1rem;
-      color: #1f2937;
-    }
-
-    .article-content h3 {
-      font-size: 1.25rem;
-      font-weight: bold;
-      margin: 1rem 0 0.5rem;
-      color: #1f2937;
-    }
-
-    .article-content p {
-      margin-bottom: 1rem;
-      color: #4b5563;
-    }
-
-    .article-content ul {
-      margin: 1rem 0;
-      padding-left: 1.5rem;
-    }
-
-    .article-content li {
-      margin-bottom: 0.5rem;
-      color: #4b5563;
-    }
-
-    .article-content strong {
-      font-weight: 600;
-      color: #1f2937;
     }
 
     /* Category Links */
